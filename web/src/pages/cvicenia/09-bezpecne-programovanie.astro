@@ -1,0 +1,433 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercise = getExerciseBySlug("09-bezpecne-programovanie");
+if (!exercise) throw new Error("Cvičenie 09 nie je zaregistrované.");
+
+const titleEn = exercise.translations?.en?.title ?? exercise.title;
+const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+const descriptionEn = exercise.translations?.en?.description ?? exercise.description;
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${titleEn}: ${subtitleEn}`}
+  description={exercise.description}
+  descriptionEn={descriptionEn}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={titleEn} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></p>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <div data-lang="sk">
+        <p>
+          Toto cvičenie je obranné. Dostanete malý problematický Python projekt a postupne opravíte chyby, ktoré by v reálnej
+          aplikácii predstavovali bezpečnostné alebo prevádzkové riziko.
+        </p>
+        <pre class="expected-output"><code>{`Starter súbory: ${exercise.starterPath}
+Hlavné moduly: app.py, database.py, commands.py, files.py, tokens.py
+Výstup: opravený projekt + krátky security checklist`}</code></pre>
+        <p>
+          Starter súbory sú dostupné aj ako <a href="/downloads/exercise-09-starter.zip">ZIP archív</a>.
+        </p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>
+          This exercise is defensive. You will receive a small problematic Python project and gradually fix issues that would be
+          security or operational risks in a real application.
+        </p>
+        <pre class="expected-output"><code>{`Starter files: ${exercise.starterPath}
+Main modules: app.py, database.py, commands.py, files.py, tokens.py
+Output: fixed project + short security checklist`}</code></pre>
+        <p>
+          Starter files are also available as a <a href="/downloads/exercise-09-starter.zip">ZIP archive</a>.
+        </p>
+      </div>
+      <pre class="worksheet-code"><code>{`python -m pip install bandit`}</code></pre>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul data-lang="sk">
+        <li>nájsť a opraviť bežné bezpečnostné chyby v Python kóde;</li>
+        <li>použiť bezpečnejšie postupy pri SQL, subprocess, secrets, súboroch a serializácii;</li>
+        <li>rozlišovať medzi vstupnou validáciou, chybovým správaním a skutočnou bezpečnosťou;</li>
+        <li>použiť Bandit ako pomocný nástroj, nie ako náhradu vlastného review.</li>
+      </ul>
+      <ul data-lang="en" hidden>
+        <li>find and fix common security issues in Python code;</li>
+        <li>use safer patterns for SQL, subprocess, secrets, files and serialization;</li>
+        <li>distinguish input validation, error behavior and actual security;</li>
+        <li>use Bandit as a supporting tool, not as a replacement for your own review.</li>
+      </ul>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 1 — Baseline a risk inventory" en="Task 1 — Baseline and Risk Inventory" /></h2>
+      <div data-lang="sk">
+        <p>Najprv projekt nespúšťajte slepo nad reálnymi dátami. Prejdite si súbory a vytvorte krátky zoznam rizík.</p>
+        <p>Skontrolujte:</p>
+        <ul>
+          <li><code>app.py</code>: broad exception handling a vypisovanie citlivých údajov;</li>
+          <li><code>database.py</code>: skladanie SQL cez f-string;</li>
+          <li><code>commands.py</code>: <code>shell=True</code> s používateľským inputom;</li>
+          <li><code>files.py</code>: práca s cestami bez kontroly base adresára;</li>
+          <li><code>tokens.py</code>: hardcoded secret, slabý token, <code>pickle.loads()</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Do not run the project blindly on real data first. Review the files and create a short risk inventory.</p>
+        <p>Check:</p>
+        <ul>
+          <li><code>app.py</code>: broad exception handling and printing sensitive data;</li>
+          <li><code>database.py</code>: SQL built with f-strings;</li>
+          <li><code>commands.py</code>: <code>shell=True</code> with user input;</li>
+          <li><code>files.py</code>: path handling without checking a base directory;</li>
+          <li><code>tokens.py</code>: hardcoded secret, weak token, <code>pickle.loads()</code>.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Risk inventory
+- database.py: SQL query is built from user input
+- commands.py: shell=True receives user-controlled host
+- tokens.py: secret is stored in source code
+...`}</code></pre>
+      <p data-lang="sk">Ku každému problému napíšte jednou vetou, aký typ opravy plánujete. Nepotrebujete vytvárať útočné payloady.</p>
+      <p data-lang="en" hidden>For each issue, write one sentence describing the type of fix you plan. You do not need to create attack payloads.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 2 — Lokálna databáza a parametrizované SQL" en="Task 2 — Local Database and Parameterized SQL" /></h2>
+      <div data-lang="sk">
+        <p>Pripravte si malú lokálnu SQLite databázu, aby bolo možné funkcie z <code>database.py</code> overiť.</p>
+        <p>Vytvorte napríklad <code>init_db.py</code>, ktorý založí tabuľku <code>users</code> a vloží 2-3 používateľov.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Prepare a small local SQLite database so functions from <code>database.py</code> can be verified.</p>
+        <p>Create for example <code>init_db.py</code>, which creates the <code>users</code> table and inserts 2-3 users.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE
+);`}</code></pre>
+      <p data-lang="sk">Potom opravte <code>find_user()</code> a <code>create_user()</code> tak, aby používali parametrizované dotazy.</p>
+      <p data-lang="en" hidden>Then fix <code>find_user()</code> and <code>create_user()</code> so they use parameterized queries.</p>
+      <pre class="worksheet-code"><code>{`cursor.execute(
+    "SELECT id, name, email FROM users WHERE name = ?",
+    (name,),
+)`}</code></pre>
+      <pre class="expected-output"><code>{`find_user("Anna") -> (1, "Anna", "anna@example.com")
+create_user("Eva", "eva@example.com") -> OK`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Validácia vstupu v databázových funkciách" en="Task 3 — Input Validation in Database Functions" /></h2>
+      <div data-lang="sk">
+        <p>Pridajte jednoduchú validáciu vstupu pred zápisom do databázy.</p>
+        <p>Požiadavky:</p>
+        <ul>
+          <li>meno nesmie byť prázdne po <code>strip()</code>;</li>
+          <li>email musí obsahovať <code>@</code> a nesmie obsahovať whitespace;</li>
+          <li>duplicitný email má skončiť zrozumiteľnou výnimkou alebo chybovým výsledkom;</li>
+          <li>funkcie nemajú potichu ignorovať <code>sqlite3.IntegrityError</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Add simple input validation before writing to the database.</p>
+        <p>Requirements:</p>
+        <ul>
+          <li>name must not be empty after <code>strip()</code>;</li>
+          <li>email must contain <code>@</code> and must not contain whitespace;</li>
+          <li>duplicate email should end with a readable exception or error result;</li>
+          <li>functions must not silently ignore <code>sqlite3.IntegrityError</code>.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`create_user("", "empty@example.com") -> rejected
+create_user("Eva", "not an email") -> rejected
+create_user("Eva 2", "eva@example.com") -> duplicate email`}</code></pre>
+      <p data-lang="sk">Validácia nie je náhrada parametrizovaného SQL. Potrebujete oboje.</p>
+      <p data-lang="en" hidden>Validation is not a replacement for parameterized SQL. You need both.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Bezpečnejší subprocess" en="Task 4 — Safer subprocess" /></h2>
+      <div data-lang="sk">
+        <p>Opravte <code>commands.py</code>. Odstráňte <code>shell=True</code> a posielajte argumenty ako zoznam.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Fix <code>commands.py</code>. Remove <code>shell=True</code> and pass arguments as a list.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`import ipaddress
+import subprocess
+
+def ping_host(host: str) -> int:
+    ipaddress.ip_address(host)
+    result = subprocess.run(["ping", host], check=False)
+    return result.returncode`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky:</p>
+        <ul>
+          <li>povoľte iba validnú IPv4 alebo IPv6 adresu;</li>
+          <li>pri nevalidnom vstupe vyhoďte <code>ValueError</code>;</li>
+          <li>nepoužívajte <code>shell=True</code>;</li>
+          <li>vráťte <code>returncode</code>.</li>
+        </ul>
+        <p>Poznámka: konkrétne argumenty príkazu <code>ping</code> sa môžu líšiť podľa operačného systému. Pointa úlohy je bezpečné odovzdanie argumentov.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Requirements:</p>
+        <ul>
+          <li>allow only a valid IPv4 or IPv6 address;</li>
+          <li>raise <code>ValueError</code> for invalid input;</li>
+          <li>do not use <code>shell=True</code>;</li>
+          <li>return <code>returncode</code>.</li>
+        </ul>
+        <p>Note: exact arguments of the <code>ping</code> command may differ by operating system. The point of this task is safe argument passing.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — Secrets a konfigurácia" en="Task 5 — Secrets and Configuration" /></h2>
+      <div data-lang="sk">
+        <p>Odstráňte hardcoded <code>API_KEY</code> zo <code>tokens.py</code>. Hodnotu načítajte z environment variable.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Remove the hardcoded <code>API_KEY</code> from <code>tokens.py</code>. Load the value from an environment variable.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`import os
+
+def get_api_key() -> str:
+    api_key = os.getenv("API_KEY")
+    if not api_key:
+        raise RuntimeError("API_KEY is not configured")
+    return api_key`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky:</p>
+        <ul>
+          <li>nevypisujte API key v <code>app.py</code>;</li>
+          <li>vytvorte <code>.env.example</code> s názvom premennej, ale bez reálnej hodnoty;</li>
+          <li>skontrolujte, že <code>.env</code> je v <code>.gitignore</code>;</li>
+          <li>ak konfigurácia chýba, chyba má byť zrozumiteľná.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Requirements:</p>
+        <ul>
+          <li>do not print the API key in <code>app.py</code>;</li>
+          <li>create <code>.env.example</code> with the variable name, but without a real value;</li>
+          <li>check that <code>.env</code> is in <code>.gitignore</code>;</li>
+          <li>if configuration is missing, the error should be readable.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`API_KEY is not configured
+Create local .env or set environment variable API_KEY.`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — Reset token cez secrets" en="Task 6 — Reset Token with secrets" /></h2>
+      <div data-lang="sk">
+        <p>Nahraďte token generovaný cez <code>random.randint()</code> bezpečnejším tokenom zo štandardného modulu <code>secrets</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Replace the token generated with <code>random.randint()</code> by a safer token from the standard <code>secrets</code> module.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`import secrets
+
+def generate_reset_token() -> str:
+    return secrets.token_urlsafe(32)`}</code></pre>
+      <div data-lang="sk">
+        <p>Overte:</p>
+        <ul>
+          <li>token nie je iba šesťmiestne číslo;</li>
+          <li>dva po sebe vygenerované tokeny sa bežne nerovnajú;</li>
+          <li>funkcia nemá závisieť od času ani od ručne nastaveného seedu.</li>
+        </ul>
+        <p>Nevytvárajte vlastný kryptografický algoritmus.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Verify that:</p>
+        <ul>
+          <li>the token is not just a six-digit number;</li>
+          <li>two tokens generated in a row are normally different;</li>
+          <li>the function does not depend on time or a manually set seed.</li>
+        </ul>
+        <p>Do not create your own cryptographic algorithm.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Path traversal ochrana" en="Task 7 — Path Traversal Protection" /></h2>
+      <div data-lang="sk">
+        <p>Opravte <code>load_file()</code> a <code>save_file()</code> tak, aby používateľ nemohol čítať alebo zapisovať mimo adresára <code>uploads/</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Fix <code>load_file()</code> and <code>save_file()</code> so the user cannot read or write outside the <code>uploads/</code> directory.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`from pathlib import Path
+
+BASE_DIR = Path("uploads").resolve()
+target = (BASE_DIR / filename).resolve()`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky:</p>
+        <ul>
+          <li>base adresár vyriešte ako absolútnu cestu;</li>
+          <li>po spojení s používateľským filename opäť zavolajte <code>resolve()</code>;</li>
+          <li>overte, že výsledná cesta zostáva v <code>BASE_DIR</code>;</li>
+          <li>pri pokuse o cestu mimo adresára vyhoďte <code>ValueError</code>;</li>
+          <li>pri ukladaní vytvorte <code>uploads/</code>, ak ešte neexistuje.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Requirements:</p>
+        <ul>
+          <li>resolve the base directory as an absolute path;</li>
+          <li>after combining it with user-provided filename, call <code>resolve()</code> again;</li>
+          <li>verify that the resulting path remains inside <code>BASE_DIR</code>;</li>
+          <li>raise <code>ValueError</code> for a path outside the directory;</li>
+          <li>when saving, create <code>uploads/</code> if it does not exist yet.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`load_file("notes.txt") -> OK
+load_file("../secret.txt") -> rejected
+save_file("../../outside.txt", "...") -> rejected`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — Bezpečnejšia serializácia" en="Task 8 — Safer Serialization" /></h2>
+      <div data-lang="sk">
+        <p>V <code>tokens.py</code> nahraďte <code>pickle.loads()</code> nad nedôveryhodnými dátami jednoduchým JSON spracovaním.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>In <code>tokens.py</code>, replace <code>pickle.loads()</code> on untrusted data with simple JSON processing.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`import json
+
+def load_preferences(data: str) -> dict:
+    value = json.loads(data)
+    if not isinstance(value, dict):
+        raise ValueError("Preferences must be a JSON object")
+    return value`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky:</p>
+        <ul>
+          <li>vstup nech je textový JSON, nie bytes pre pickle;</li>
+          <li>overte, že výsledok je <code>dict</code>;</li>
+          <li>povoľte iba očakávané kľúče, napríklad <code>theme</code> a <code>language</code>;</li>
+          <li>pri nevalidnom JSON vráťte zrozumiteľnú chybu.</li>
+        </ul>
+        <p>Pointa nie je, že JSON je magicky bezpečný pre všetko. Pointa je nepúšťať nedôveryhodné dáta do mechanizmu, ktorý môže konštruovať Python objekty.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Requirements:</p>
+        <ul>
+          <li>input should be textual JSON, not bytes for pickle;</li>
+          <li>verify that the result is a <code>dict</code>;</li>
+          <li>allow only expected keys, for example <code>theme</code> and <code>language</code>;</li>
+          <li>return a readable error for invalid JSON.</li>
+        </ul>
+        <p>The point is not that JSON is magically safe for everything. The point is not to feed untrusted data into a mechanism that can construct Python objects.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — Error handling a logging" en="Task 9 — Error Handling and Logging" /></h2>
+      <div data-lang="sk">
+        <p>Opravte <code>app.py</code>, aby nepoužíval prázdne <code>except:</code>.</p>
+        <p>Požiadavky:</p>
+        <ul>
+          <li>zachytávajte konkrétne výnimky tam, kde viete zmysluplne reagovať;</li>
+          <li>chyby zapisujte cez <code>logging</code>;</li>
+          <li>používateľovi vypíšte stručnú zrozumiteľnú správu;</li>
+          <li>citlivé hodnoty, napríklad API key, nevypisujte do konzoly;</li>
+          <li>program nemá predstierať úspech, keď zlyhala kritická operácia.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Fix <code>app.py</code> so it does not use empty <code>except:</code> blocks.</p>
+        <p>Requirements:</p>
+        <ul>
+          <li>catch concrete exceptions where you can respond meaningfully;</li>
+          <li>write errors through <code>logging</code>;</li>
+          <li>print a short readable message for the user;</li>
+          <li>do not print sensitive values, such as API keys, to the console;</li>
+          <li>the program should not pretend success when a critical operation failed.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)`}</code></pre>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`ERROR: API_KEY is not configured
+Program skončil: skontrolujte konfiguráciu.`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`ERROR: API_KEY is not configured
+Program stopped: check the configuration.`}</code></pre>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 10 — Bandit a finálny security checklist" en="Task 10 — Bandit and Final Security Checklist" /></h2>
+      <div data-lang="sk">
+        <p>Spustite Bandit nad upraveným projektom.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Run Bandit on the modified project.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python -m bandit -r .`}</code></pre>
+      <div data-lang="sk">
+        <p>Potom pripravte krátky checklist, ktorý uvediete v README alebo v samostatnom <code>security_notes.md</code>.</p>
+        <p>Checklist má obsahovať:</p>
+        <ul>
+          <li>aké problémy ste našli;</li>
+          <li>čo ste opravili;</li>
+          <li>ktoré riziká zostali a prečo;</li>
+          <li>ako ste overili SQL dotazy;</li>
+          <li>ako ste overili file path ochranu;</li>
+          <li>aké Bandit nálezy ostali relevantné alebo nerelevantné.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Then prepare a short checklist to include in README or a separate <code>security_notes.md</code>.</p>
+        <p>The checklist should include:</p>
+        <ul>
+          <li>what issues you found;</li>
+          <li>what you fixed;</li>
+          <li>which risks remain and why;</li>
+          <li>how you verified SQL queries;</li>
+          <li>how you verified file path protection;</li>
+          <li>which Bandit findings remained relevant or irrelevant.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Security checklist
+- SQL interpolation removed
+- subprocess shell=True removed
+- API key moved to environment
+- path traversal rejected
+- pickle replaced by JSON validation
+- broad except removed`}</code></pre>
+      <p data-lang="sk">Bandit report nie je automaticky riešenie. Dôležité je, či rozumiete nálezom a viete vysvetliť svoje opravy.</p>
+      <p data-lang="en" hidden>A Bandit report is not automatically a solution. What matters is whether you understand the findings and can explain your fixes.</p>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>
+        <li><a href="https://docs.python.org/3/library/sqlite3.html" target="_blank" rel="noreferrer">sqlite3 documentation</a></li>
+        <li><a href="https://docs.python.org/3/library/subprocess.html" target="_blank" rel="noreferrer">subprocess documentation</a></li>
+        <li><a href="https://docs.python.org/3/library/secrets.html" target="_blank" rel="noreferrer">secrets documentation</a></li>
+        <li><a href="https://bandit.readthedocs.io/" target="_blank" rel="noreferrer">Bandit documentation</a></li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

@@ -1,0 +1,59 @@
+---
+import { courseConfig } from "@shared/course.config";
+import { translate, uiTranslations } from "@shared/i18n";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+
+const pathname = Astro.url.pathname;
+
+const activeAliases: Record<string, string[]> = {
+  "/projekt/": ["/zadania/"],
+  "/cheatsheet/": ["/tahak/"]
+};
+
+const navigationKeys: Record<string, string> = {
+  "/": "nav.home",
+  "/prednasky/": "nav.lectures",
+  "/cvicenia/": "nav.exercises",
+  "/projekt/": "nav.project",
+  "/navody/": "nav.guides",
+  "/cheatsheet/": "nav.cheatsheet"
+};
+
+function normalizePath(value: string) {
+  if (value === "/") return value;
+  return value.endsWith("/") ? value : `${value}/`;
+}
+
+function isCurrent(href: string) {
+  const normalizedHref = normalizePath(href);
+  const normalizedPath = normalizePath(pathname);
+
+  if (normalizedHref === "/") return normalizedPath === "/";
+  if (normalizedPath.startsWith(normalizedHref)) return true;
+
+  return (activeAliases[normalizedHref] ?? []).some((alias) => normalizedPath.startsWith(alias));
+}
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="/">
+      <span data-i18n-key="course.title">{translate(uiTranslations, "course.title", "sk")}</span>
+    </a>
+    <div class="site-header__tools">
+      <nav class="top-nav" aria-label="Hlavná navigácia" data-i18n-aria-label="nav.aria">
+        {
+          courseConfig.navigation.map((item) => {
+            const key = navigationKeys[item.href];
+            return (
+              <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined} data-i18n-key={key}>
+                {key ? translate(uiTranslations, key, "sk") : item.label}
+              </a>
+            );
+          })
+        }
+      </nav>
+      <LanguageSwitcher />
+    </div>
+  </div>
+</header>

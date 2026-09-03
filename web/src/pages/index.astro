@@ -1,0 +1,314 @@
+---
+import { courseConfig } from "@shared/course.config";
+import {
+  academicResourceTranslations,
+  formatLocalizedDay,
+  formatLocalizedTime,
+  localizedCourse,
+  translate,
+  type I18nDictionary,
+  weekTitleTranslations
+} from "@shared/i18n";
+import { formatLectureDate, getScheduledWeeks, isWeekReleased } from "@shared/publication";
+import { lectures } from "@shared/lectures";
+import { weeks } from "@shared/weeks";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const scheduledWeeks = getScheduledWeeks(weeks);
+const localizedSchedule = scheduledWeeks.map((week) => ({
+  number: week.number,
+  titles: weekTitleTranslations[week.number] ?? { sk: week.title, en: week.title },
+  lectureAt: week.lectureAt
+}));
+const firstScheduledWeek = localizedSchedule[0];
+const firstLectureDay = formatLocalizedDay(firstScheduledWeek?.lectureAt, "sk", courseConfig.timezone);
+const firstLectureTime = formatLocalizedTime(firstScheduledWeek?.lectureAt, "sk", courseConfig.timezone);
+
+const homeTranslations = {
+  "home.lead": {
+    sk: "Python je univerzálny programovací jazyk používaný pri vývoji aplikácií, automatizácii, spracovaní dát, komunikácii s webovými službami a v ďalších oblastiach informatiky. Predmet je zameraný na praktické využitie Pythonu a jeho ekosystému pri riešení rôznych typov programátorských problémov.",
+    en: "Python is a general-purpose programming language used for application development, automation, data processing, communication with web services and many other areas of computing. The course focuses on practical use of Python and its ecosystem for solving different kinds of programming problems."
+  },
+  "home.nextAria": { sk: "Najbližšia prednáška", en: "Next lecture" },
+  "home.nextLabel": { sk: "Najbližšie", en: "Next" },
+  "home.noNext": { sk: "Ďalší termín bude doplnený.", en: "The next date will be added later." },
+  "home.countdownLoading": { sk: "Odpočet sa načítava.", en: "Loading countdown." },
+  "home.semesterKicker": { sk: "Semester", en: "Semester" },
+  "home.semesterTitle": { sk: "Program semestra", en: "Semester Plan" },
+  "home.infoAria": { sk: "Organizačné informácie a zdroje", en: "Organizational information and resources" },
+  "home.infoKicker": { sk: "Informácie", en: "Information" },
+  "home.lectures": { sk: "Prednášky", en: "Lectures" },
+  "home.exercises": { sk: "Cvičenia", en: "Exercises" },
+  "home.online": { sk: "online", en: "online" },
+  "home.connection": { sk: "Pripojenie", en: "Connection" },
+  "home.connectionInfo": { sk: "informácie budú doplnené", en: "details will be added later" },
+  "home.lecturer": { sk: "Vyučujúci", en: "Lecturer" },
+  "home.contact": { sk: "Kontakt", en: "Contact" },
+  "home.resourcesKicker": { sk: "Doplňujúce zdroje", en: "Additional Resources" },
+  ...Object.fromEntries(
+    Object.entries(weekTitleTranslations).map(([number, value]) => [`week.${number}.title`, value])
+  ),
+  ...Object.fromEntries(
+    Object.entries(academicResourceTranslations).map(([title, value]) => [`resource.${title}.description`, value])
+  )
+} satisfies I18nDictionary;
+---
+
+<BaseLayout i18n={homeTranslations}>
+  <main class="home-page">
+    <section class="home-opening" aria-labelledby="home-title">
+      <div class="home-opening__text">
+        <h1 id="home-title" data-i18n-key="course.title">{localizedCourse.title.sk}</h1>
+        <p class="home-lead" data-i18n-key="home.lead">
+          {translate(homeTranslations, "home.lead", "sk")}
+        </p>
+      </div>
+
+      <aside
+        class="next-lecture"
+        data-next-lecture
+        data-schedule={JSON.stringify(localizedSchedule)}
+        data-timezone={courseConfig.timezone}
+        aria-label={translate(homeTranslations, "home.nextAria", "sk")}
+        data-i18n-aria-label="home.nextAria"
+      >
+        <p class="next-lecture__label" data-i18n-key="home.nextLabel">Najbližšie</p>
+        <div class="next-lecture__date-row">
+          <p class="next-lecture__day" data-next-day>{firstLectureDay}</p>
+          <p class="next-lecture__time" data-next-time>{firstLectureTime}</p>
+        </div>
+        <div class="next-lecture__topic">
+          <p class="next-lecture__number" data-next-number>
+            {firstScheduledWeek ? String(firstScheduledWeek.number).padStart(2, "0") : ""}
+          </p>
+          <p class="next-lecture__title" data-next-title>
+            {firstScheduledWeek?.titles.sk ?? translate(homeTranslations, "home.noNext", "sk")}
+          </p>
+        </div>
+        <p class="countdown-value" data-countdown data-i18n-key="home.countdownLoading">Odpočet sa načítava.</p>
+        <p class="next-lecture__empty" data-no-next data-i18n-key="home.noNext" hidden>Ďalší termín bude doplnený.</p>
+      </aside>
+    </section>
+
+    <section class="semester-band" aria-labelledby="semester-title">
+      <div class="semester-layout">
+        <div class="semester-heading">
+          <p class="section-kicker" data-i18n-key="home.semesterKicker">Semester</p>
+          <h2 id="semester-title" data-i18n-key="home.semesterTitle">Program semestra</h2>
+        </div>
+
+        <ol class="semester-index">
+          {
+            weeks.map((week) => {
+              const lecture = lectures.find((item) => item.weekNumber === week.number);
+              const released = isWeekReleased(week.number);
+              const dateLabel = formatLectureDate(week.lectureAt, "sk");
+              const isCurrent = week.number === courseConfig.currentWeek;
+              const titleKey = `week.${week.number}.title`;
+
+              return (
+                <li class:list={["semester-item", { "is-current": isCurrent, "is-unreleased": !released }]}>
+                  <span class="semester-item__number">{String(week.number).padStart(2, "0")}</span>
+                  <span class="semester-item__body">
+                    {lecture && released ? (
+                      <a href={`/prednasky/${lecture.slug}/`} data-i18n-key={titleKey}>{week.title}</a>
+                    ) : (
+                      <strong data-i18n-key={titleKey}>{week.title}</strong>
+                    )}
+                    {dateLabel && <small data-localized-date={week.lectureAt}>{dateLabel}</small>}
+                    {!released && <small class="availability" data-i18n-key="ui.unavailable">zatiaľ nedostupné</small>}
+                  </span>
+                </li>
+              );
+            })
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="home-bottom" aria-label={translate(homeTranslations, "home.infoAria", "sk")} data-i18n-aria-label="home.infoAria">
+      <div class="home-bottom__info">
+        <p class="section-kicker" data-i18n-key="home.infoKicker">Informácie</p>
+        <dl class="home-facts">
+          <div>
+            <dt data-i18n-key="home.lectures">Prednášky</dt>
+            <dd data-i18n-key="home.online">online</dd>
+          </div>
+          <div>
+            <dt data-i18n-key="home.exercises">Cvičenia</dt>
+            <dd data-i18n-key="home.online">online</dd>
+          </div>
+          <div>
+            <dt data-i18n-key="home.connection">Pripojenie</dt>
+            <dd data-i18n-key="home.connectionInfo">informácie budú doplnené</dd>
+          </div>
+          <div>
+            <dt data-i18n-key="home.lecturer">Vyučujúci</dt>
+            <dd>{courseConfig.lecturer.name}</dd>
+          </div>
+          <div>
+            <dt data-i18n-key="home.contact">Kontakt</dt>
+            <dd><a href={`mailto:${courseConfig.lecturer.email}`}>{courseConfig.lecturer.email}</a></dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="home-bottom__resources">
+        <p class="section-kicker" data-i18n-key="home.resourcesKicker">Doplňujúce zdroje</p>
+        <ul class="academic-links">
+          {
+            courseConfig.academicResources.map((resource) => (
+              <li>
+                <span class="academic-links__university">{resource.university}</span>
+                <span class="academic-links__course">
+                  <a href={resource.href} target="_blank" rel="noreferrer">{resource.title}</a>
+                  <small data-i18n-key={`resource.${resource.title}.description`}>{resource.description}</small>
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    type Language = "sk" | "en";
+    type ScheduledWeek = {
+      number: number;
+      titles: Record<Language, string>;
+      lectureAt: string;
+    };
+    type I18nApi = {
+      language: Language;
+      t: (key: string) => string;
+    };
+
+    const root = document.querySelector<HTMLElement>("[data-next-lecture]");
+    const number = root?.querySelector<HTMLElement>("[data-next-number]");
+    const title = root?.querySelector<HTMLElement>("[data-next-title]");
+    const day = root?.querySelector<HTMLElement>("[data-next-day]");
+    const time = root?.querySelector<HTMLElement>("[data-next-time]");
+    const countdown = root?.querySelector<HTMLElement>("[data-countdown]");
+    const empty = root?.querySelector<HTMLElement>("[data-no-next]");
+    const timezone = root?.getAttribute("data-timezone") ?? "Europe/Bratislava";
+    const schedule = JSON.parse(root?.getAttribute("data-schedule") ?? "[]") as ScheduledWeek[];
+
+    function i18n() {
+      return (window as Window & { pythonCourseI18n?: I18nApi }).pythonCourseI18n;
+    }
+
+    function currentLanguage(): Language {
+      return i18n()?.language ?? (document.documentElement.lang === "en" ? "en" : "sk");
+    }
+
+    function locale() {
+      return currentLanguage() === "en" ? "en-GB" : "sk-SK";
+    }
+
+    function formatDay(value: Date) {
+      return new Intl.DateTimeFormat(locale(), {
+        timeZone: timezone,
+        day: "numeric",
+        month: currentLanguage() === "en" ? "short" : "numeric",
+        year: "numeric"
+      }).format(value);
+    }
+
+    function formatTime(value: Date) {
+      return new Intl.DateTimeFormat(locale(), {
+        timeZone: timezone,
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+      }).format(value);
+    }
+
+    function updateStaticDates() {
+      document.querySelectorAll<HTMLElement>("[data-localized-date]").forEach((element) => {
+        const value = element.dataset.localizedDate;
+        if (!value) return;
+        const date = new Date(value);
+        if (!Number.isFinite(date.getTime())) return;
+        element.textContent = `${formatDay(date)} · ${formatTime(date)}`;
+      });
+    }
+
+    function findNextLecture() {
+      const now = Date.now();
+      return schedule
+        .map((item) => ({ ...item, date: new Date(item.lectureAt) }))
+        .filter((item) => Number.isFinite(item.date.getTime()) && item.date.getTime() > now)
+        .sort((a, b) => a.date.getTime() - b.date.getTime())[0];
+    }
+
+    function plural(value: number, one: string, many: string) {
+      return value === 1 ? one : many;
+    }
+
+    function formatCountdown(diff: number) {
+      const language = currentLanguage();
+      const totalMinutes = Math.max(0, Math.floor(diff / 60000));
+      const days = Math.floor(totalMinutes / (60 * 24));
+      const hours = Math.floor((totalMinutes - days * 60 * 24) / 60);
+      const minutes = totalMinutes % 60;
+
+      if (language === "en") {
+        const parts = [];
+        if (days > 0) parts.push(`${days} ${plural(days, "day", "days")}`);
+        if (hours > 0 || days > 0) parts.push(`${hours} h`);
+        if (days === 0) parts.push(`${minutes} min`);
+        return `in ${parts.join(" · ")}`;
+      }
+
+      const parts = [];
+      if (days > 0) parts.push(`${days} dní`);
+      if (hours > 0 || days > 0) parts.push(`${hours} hod`);
+      if (days === 0) parts.push(`${minutes} min`);
+      return `o ${parts.join(" · ")}`;
+    }
+
+    function renderCountdown() {
+      updateStaticDates();
+      const language = currentLanguage();
+      const next = findNextLecture();
+
+      if (!next) {
+        if (number) number.hidden = true;
+        if (title) title.hidden = true;
+        if (day) day.hidden = true;
+        if (time) time.hidden = true;
+        if (countdown) countdown.hidden = true;
+        if (empty) empty.hidden = false;
+        return;
+      }
+
+      if (number) {
+        number.hidden = false;
+        number.textContent = String(next.number).padStart(2, "0");
+      }
+      if (title) {
+        title.hidden = false;
+        title.textContent = next.titles[language] ?? next.titles.sk;
+      }
+      if (day) {
+        day.hidden = false;
+        day.textContent = formatDay(next.date);
+      }
+      if (time) {
+        time.hidden = false;
+        time.textContent = formatTime(next.date);
+      }
+      if (countdown) {
+        countdown.hidden = false;
+        countdown.textContent = formatCountdown(next.date.getTime() - Date.now());
+      }
+      if (empty) empty.hidden = true;
+    }
+
+    renderCountdown();
+    window.setInterval(renderCountdown, 60000);
+    window.addEventListener("python-course-language-change", renderCountdown);
+    window.addEventListener("python-course-language-applied", renderCountdown);
+  </script>
+</BaseLayout>

@@ -1,0 +1,260 @@
+---
+import CopyCodeBlock from "./CopyCodeBlock.astro";
+import LocalizedText from "./LocalizedText.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+type Pair = { sk: string; en: string };
+
+const codeSections: Array<{ id: string; title: Pair; note: Pair; code: string }> = [
+  {
+    id: "premenne",
+    title: { sk: "Premenné a typy", en: "Variables and Types" },
+    note: { sk: "Základné hodnoty a priradenie.", en: "Basic values and assignment." },
+    code: `name = "Anna"
+age = 21
+active = True
+value = None`
+  },
+  {
+    id: "podmienky",
+    title: { sk: "Podmienky", en: "Conditionals" },
+    note: { sk: "Vetvenie podľa logickej podmienky.", en: "Branching based on a Boolean condition." },
+    code: `if score >= 50:
+    status = "passed"
+elif score >= 40:
+    status = "retake"
+else:
+    status = "failed"`
+  },
+  {
+    id: "for",
+    title: { sk: "Cyklus for", en: "for Loop" },
+    note: { sk: "Iterácia cez prvky kolekcie.", en: "Iteration over items in a collection." },
+    code: `for value in values:
+    print(value)`
+  },
+  {
+    id: "while",
+    title: { sk: "Cyklus while", en: "while Loop" },
+    note: { sk: "Opakovanie, kým platí podmienka.", en: "Repeat while a condition remains true." },
+    code: `while attempts < 3:
+    attempts += 1`
+  },
+  {
+    id: "range",
+    title: { sk: "range()", en: "range()" },
+    note: { sk: "Postupnosti čísel bez vytvárania listu.", en: "Numeric sequences without creating a list." },
+    code: `range(5)        # 0, 1, 2, 3, 4
+range(2, 8)     # 2, 3, 4, 5, 6, 7
+range(0, 10, 2) # 0, 2, 4, 6, 8`
+  },
+  {
+    id: "list",
+    title: { sk: "list", en: "list" },
+    note: { sk: "Meniteľná usporiadaná kolekcia.", en: "Mutable ordered collection." },
+    code: `names = ["Anna", "Peter"]
+names.append("Lucia")
+first = names[0]`
+  },
+  {
+    id: "tuple",
+    title: { sk: "tuple", en: "tuple" },
+    note: { sk: "Nemenná usporiadaná kolekcia.", en: "Immutable ordered collection." },
+    code: `record = ("Anna", 82, "Python")
+name, points, course = record`
+  },
+  {
+    id: "set",
+    title: { sk: "set", en: "set" },
+    note: { sk: "Množina unikátnych hodnôt.", en: "Collection of unique values." },
+    code: `courses = {"Python", "Databázy"}
+courses.add("Testovanie")`
+  },
+  {
+    id: "dict",
+    title: { sk: "dict", en: "dict" },
+    note: { sk: "Mapovanie kľúč → hodnota.", en: "Mapping from key to value." },
+    code: `points = {"Anna": 92, "Peter": 67}
+points["Lucia"] = 78
+
+for name, score in points.items():
+    print(name, score)`
+  },
+  {
+    id: "slicing",
+    title: { sk: "Indexovanie a slicing", en: "Indexing and Slicing" },
+    note: { sk: "Prístup k prvkom a rezom sekvencie.", en: "Access items and slices of a sequence." },
+    code: `values[0]
+values[-1]
+values[1:4]
+values[:3]
+values[::2]
+values[::-1]`
+  },
+  {
+    id: "membership",
+    title: { sk: "Operátor in", en: "Membership: in" },
+    note: { sk: "Kontrola prítomnosti hodnoty.", en: "Check whether a value is present." },
+    code: `if value in values:
+    print("found")
+
+if "Python" not in courses:
+    courses.add("Python")`
+  },
+  {
+    id: "enumerate",
+    title: { sk: "enumerate()", en: "enumerate()" },
+    note: { sk: "Index a hodnota počas iterácie.", en: "Index and value during iteration." },
+    code: `for index, value in enumerate(values):
+    print(index, value)`
+  },
+  {
+    id: "zip",
+    title: { sk: "zip()", en: "zip()" },
+    note: { sk: "Súbežná iterácia cez viac kolekcií.", en: "Parallel iteration over multiple collections." },
+    code: `for name, score in zip(names, scores):
+    print(name, score)`
+  },
+  {
+    id: "unpacking",
+    title: { sk: "Unpacking", en: "Unpacking" },
+    note: { sk: "Rozbalenie hodnôt do premenných.", en: "Unpack values into variables." },
+    code: `first, second = pair
+name, *middle, last = values`
+  },
+  {
+    id: "comprehensions",
+    title: { sk: "Comprehensions", en: "Comprehensions" },
+    note: { sk: "Kompaktné vytváranie kolekcií.", en: "Compact syntax for creating collections." },
+    code: `squares = [n ** 2 for n in numbers]
+positive = [n ** 2 for n in numbers if n > 0]
+unique_courses = {course for _, course in records}
+points_by_name = {name: points for name, points in rows}`
+  },
+  {
+    id: "funkcie",
+    title: { sk: "Funkcie", en: "Functions" },
+    note: { sk: "Pomenovaná časť logiky s návratovou hodnotou.", en: "Named unit of logic with a return value." },
+    code: `def average(values):
+    return sum(values) / len(values)`
+  },
+  {
+    id: "arguments",
+    title: { sk: "Argumenty funkcií", en: "Function Arguments" },
+    note: { sk: "Default a keyword argumenty.", en: "Default and keyword arguments." },
+    code: `def greet(name, greeting="Ahoj"):
+    return f"{greeting}, {name}"
+
+greet("Anna")
+greet(name="Peter", greeting="Dobré ráno")`
+  },
+  {
+    id: "type-hints",
+    title: { sk: "Type hints", en: "Type Hints" },
+    note: { sk: "Typy ako súčasť čitateľného API.", en: "Types as part of a readable API." },
+    code: `def passed(points: int, threshold: int = 50) -> bool:
+    return points >= threshold`
+  },
+  {
+    id: "dataclass",
+    title: { sk: "dataclass", en: "dataclass" },
+    note: { sk: "Jednoduchá dátová štruktúra.", en: "Simple data structure." },
+    code: `from dataclasses import dataclass
+
+@dataclass
+class Result:
+    student: str
+    course: str
+    points: int`
+  },
+  {
+    id: "exceptions",
+    title: { sk: "Exceptions", en: "Exceptions" },
+    note: { sk: "Kontrolované spracovanie chýb.", en: "Controlled exception handling." },
+    code: `try:
+    points = int(text)
+except ValueError:
+    points = 0`
+  },
+  {
+    id: "imports",
+    title: { sk: "Imports", en: "Imports" },
+    note: { sk: "Použitie modulov a konkrétnych objektov.", en: "Use modules and specific objects." },
+    code: `import math
+from pathlib import Path
+from dataclasses import dataclass`
+  },
+  {
+    id: "strings",
+    title: { sk: "String metódy", en: "String Methods" },
+    note: { sk: "Najčastejšie operácie s textom.", en: "Common text operations." },
+    code: `text.strip()
+text.split(",")
+text.lower()
+text.replace("old", "new")
+text.startswith("ERR")
+text.endswith(".py")`
+  },
+  {
+    id: "patterns",
+    title: { sk: "Časté vzory", en: "Common Patterns" },
+    note: { sk: "Krátke idiomy, ktoré sa v Pythone objavujú často.", en: "Short idioms that appear frequently in Python code." },
+    code: `if value is None:
+    ...
+
+for key, value in data.items():
+    ...
+
+if item in collection:
+    ...`
+  }
+];
+
+const builtins = ["len", "min", "max", "sum", "sorted", "enumerate", "zip", "range", "any", "all", "type"] as const;
+const sections = [
+  ...codeSections.map((section) => ({ id: section.id, label: section.title })),
+  { id: "builtins", label: { sk: "Vstavané funkcie", en: "Built-in Functions" } }
+];
+---
+
+<BaseLayout title="Python ťahák" titleEn="Python Cheatsheet">
+  <main class="page cheat-page">
+    <header class="cheat-header">
+      <h1><LocalizedText sk="Python ťahák" en="Python Cheatsheet" /></h1>
+      <p>
+        <LocalizedText
+          sk="Kompaktná referencia základnej syntaxe a bežných Python idiomov."
+          en="A compact reference for core syntax and common Python idioms."
+        />
+      </p>
+    </header>
+
+    <div class="cheat-layout">
+      <nav class="cheat-toc" aria-label="Obsah Python ťaháku">
+        {sections.map((section) => <a href={`#${section.id}`}><LocalizedText sk={section.label.sk} en={section.label.en} /></a>)}
+      </nav>
+
+      <div class="cheat-content">
+        <div class="cheat-grid">
+          {
+            codeSections.map((section) => (
+              <section id={section.id} class="cheat-section">
+                <h2><LocalizedText sk={section.title.sk} en={section.title.en} /></h2>
+                <p><LocalizedText sk={section.note.sk} en={section.note.en} /></p>
+                <CopyCodeBlock code={section.code} />
+              </section>
+            ))
+          }
+
+          <section id="builtins" class="cheat-section cheat-section--terms">
+            <h2><LocalizedText sk="Vstavané funkcie" en="Built-in Functions" /></h2>
+            <p><LocalizedText sk="Funkcie dostupné bez importu." en="Functions available without an import." /></p>
+            <ul class="inline-term-list">
+              {builtins.map((name) => <li><code>{name}</code></li>)}
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

@@ -1,0 +1,53 @@
+---
+import { getLectureSummary } from "@shared/lectures";
+import { weekTitleTranslations } from "@shared/i18n";
+import { isWeekReleased } from "@shared/publication";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const items = getLectureSummary();
+---
+
+<BaseLayout title="Prednášky" titleEn="Lectures">
+  <main class="page text-page">
+    <h1 data-i18n-key="nav.lectures">Prednášky</h1>
+
+    <section class="lecture-list" aria-label="Zoznam prednášok">
+      {
+        items.map(({ week, lecture }) => {
+          const released = isWeekReleased(week.number);
+          const titleEn = weekTitleTranslations[week.number]?.en ?? week.title;
+
+          if (lecture) {
+            return (
+              <a
+                class={`lecture-row${released ? "" : " is-locked"}`}
+                href={`/prednasky/${lecture.slug}/`}
+                aria-disabled={released ? undefined : "true"}
+                tabindex={released ? undefined : "-1"}
+                data-preview-link={released ? undefined : ""}
+              >
+                <span class="number">{String(week.number).padStart(2, "0")}</span>
+                <span>
+                  <strong><LocalizedText sk={week.title} en={titleEn} /></strong>
+                  {!released && <small class="availability" data-preview-hidden data-i18n-key="ui.unavailable">zatiaľ nedostupné</small>}
+                  {!released && <small class="availability" data-preview-visible data-i18n-key="ui.teacherPreview" hidden>náhľad vyučujúceho</small>}
+                </span>
+              </a>
+            );
+          }
+
+          return (
+            <div class="lecture-row" aria-disabled="true">
+              <span class="number">{String(week.number).padStart(2, "0")}</span>
+              <span>
+                <strong><LocalizedText sk={week.title} en={titleEn} /></strong>
+                <small class="availability" data-i18n-key="ui.unavailable">zatiaľ nedostupné</small>
+              </span>
+            </div>
+          );
+        })
+      }
+    </section>
+  </main>
+</BaseLayout>

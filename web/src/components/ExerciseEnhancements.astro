@@ -1,0 +1,519 @@
+---
+import { exercises } from "@shared/exercises";
+
+const exerciseNavigation = exercises.map((exercise) => ({
+  number: exercise.number,
+  slug: exercise.slug,
+  href: exercise.href,
+  title: exercise.title,
+  titleEn: exercise.translations?.en?.title ?? exercise.title,
+  subtitle: exercise.subtitle,
+  subtitleEn: exercise.translations?.en?.subtitle ?? exercise.subtitle,
+  taskCount: exercise.taskCount ?? 10
+}));
+---
+
+<script type="application/json" data-exercise-navigation set:html={JSON.stringify(exerciseNavigation)}></script>
+
+<script>
+  type ExerciseNavigationItem = {
+    number: number;
+    slug: string;
+    href: string;
+    title: string;
+    titleEn: string;
+    subtitle: string;
+    subtitleEn: string;
+    taskCount: number;
+  };
+
+  const worksheet = document.querySelector<HTMLElement>(".worksheet-page");
+
+  type I18nApi = {
+    language: "sk" | "en";
+    t: (key: string, values?: Record<string, string | number>) => string;
+    applyLanguage: () => void;
+  };
+
+  function i18n() {
+    return (window as Window & { pythonCourseI18n?: I18nApi }).pythonCourseI18n;
+  }
+
+  function t(key: string, fallback: string, values?: Record<string, string | number>) {
+    return i18n()?.t(key, values) ?? fallback.replace(/\{(\w+)\}/g, (match, name) => String(values?.[name] ?? match));
+  }
+
+  function escapeHtml(value: string) {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  const pythonKeywords = new Set([
+    "False",
+    "None",
+    "True",
+    "and",
+    "as",
+    "class",
+    "def",
+    "elif",
+    "else",
+    "except",
+    "finally",
+    "for",
+    "from",
+    "if",
+    "import",
+    "in",
+    "is",
+    "not",
+    "or",
+    "pass",
+    "return",
+    "try",
+    "while",
+    "with"
+  ]);
+
+  function readExerciseNavigation() {
+    const source = document.querySelector<HTMLScriptElement>("[data-exercise-navigation]");
+    if (!source?.textContent) return [] as ExerciseNavigationItem[];
+
+    try {
+      return JSON.parse(source.textContent) as ExerciseNavigationItem[];
+    } catch {
+      return [] as ExerciseNavigationItem[];
+    }
+  }
+
+  function storageKey(exerciseId: string, taskId: string) {
+    return `python-course.exercise.${exerciseId}.task.${taskId}.completed`;
+  }
+
+  function highlightPythonLine(line: string) {
+    const placeholders: string[] = [];
+    const preserve = (html: string) => {
+      const token = String.fromCharCode(0xe000 + placeholders.length);
+      placeholders.push(html);
+      return token;
+    };
+
+    let highlighted = escapeHtml(line)
+      .replace(/(&quot;.*?&quot;|'.*?')/g, (match) => preserve(`<span class="tok-string">${match}</span>`))
+      .replace(/(#.*)$/g, (match) => preserve(`<span class="tok-comment">${match}</span>`))
+      .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="tok-number">$1</span>')
+      .replace(/\b([A-Za-z_][A-Za-z0-9_]*)\b/g, (match) =>
+        pythonKeywords.has(match) ? `<span class="tok-keyword">${match}</span>` : match
+      );
+
+    placeholders.forEach((html, index) => {
+      highlighted = highlighted.replaceAll(String.fromCharCode(0xe000 + index), html);
+    });
+
+    return highlighted;
+  }
+
+  function looksLikePython(code: string) {
+    return /\b(def|class|import|from|for|if|elif|else|try|except|return|with)\b/.test(code) || /print\(|Path\(|@\w+/.test(code);
+  }
+
+  function codeToHtml(code: string, shouldHighlight: boolean) {
+    return code
+      .replace(/\r\n/g, "\n")
+      .split("\n")
+      .map((line) => `<span class="code-line">${shouldHighlight ? highlightPythonLine(line) : escapeHtml(line)}</span>`)
+      .join("");
+  }
+
+  async function copyText(value: string) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.append(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    textarea.remove();
+  }
+
+  function attachCopy(button: HTMLButtonElement) {
+    button.addEventListener("click", async () => {
+      const code = button.getAttribute("data-copy-code") ?? "";
+      await copyText(code);
+      button.textContent = t("ui.copied", "Skopírované");
+      window.setTimeout(() => {
+        button.textContent = t("ui.copy", "Kopírovať");
+      }, 1400);
+    });
+  }
+
+  function enhanceCodeBlocks(root: HTMLElement) {
+    const blocks = root.querySelectorAll<HTMLPreElement>("pre.worksheet-code, pre.expected-output");
+
+    blocks.forEach((pre) => {
+      if (pre.closest("[data-copy-code-block]")) return;
+
+      const codeElement = pre.querySelector("code");
+      const code = (codeElement?.textContent ?? pre.textContent ?? "").replace(/\r\n/g, "\n").replace(/\n$/, "");
+      const wrapper = document.createElement("div");
+      wrapper.className = `copy-code${pre.classList.contains("expected-output") ? " copy-code--output" : ""}`;
+      wrapper.setAttribute("data-copy-code-block", "");
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "copy-code__copy";
+      button.textContent = t("ui.copy", "Kopírovať");
+      button.dataset.i18nKey = "ui.copy";
+      button.setAttribute("data-copy-code", code);
+      attachCopy(button);
+
+      const nextPre = document.createElement("pre");
+      nextPre.setAttribute(
+        "aria-label",
+        pre.classList.contains("expected-output")
+          ? t("exercise.expectedOutput", "očakávaný výstup")
+          : t("exercise.codeSample", "ukážka kódu")
+      );
+      nextPre.dataset.i18nAriaLabel = pre.classList.contains("expected-output") ? "exercise.expectedOutput" : "exercise.codeSample";
+      const nextCode = document.createElement("code");
+      nextCode.innerHTML = codeToHtml(code, looksLikePython(code) && !pre.classList.contains("expected-output"));
+      nextPre.append(nextCode);
+
+      wrapper.append(button, nextPre);
+      pre.replaceWith(wrapper);
+    });
+  }
+
+  function exerciseIdFromLocation() {
+    const match = window.location.pathname.match(/\/cvicenia\/(\d{2})-/);
+    return match?.[1] ?? "unknown";
+  }
+
+  function setTaskCompleted(section: HTMLElement, checked: boolean) {
+    section.classList.toggle("is-completed", checked);
+    const status = section.querySelector<HTMLElement>("[data-task-status]");
+    if (status) status.textContent = checked ? t("exercise.done", "Hotovo") : "";
+  }
+
+  function updateProgress(root: HTMLElement) {
+    const tasks = Array.from(root.querySelectorAll<HTMLElement>("[data-main-task='true']"));
+    const done = tasks.filter((task) => task.classList.contains("is-completed")).length;
+    const progress = root.querySelector<HTMLElement>("[data-exercise-progress]");
+    if (progress) progress.textContent = t("exercise.completedProgress", "{done} / {total} hotových", { done, total: tasks.length });
+  }
+
+  function updateExerciseListProgress() {
+    document.querySelectorAll<HTMLElement>("[data-exercise-list-progress]").forEach((element) => {
+      const exerciseId = element.dataset.exerciseId;
+      const total = Number(element.dataset.taskTotal ?? "10");
+      if (!exerciseId || !Number.isFinite(total) || total <= 0) return;
+
+      let done = 0;
+      for (let index = 1; index <= total; index += 1) {
+        const taskId = String(index).padStart(2, "0");
+        if (window.localStorage.getItem(storageKey(exerciseId, taskId)) === "true") done += 1;
+      }
+
+      element.textContent = `${done} / ${total}`;
+      element.toggleAttribute("data-complete", done === total);
+    });
+  }
+
+  function resetCompletedTasks(root: HTMLElement, exerciseId: string) {
+    root.querySelectorAll<HTMLElement>("[data-exercise-task]").forEach((section) => {
+      const taskId = section.dataset.taskId;
+      if (!taskId) return;
+      window.localStorage.removeItem(storageKey(exerciseId, taskId));
+      const checkbox = section.querySelector<HTMLInputElement>("input[type='checkbox']");
+      if (checkbox) checkbox.checked = false;
+      setTaskCompleted(section, false);
+    });
+
+    updateProgress(root);
+  }
+
+  function markMainTasksCompleted(root: HTMLElement, exerciseId: string) {
+    root.querySelectorAll<HTMLElement>("[data-main-task='true']").forEach((section) => {
+      const taskId = section.dataset.taskId;
+      if (!taskId) return;
+      window.localStorage.setItem(storageKey(exerciseId, taskId), "true");
+      const checkbox = section.querySelector<HTMLInputElement>("input[type='checkbox']");
+      if (checkbox) checkbox.checked = true;
+      setTaskCompleted(section, true);
+    });
+
+    updateProgress(root);
+  }
+
+  function createResetDialog(onConfirm: () => void) {
+    const dialog = document.createElement("dialog");
+    dialog.className = "reset-dialog";
+    dialog.innerHTML = `
+      <div class="reset-dialog__panel">
+        <h2 data-i18n-key="exercise.resetTitle">${t("exercise.resetTitle", "Resetovať označenie?")}</h2>
+        <p data-i18n-key="exercise.resetBody">${t("exercise.resetBody", "V tomto cvičení sa zruší označenie všetkých úloh ako hotových.")}</p>
+        <div class="reset-dialog__actions">
+          <button type="button" data-reset-cancel data-i18n-key="exercise.cancel">${t("exercise.cancel", "Zrušiť")}</button>
+          <button type="button" data-reset-confirm data-i18n-key="exercise.resetConfirm">${t("exercise.resetConfirm", "Resetovať")}</button>
+        </div>
+      </div>
+    `;
+
+    const cancel = dialog.querySelector<HTMLButtonElement>("[data-reset-cancel]");
+    const confirm = dialog.querySelector<HTMLButtonElement>("[data-reset-confirm]");
+    const closeDialog = () => {
+      if (typeof dialog.close === "function") {
+        dialog.close();
+        return;
+      }
+
+      dialog.removeAttribute("open");
+    };
+
+    cancel?.addEventListener("click", closeDialog);
+    confirm?.addEventListener("click", () => {
+      onConfirm();
+      closeDialog();
+    });
+
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) closeDialog();
+    });
+
+    document.body.append(dialog);
+    return dialog;
+  }
+
+  function openTask(section: HTMLElement) {
+    const body = section.querySelector<HTMLElement>(".exercise-task__body");
+    const toggle = section.querySelector<HTMLButtonElement>(".exercise-task__toggle");
+    if (!body || !toggle) return;
+
+    body.hidden = false;
+    toggle.setAttribute("aria-expanded", "true");
+  }
+
+  function openTaskFromHash(root: HTMLElement) {
+    const hash = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+    if (!hash) return;
+
+    const target = document.getElementById(hash) ?? (hash.startsWith("task-") ? document.getElementById(`uloha-${hash.slice(5)}`) : null);
+    if (!target || !root.contains(target)) return;
+
+    const section = target.closest<HTMLElement>("[data-exercise-task]");
+    if (!section) return;
+
+    openTask(section);
+    window.requestAnimationFrame(() => section.scrollIntoView({ block: "start" }));
+  }
+
+  function appendExerciseNavigation(root: HTMLElement, exerciseId: string, items: ExerciseNavigationItem[]) {
+    if (root.querySelector("[data-adjacent-nav]")) return;
+
+    const currentNumber = Number(exerciseId);
+    const currentIndex = items.findIndex((item) => item.number === currentNumber);
+    if (currentIndex < 0) return;
+
+    const previous = currentIndex > 0 ? items[currentIndex - 1] : undefined;
+    const next = currentIndex < items.length - 1 ? items[currentIndex + 1] : undefined;
+    if (!previous && !next) return;
+
+    const nav = document.createElement("nav");
+    nav.className = "adjacent-nav exercise-adjacent-nav";
+    nav.setAttribute("aria-label", t("exercise.neighbors", "Susedné cvičenia"));
+    nav.dataset.i18nAriaLabel = "exercise.neighbors";
+    nav.setAttribute("data-adjacent-nav", "");
+
+    const makeLink = (item: ExerciseNavigationItem, direction: "previous" | "next") => {
+      const link = document.createElement("a");
+      link.className = `adjacent-nav__link adjacent-nav__link--${direction}`;
+      link.href = item.href;
+
+      const label = document.createElement("span");
+      const number = String(item.number).padStart(2, "0");
+      label.dataset.i18nKey = direction === "previous" ? "exercise.previousLabel" : "exercise.nextLabel";
+      label.dataset.i18nValues = JSON.stringify({ number });
+      label.textContent =
+        direction === "previous"
+          ? t("exercise.previousLabel", "← Cvičenie {number}", { number })
+          : t("exercise.nextLabel", "Cvičenie {number} →", { number });
+
+      const title = document.createElement("strong");
+      title.innerHTML = `<span data-lang="sk">${escapeHtml(item.subtitle)}</span><span data-lang="en" hidden>${escapeHtml(item.subtitleEn)}</span>`;
+
+      link.append(label, title);
+      return link;
+    };
+
+    if (previous) nav.append(makeLink(previous, "previous"));
+    else nav.append(document.createElement("span"));
+
+    if (next) nav.append(makeLink(next, "next"));
+    else nav.append(document.createElement("span"));
+
+    root.append(nav);
+  }
+
+  function enhanceTasks(root: HTMLElement, items: ExerciseNavigationItem[]) {
+    const exerciseId = exerciseIdFromLocation();
+    const sections = Array.from(root.querySelectorAll<HTMLElement>(".worksheet-task"));
+    if (sections.length === 0) return;
+
+    sections.forEach((section, index) => {
+      if (section.dataset.exerciseTask === "true") return;
+
+      const heading = section.querySelector("h2");
+      if (!heading) return;
+
+      const titleSk = section.dataset.titleSk ?? heading.querySelector<HTMLElement>("[data-lang='sk']")?.textContent?.trim() ?? heading.textContent?.trim() ?? `Úloha ${index + 1}`;
+      const titleEn = section.dataset.titleEn ?? heading.querySelector<HTMLElement>("[data-lang='en']")?.textContent?.trim() ?? titleSk;
+      const taskMatch = titleSk.match(/(?:Úloha|Task)\s+(\d+)/i) ?? titleEn.match(/(?:Úloha|Task)\s+(\d+)/i);
+      const isBonus = /^Bonus\b/i.test(titleSk) || /^Bonus\b/i.test(titleEn);
+      const taskNumber = Number(taskMatch?.[1] ?? index + 1);
+      const taskId = isBonus ? "bonus" : String(taskNumber).padStart(2, "0");
+      const displayTitleSk = isBonus ? titleSk : titleSk.replace(/^(?:Úloha|Task)\s+\d+\s*[-–—]\s*/i, "");
+      const displayTitleEn = isBonus ? titleEn : titleEn.replace(/^(?:Úloha|Task)\s+\d+\s*[-–—]\s*/i, "");
+      const panelId = `exercise-${exerciseId}-task-${taskId}`;
+      const completedKey = storageKey(exerciseId, taskId);
+
+      section.dataset.exerciseTask = "true";
+      section.dataset.taskId = taskId;
+      section.id = isBonus ? "bonus" : `uloha-${taskNumber}`;
+      if (!isBonus) section.dataset.mainTask = "true";
+      if (isBonus) section.classList.add("is-bonus");
+
+      const body = document.createElement("div");
+      body.className = "exercise-task__body";
+      body.id = panelId;
+
+      const content = Array.from(section.childNodes).filter((node) => node !== heading);
+      content.forEach((node) => body.append(node));
+      heading.remove();
+
+      const header = document.createElement("div");
+      header.className = "exercise-task__header";
+
+      const checkLabel = document.createElement("label");
+      checkLabel.className = "exercise-task__check";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.setAttribute("aria-label", t("exercise.markDone", "Označiť ako hotové: {title}", { title: titleSk }));
+      checkbox.dataset.i18nAriaLabel = "exercise.markDone";
+      checkbox.dataset.i18nValues = JSON.stringify({ title: titleSk });
+
+      const checkText = document.createElement("span");
+      checkText.textContent = t("exercise.done", "Hotovo");
+      checkText.dataset.i18nKey = "exercise.done";
+
+      checkLabel.append(checkbox, checkText);
+
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "exercise-task__toggle";
+      toggle.setAttribute("aria-controls", panelId);
+      toggle.setAttribute("aria-expanded", index === 0 ? "true" : "false");
+
+      const numberLabel = document.createElement("span");
+      numberLabel.className = "exercise-task__number";
+      numberLabel.textContent = isBonus ? "Bonus" : taskId;
+
+      const titleLabel = document.createElement("span");
+      titleLabel.className = "exercise-task__title";
+      titleLabel.innerHTML = `<span data-lang="sk">${escapeHtml(displayTitleSk)}</span><span data-lang="en" hidden>${escapeHtml(displayTitleEn)}</span>`;
+
+      const chevron = document.createElement("span");
+      chevron.className = "exercise-task__chevron";
+      chevron.setAttribute("aria-hidden", "true");
+      chevron.textContent = "⌄";
+
+      const status = document.createElement("span");
+      status.className = "exercise-task__status";
+      status.dataset.taskStatus = "";
+
+      toggle.append(numberLabel, titleLabel, status, chevron);
+      header.append(checkLabel, toggle);
+      section.append(header, body);
+
+      body.hidden = index !== 0;
+
+      const completed = window.localStorage.getItem(completedKey) === "true";
+      checkbox.checked = completed;
+      setTaskCompleted(section, completed);
+
+      toggle.addEventListener("click", () => {
+        const nextOpen = body.hidden;
+        body.hidden = !nextOpen;
+        toggle.setAttribute("aria-expanded", String(nextOpen));
+      });
+
+      checkbox.addEventListener("change", () => {
+        window.localStorage.setItem(completedKey, String(checkbox.checked));
+        setTaskCompleted(section, checkbox.checked);
+        updateProgress(root);
+      });
+    });
+
+    const firstTask = root.querySelector(".worksheet-task");
+    if (!root.querySelector("[data-exercise-progress-root]")) {
+      const progress = document.createElement("div");
+      progress.className = "exercise-progress";
+      progress.setAttribute("data-exercise-progress-root", "");
+      progress.innerHTML = `
+        <span data-exercise-progress></span>
+        <span class="exercise-progress__actions">
+          <button type="button" data-mark-all-exercise data-i18n-key="exercise.markAll">${t("exercise.markAll", "Označiť všetko ako hotové")}</button>
+          <button type="button" data-reset-exercise data-i18n-key="exercise.resetProgress">${t("exercise.resetProgress", "Resetovať označenie")}</button>
+        </span>
+      `;
+      firstTask?.before(progress);
+
+      const markAll = progress.querySelector<HTMLButtonElement>("[data-mark-all-exercise]");
+      const reset = progress.querySelector<HTMLButtonElement>("[data-reset-exercise]");
+      const resetDialog = createResetDialog(() => resetCompletedTasks(root, exerciseId));
+
+      markAll?.addEventListener("click", () => markMainTasksCompleted(root, exerciseId));
+      reset?.addEventListener("click", () => {
+        if (typeof resetDialog.showModal === "function") {
+          resetDialog.showModal();
+          return;
+        }
+
+        resetDialog.setAttribute("open", "");
+      });
+    }
+
+    updateProgress(root);
+    openTaskFromHash(root);
+    appendExerciseNavigation(root, exerciseId, items);
+    i18n()?.applyLanguage();
+  }
+
+  function refreshExerciseLanguage(root: HTMLElement) {
+    root.querySelectorAll<HTMLElement>("[data-exercise-task]").forEach((section) => {
+      setTaskCompleted(section, section.classList.contains("is-completed"));
+    });
+    updateProgress(root);
+    i18n()?.applyLanguage();
+  }
+
+  const exerciseItems = readExerciseNavigation();
+  updateExerciseListProgress();
+  window.addEventListener("storage", updateExerciseListProgress);
+
+  if (worksheet) {
+    enhanceCodeBlocks(worksheet);
+    enhanceTasks(worksheet, exerciseItems);
+    window.addEventListener("hashchange", () => openTaskFromHash(worksheet));
+    window.addEventListener("python-course-language-change", () => refreshExerciseLanguage(worksheet));
+  }
+</script>

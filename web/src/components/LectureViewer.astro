@@ -1,0 +1,144 @@
+---
+import type { Lecture } from "@shared/slide.types";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import LocalizedText from "./LocalizedText.astro";
+import SlideRenderer from "./SlideRenderer.astro";
+
+type LectureNeighbor = {
+  number: number;
+  labelKey: string;
+  title: string;
+  titleEn?: string;
+  href: string;
+};
+
+type Props = {
+  lecture: Lecture;
+  previous?: LectureNeighbor;
+  next?: LectureNeighbor;
+};
+
+const { lecture, previous, next } = Astro.props;
+const englishSlides = lecture.translations?.en?.slides ?? {};
+---
+
+<main class="viewer" data-viewer data-total={lecture.slides.length}>
+  <a class="viewer-control back-link" href="/prednasky/" data-i18n-key="lecture.back">← Prednášky</a>
+  <div class="viewer-control viewer-language">
+    <LanguageSwitcher />
+  </div>
+  <button class="viewer-control fullscreen-button" type="button" data-fullscreen data-i18n-key="lecture.fullscreen">Celá obrazovka</button>
+  <div class="slide-frame" data-frame tabindex="0" aria-label={lecture.title}>
+    <div class="slide-stage" data-stage>
+      {
+        lecture.slides.map((slide, index) => (
+          <SlideRenderer
+            slide={slide}
+            translation={englishSlides[slide.id]}
+            index={index}
+            total={lecture.slides.length}
+            lectureNumber={lecture.weekNumber}
+          />
+        ))
+      }
+    </div>
+  </div>
+  <div class="viewer-control progress" data-progress-text>01 / {String(lecture.slides.length).padStart(2, "0")}</div>
+  {(previous || next) && (
+    <nav class="viewer-control viewer-neighbors" aria-label="Susedné prednášky" data-i18n-aria-label="lecture.neighbors">
+      {previous ? (
+        <a class="viewer-neighbor viewer-neighbor--previous" href={previous.href}>
+          <span data-i18n-key={previous.labelKey} data-i18n-values={JSON.stringify({ number: String(previous.number).padStart(2, "0") })}>
+            ← Prednáška {String(previous.number).padStart(2, "0")}
+          </span>
+          <strong><LocalizedText sk={previous.title} en={previous.titleEn ?? previous.title} /></strong>
+        </a>
+      ) : <span></span>}
+      {next ? (
+        <a class="viewer-neighbor viewer-neighbor--next" href={next.href}>
+          <span data-i18n-key={next.labelKey} data-i18n-values={JSON.stringify({ number: String(next.number).padStart(2, "0") })}>
+            Prednáška {String(next.number).padStart(2, "0")} →
+          </span>
+          <strong><LocalizedText sk={next.title} en={next.titleEn ?? next.title} /></strong>
+        </a>
+      ) : <span></span>}
+    </nav>
+  )}
+  <div class="progress-bar" aria-hidden="true"><span data-progress-bar></span></div>
+</main>
+
+<script>
+  const viewer = document.querySelector<HTMLElement>("[data-viewer]");
+  const frame = document.querySelector<HTMLElement>("[data-frame]");
+  const stage = document.querySelector<HTMLElement>("[data-stage]");
+  const slides = Array.from(document.querySelectorAll<HTMLElement>("[data-slide]"));
+  const progressText = document.querySelector<HTMLElement>("[data-progress-text]");
+  const progressBar = document.querySelector<HTMLElement>("[data-progress-bar]");
+  const fullscreen = document.querySelector<HTMLButtonElement>("[data-fullscreen]");
+  let index = 0;
+  let idleTimer = 0;
+
+  function fitStage() {
+    if (!stage || !frame) return;
+    const rect = frame.getBoundingClientRect();
+    const scale = Math.min(rect.width / 1280, rect.height / 720);
+    stage.style.setProperty("--stage-scale", String(scale));
+  }
+
+  function show(nextIndex: number) {
+    index = Math.max(0, Math.min(nextIndex, slides.length - 1));
+    slides.forEach((slide, slideIndex) => {
+      const active = slideIndex === index;
+      slide.classList.toggle("is-active", active);
+      slide.setAttribute("aria-hidden", active ? "false" : "true");
+    });
+    const label = `${String(index + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+    if (progressText) progressText.textContent = label;
+    if (progressBar) progressBar.style.setProperty("--progress", `${((index + 1) / slides.length) * 100}%`);
+    window.history.replaceState(null, "", `#${index + 1}`);
+  }
+
+  function next() {
+    show(index + 1);
+  }
+
+  function previous() {
+    show(index - 1);
+  }
+
+  function wakeUi() {
+    if (!viewer) return;
+    viewer.classList.add("is-active-ui");
+    window.clearTimeout(idleTimer);
+    idleTimer = window.setTimeout(() => viewer.classList.remove("is-active-ui"), 1400);
+  }
+
+  frame?.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    if (target.closest("a, button")) return;
+    const rect = frame.getBoundingClientRect();
+    const leftSide = event.clientX - rect.left < rect.width * 0.28;
+    if (leftSide) previous();
+    else next();
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight" || event.key === " " || event.key === "PageDown") next();
+    if (event.key === "ArrowLeft" || event.key === "PageUp") previous();
+    if (event.key === "Home") show(0);
+    if (event.key === "End") show(slides.length - 1);
+    wakeUi();
+  });
+
+  window.addEventListener("mousemove", wakeUi);
+  window.addEventListener("touchstart", wakeUi, { passive: true });
+  fullscreen?.addEventListener("click", () => viewer?.requestFullscreen?.());
+  window.addEventListener("resize", fitStage);
+  document.addEventListener("fullscreenchange", fitStage);
+
+  fitStage();
+  const start = Number(window.location.hash.replace("#", ""));
+  show(Number.isFinite(start) && start > 0 ? start - 1 : 0);
+  frame?.focus();
+  wakeUi();
+</script>

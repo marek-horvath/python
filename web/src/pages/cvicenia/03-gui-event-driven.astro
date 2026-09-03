@@ -1,0 +1,593 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercise = getExerciseBySlug("03-gui-event-driven");
+if (!exercise) throw new Error("Cvičenie 03 nie je zaregistrované.");
+
+const titleEn = exercise.translations?.en?.title ?? exercise.title;
+const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+const descriptionEn = exercise.translations?.en?.description ?? exercise.description;
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${titleEn}: ${subtitleEn}`}
+  description={exercise.description}
+  descriptionEn={descriptionEn}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={titleEn} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></p>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`Python 3.x s modulom tkinter
+Odporúčané: IDE, ktoré vie spustiť GUI aplikáciu
+Externé knižnice: nie
+Pracovné súbory: gui_form.py, converter.py, text_tools.py, file_dashboard.py`}</code></pre>
+        <p>Ak <code>import tkinter</code> zlyhá, doplňte Tkinter podľa operačného systému ešte pred riešením úloh.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`Python 3.x with the tkinter module
+Recommended: an IDE that can run GUI applications
+External libraries: no
+Working files: gui_form.py, converter.py, text_tools.py, file_dashboard.py`}</code></pre>
+        <p>If <code>import tkinter</code> fails, install Tkinter for your operating system before working on the tasks.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul data-lang="sk">
+        <li>navrhnúť GUI aplikáciu okolo event loopu, callbackov a stavu;</li>
+        <li>použiť <code>ttk</code> widgety, layout a vstupnú validáciu;</li>
+        <li>oddeliť UI callbacky od aplikačnej logiky;</li>
+        <li>pracovať s dialógmi, klávesnicou, Canvas a <code>after()</code>.</li>
+      </ul>
+      <ul data-lang="en" hidden>
+        <li>design a GUI application around an event loop, callbacks and state;</li>
+        <li>use <code>ttk</code> widgets, layout and input validation;</li>
+        <li>separate UI callbacks from application logic;</li>
+        <li>work with dialogs, keyboard events, Canvas and <code>after()</code>.</li>
+      </ul>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 1 — Registračný formulár s validáciou" en="Task 1 — Registration Form with Validation" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte aplikáciu <code>gui_form.py</code> s formulárom používateľa.</p>
+        <p>Formulár má obsahovať:</p>
+        <ul>
+          <li>pole <code>Meno</code>;</li>
+          <li>pole <code>Email</code>;</li>
+          <li>pole <code>Vek</code>;</li>
+          <li>tlačidlo <code>Odoslať</code>;</li>
+          <li>tlačidlo <code>Reset</code>;</li>
+          <li>label pre výsledok alebo chybovú správu.</li>
+        </ul>
+        <p>Požadovaná validácia:</p>
+        <ul>
+          <li>meno nesmie byť prázdne;</li>
+          <li>email musí obsahovať <code>@</code> a bodku za <code>@</code>;</li>
+          <li>vek musí byť celé číslo od 15 do 99;</li>
+          <li>pri chybe sa nezobrazí úspešná správa.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Vstup:
+Meno: Anna Horváth
+Email: anna@example.com
+Vek: 21
+
+Výsledok v GUI:
+Používateľ Anna Horváth bol uložený.`}</code></pre>
+        <p class="hint"><strong>Pomôcka:</strong> Callback tlačidla má iba načítať hodnoty, validovať ich a aktualizovať UI. Nepíšte <code>command=submit()</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create an application <code>gui_form.py</code> with a user form.</p>
+        <p>The form should contain:</p>
+        <ul>
+          <li>a <code>Name</code> field;</li>
+          <li>an <code>Email</code> field;</li>
+          <li>an <code>Age</code> field;</li>
+          <li>a <code>Submit</code> button;</li>
+          <li>a <code>Reset</code> button;</li>
+          <li>a label for the result or error message.</li>
+        </ul>
+        <p>Required validation:</p>
+        <ul>
+          <li>name must not be empty;</li>
+          <li>email must contain <code>@</code> and a dot after <code>@</code>;</li>
+          <li>age must be an integer from 15 to 99;</li>
+          <li>when validation fails, do not show the success message.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Input:
+Name: Anna Horváth
+Email: anna@example.com
+Age: 21
+
+Result in GUI:
+User Anna Horváth has been saved.`}</code></pre>
+        <p class="hint"><strong>Hint:</strong> The button callback should only read values, validate them and update the UI. Do not write <code>command=submit()</code>.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 2 — Konvertor jednotiek" en="Task 2 — Unit Converter" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte GUI konvertor, ktorý používa <code>Entry</code>, <code>ttk.Combobox</code>, <code>Button</code> a výstupný label.</p>
+        <p>Podporujte minimálne tieto prevody:</p>
+        <ul>
+          <li>metre → kilometre;</li>
+          <li>kilometre → metre;</li>
+          <li>Celsius → Fahrenheit;</li>
+          <li>Fahrenheit → Celsius;</li>
+          <li>EUR → USD s kurzom uloženým v premennej.</li>
+        </ul>
+        <p>Požiadavky:</p>
+        <ul>
+          <li>vstup musí byť číslo;</li>
+          <li>typ prevodu sa vyberá cez combobox;</li>
+          <li>výsledok zaokrúhlite na dve desatinné miesta;</li>
+          <li>pri neplatnom vstupe zobrazte chybu v GUI, nie traceback v termináli;</li>
+          <li>samotný výpočet dajte do funkcie mimo callbacku.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a GUI converter that uses <code>Entry</code>, <code>ttk.Combobox</code>, <code>Button</code> and an output label.</p>
+        <p>Support at least these conversions:</p>
+        <ul>
+          <li>meters → kilometers;</li>
+          <li>kilometers → meters;</li>
+          <li>Celsius → Fahrenheit;</li>
+          <li>Fahrenheit → Celsius;</li>
+          <li>EUR → USD with the exchange rate stored in a variable.</li>
+        </ul>
+        <p>Requirements:</p>
+        <ul>
+          <li>input must be numeric;</li>
+          <li>conversion type is selected with a combobox;</li>
+          <li>round the result to two decimal places;</li>
+          <li>for invalid input, show an error in the GUI, not a traceback in the terminal;</li>
+          <li>put the actual calculation into a function outside the callback.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`12.5 km → m
+Result: 12500.00 m
+
+20 °C → °F
+Result: 68.00 °F`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Search/filter interface" en="Task 3 — Search/Filter Interface" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte malé GUI na filtrovanie datasetu kurzov. Dataset môže byť priamo v súbore.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a small GUI for filtering a course dataset. The dataset can be stored directly in the file.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`courses = [
+    {"code": "AI101", "title": "Programming in Python", "teacher": "Horvath", "credits": 5},
+    {"code": "AI204", "title": "Database Systems", "teacher": "Novak", "credits": 6},
+    {"code": "AI305", "title": "Web Technologies", "teacher": "Kovac", "credits": 5},
+    {"code": "AI210", "title": "Computer Networks", "teacher": "Sokol", "credits": 4},
+    {"code": "AI330", "title": "Data Science", "teacher": "Horvath", "credits": 6},
+]`}</code></pre>
+      <div data-lang="sk">
+        <p>GUI má obsahovať:</p>
+        <ul>
+          <li>textové pole na hľadanie v názve alebo kóde;</li>
+          <li>filter podľa učiteľa cez combobox;</li>
+          <li>filter minimálneho počtu kreditov;</li>
+          <li>zoznam výsledkov cez <code>Listbox</code> alebo <code>ttk.Treeview</code>;</li>
+          <li>label s počtom nájdených výsledkov.</li>
+        </ul>
+        <p>Filtrovanie sa má spustiť tlačidlom aj stlačením Enter. Pri prázdnom vyhľadávaní zobrazte všetky záznamy, ktoré prejdú ostatnými filtrami.</p>
+        <pre class="expected-output"><code>{`Filter:
+teacher = Horvath
+min credits = 5
+
+Výsledky:
+AI101  Programming in Python  5
+AI330  Data Science           6
+
+Nájdené: 2`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The GUI should contain:</p>
+        <ul>
+          <li>a text field for searching in the title or code;</li>
+          <li>a teacher filter through a combobox;</li>
+          <li>a minimum credits filter;</li>
+          <li>a result list using <code>Listbox</code> or <code>ttk.Treeview</code>;</li>
+          <li>a label with the number of found results.</li>
+        </ul>
+        <p>Filtering should run both from a button and by pressing Enter. For an empty search query, show all records that pass the remaining filters.</p>
+        <pre class="expected-output"><code>{`Filter:
+teacher = Horvath
+min credits = 5
+
+Results:
+AI101  Programming in Python  5
+AI330  Data Science           6
+
+Found: 2`}</code></pre>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Refactoring zlého callbacku" en="Task 4 — Refactoring a Bad Callback" /></h2>
+      <div data-lang="sk">
+        <p>Nasledujúci callback mieša čítanie widgetov, validáciu, výpočet aj formátovanie výstupu. Prepíšte ho tak, aby sa dal testovať mimo GUI.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The following callback mixes widget reads, validation, calculation and output formatting. Rewrite it so it can be tested outside the GUI.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`def on_filter_click():
+    text = search_entry.get().strip().lower()
+    min_credits_text = credits_entry.get().strip()
+    if min_credits_text == "":
+        min_credits = 0
+    else:
+        min_credits = int(min_credits_text)
+
+    output.delete(0, tk.END)
+    count = 0
+    for course in courses:
+        if text in course["title"].lower() or text in course["code"].lower():
+            if course["credits"] >= min_credits:
+                output.insert(tk.END, course["code"] + " " + course["title"])
+                count += 1
+
+    status_label.config(text=f"Found: {count}")`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky na refactoring:</p>
+        <ul>
+          <li>vytvorte dátový model alebo aspoň jasnú štruktúru pre kurz;</li>
+          <li>vytvorte čistú funkciu na filtrovanie;</li>
+          <li>validáciu <code>min_credits</code> riešte mimo samotného výpisu do UI;</li>
+          <li>callback nech iba koordinuje čítanie vstupu, volanie funkcií a aktualizáciu widgetov;</li>
+          <li>ošetrite nečíselný vstup pre kredity.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Refactoring requirements:</p>
+        <ul>
+          <li>create a data model or at least a clear structure for a course;</li>
+          <li>create a pure function for filtering;</li>
+          <li>handle validation of <code>min_credits</code> outside the actual UI output;</li>
+          <li>let the callback only coordinate input reads, function calls and widget updates;</li>
+          <li>handle non-numeric input for credits.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`def filter_courses(
+    courses: list[Course],
+    query: str = "",
+    teacher: str | None = None,
+    min_credits: int = 0,
+) -> list[Course]:
+    ...`}</code></pre>
+      <p data-lang="sk">Na konci porovnajte, ktorá časť kódu je teraz testovateľná bez spustenia okna.</p>
+      <p data-lang="en" hidden>At the end, compare which part of the code is now testable without opening a window.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — Malý textový editor" en="Task 5 — Small Text Editor" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte aplikáciu s viacriadkovým widgetom <code>Text</code>, ktorá vie otvoriť a uložiť textový súbor.</p>
+        <p>Minimálne funkcie:</p>
+        <ul>
+          <li><code>Otvoriť</code> cez <code>filedialog.askopenfilename()</code>;</li>
+          <li><code>Uložiť</code> do aktuálneho súboru;</li>
+          <li><code>Uložiť ako</code> cez <code>filedialog.asksaveasfilename()</code>;</li>
+          <li>zobraziť názov aktuálneho súboru;</li>
+          <li>evidovať stav neuložených zmien;</li>
+          <li>pri chybe čítania alebo zápisu zobraziť <code>messagebox.showerror()</code>.</li>
+        </ul>
+        <p>Ak používateľ upraví text, title okna alebo stavový label má naznačiť, že súbor má neuložené zmeny.</p>
+        <pre class="expected-output"><code>{`Stav v GUI:
+sample.txt *
+
+Po uložení:
+sample.txt`}</code></pre>
+        <p class="hint"><strong>Pomôcka:</strong> Zmeny vo widgete <code>Text</code> môžete sledovať cez event <code>&lt;KeyRelease&gt;</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create an application with a multi-line <code>Text</code> widget that can open and save a text file.</p>
+        <p>Minimum functionality:</p>
+        <ul>
+          <li><code>Open</code> through <code>filedialog.askopenfilename()</code>;</li>
+          <li><code>Save</code> to the current file;</li>
+          <li><code>Save as</code> through <code>filedialog.asksaveasfilename()</code>;</li>
+          <li>show the name of the current file;</li>
+          <li>track unsaved changes;</li>
+          <li>show <code>messagebox.showerror()</code> on read or write errors.</li>
+        </ul>
+        <p>If the user edits the text, the window title or status label should indicate that the file has unsaved changes.</p>
+        <pre class="expected-output"><code>{`State in GUI:
+sample.txt *
+
+After saving:
+sample.txt`}</code></pre>
+        <p class="hint"><strong>Hint:</strong> You can track changes in the <code>Text</code> widget with the <code>&lt;KeyRelease&gt;</code> event.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — File analyzer" en="Task 6 — File Analyzer" /></h2>
+      <div data-lang="sk">
+        <p>Rozšírte predchádzajúci editor alebo vytvorte samostatnú aplikáciu, ktorá analyzuje vybraný textový súbor.</p>
+        <p>Aplikácia má po výbere súboru zobraziť:</p>
+        <ul>
+          <li>názov súboru;</li>
+          <li>počet riadkov;</li>
+          <li>počet slov;</li>
+          <li>počet znakov;</li>
+          <li>počet neprázdnych riadkov;</li>
+          <li>päť najčastejších slov dlhších ako tri znaky.</li>
+        </ul>
+        <p>Business logiku dajte do funkcie mimo GUI.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Extend the previous editor or create a separate application that analyzes a selected text file.</p>
+        <p>After selecting a file, the application should show:</p>
+        <ul>
+          <li>file name;</li>
+          <li>number of lines;</li>
+          <li>number of words;</li>
+          <li>number of characters;</li>
+          <li>number of non-empty lines;</li>
+          <li>the five most frequent words longer than three characters.</li>
+        </ul>
+        <p>Put business logic into a function outside the GUI.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`from dataclasses import dataclass
+
+@dataclass
+class TextStats:
+    lines: int
+    non_empty_lines: int
+    words: int
+    characters: int
+    top_words: list[tuple[str, int]]
+
+
+def analyze_text(text: str) -> TextStats:
+    ...`}</code></pre>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`sample.txt
+Riadky: 12
+Neprázdne riadky: 10
+Slová: 148
+Znaky: 912
+
+Najčastejšie slová:
+python      7
+data        4
+program     3`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`sample.txt
+Lines: 12
+Non-empty lines: 10
+Words: 148
+Characters: 912
+
+Most frequent words:
+python      7
+data        4
+program     3`}</code></pre>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Keyboard events" en="Task 7 — Keyboard Events" /></h2>
+      <div data-lang="sk">
+        <p>Doplňte do jednej z predchádzajúcich aplikácií ovládanie klávesnicou.</p>
+        <p>Požadované skratky:</p>
+        <ul>
+          <li><code>Enter</code> spustí hlavnú akciu vo formulári alebo vyhľadávaní;</li>
+          <li><code>Ctrl+O</code> otvorí súbor;</li>
+          <li><code>Ctrl+S</code> uloží súbor;</li>
+          <li><code>Escape</code> vyčistí vstup alebo zatvorí dialógovú situáciu podľa kontextu.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Add keyboard controls to one of the previous applications.</p>
+        <p>Required shortcuts:</p>
+        <ul>
+          <li><code>Enter</code> runs the main action in a form or search interface;</li>
+          <li><code>Ctrl+O</code> opens a file;</li>
+          <li><code>Ctrl+S</code> saves a file;</li>
+          <li><code>Escape</code> clears input or closes a dialog-like situation depending on context.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`def handle_save(event):
+    save_current_file()
+
+
+root.bind("<Control-s>", handle_save)`}</code></pre>
+      <p data-lang="sk">Overte rozdiel medzi callbackom z <code>command</code> a handlerom z <code>bind</code>. Nepresúvajte celú logiku do štyroch rôznych handlerov.</p>
+      <p data-lang="en" hidden>Check the difference between a <code>command</code> callback and a handler from <code>bind</code>. Do not move all logic into four separate handlers.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — Canvas interaction" en="Task 8 — Canvas Interaction" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte jednoduchú Canvas aplikáciu na označovanie bodov.</p>
+        <p>Správanie:</p>
+        <ul>
+          <li>ľavý klik vytvorí kruh na pozícii kurzora;</li>
+          <li>pravý klik odstráni najbližší kruh, ak je dostatočne blízko;</li>
+          <li>tlačidlo <code>Vymazať</code> odstráni všetky kruhy;</li>
+          <li>stavový label zobrazuje počet kruhov;</li>
+          <li>súradnice ukladajte do vlastnej dátovej štruktúry, nie iba do Canvas objektov.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a simple Canvas application for marking points.</p>
+        <p>Behavior:</p>
+        <ul>
+          <li>left click creates a circle at the cursor position;</li>
+          <li>right click removes the nearest circle if it is close enough;</li>
+          <li>a <code>Clear</code> button removes all circles;</li>
+          <li>a status label displays the number of circles;</li>
+          <li>store coordinates in your own data structure, not only as Canvas objects.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`def add_point(event):
+    x = event.x
+    y = event.y
+    ...
+
+
+canvas.bind("<Button-1>", add_point)`}</code></pre>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`Po troch kliknutiach:
+Body: 3
+
+Po vymazaní:
+Body: 0`}</code></pre>
+        <p class="hint"><strong>Pomôcka:</strong> Canvas kreslí objekty, ale aplikačný stav by mal existovať aj vo vašom kóde.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`After three clicks:
+Points: 3
+
+After clearing:
+Points: 0`}</code></pre>
+        <p class="hint"><strong>Hint:</strong> Canvas draws objects, but application state should also exist in your own code.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — after() a stav aplikácie" en="Task 9 — after() and Application State" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte jednoduchý timer alebo stopky bez použitia <code>while True</code> a bez <code>time.sleep()</code>.</p>
+        <p>Aplikácia má obsahovať:</p>
+        <ul>
+          <li>label s aktuálnym časom alebo počítadlom;</li>
+          <li>tlačidlo <code>Start</code>;</li>
+          <li>tlačidlo <code>Stop</code>;</li>
+          <li>tlačidlo <code>Reset</code>;</li>
+          <li>stav, ktorý určuje, či timer práve beží.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a simple timer or stopwatch without <code>while True</code> and without <code>time.sleep()</code>.</p>
+        <p>The application should contain:</p>
+        <ul>
+          <li>a label with the current time or counter;</li>
+          <li>a <code>Start</code> button;</li>
+          <li>a <code>Stop</code> button;</li>
+          <li>a <code>Reset</code> button;</li>
+          <li>state that determines whether the timer is currently running.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`def tick():
+    if running:
+        update_time()
+        root.after(1000, tick)`}</code></pre>
+      <div data-lang="sk">
+        <p>Počas behu musí okno ostať responzívne. Skúste si vedome vložiť <code>time.sleep(5)</code> do callbacku a vysvetlite, čo sa stane.</p>
+        <pre class="expected-output"><code>{`00:00
+Start -> 00:01 -> 00:02 -> 00:03
+Stop  -> hodnota sa nemení
+Reset -> 00:00`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The window must remain responsive while the timer is running. Intentionally put <code>time.sleep(5)</code> into a callback and explain what happens.</p>
+        <pre class="expected-output"><code>{`00:00
+Start -> 00:01 -> 00:02 -> 00:03
+Stop  -> value does not change
+Reset -> 00:00`}</code></pre>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 10 — Integračná aplikácia: File Dashboard" en="Task 10 — Integration App: File Dashboard" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte jednu menšiu desktopovú aplikáciu, ktorá spojí viacero prvkov z tohto cvičenia.</p>
+        <p>Navrhovaná funkcionalita:</p>
+        <ul>
+          <li>výber textového súboru cez file dialog;</li>
+          <li>zobrazenie názvu súboru a základných štatistík;</li>
+          <li>vyhľadávanie slova alebo frázy v texte;</li>
+          <li>zobrazenie počtu zhôd;</li>
+          <li>zoznam riadkov, kde sa fráza nachádza;</li>
+          <li>uloženie krátkeho reportu do súboru;</li>
+          <li>stavový label pre chyby a úspešné akcie;</li>
+          <li>aspoň dve klávesové skratky;</li>
+          <li>oddelená business logika od UI callbackov.</li>
+        </ul>
+        <p>Minimálne samostatné funkcie mimo GUI:</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create one smaller desktop application that combines several elements from this exercise.</p>
+        <p>Suggested functionality:</p>
+        <ul>
+          <li>selecting a text file through a file dialog;</li>
+          <li>showing the file name and basic statistics;</li>
+          <li>searching for a word or phrase in the text;</li>
+          <li>showing the number of matches;</li>
+          <li>listing lines where the phrase appears;</li>
+          <li>saving a short report to a file;</li>
+          <li>a status label for errors and successful actions;</li>
+          <li>at least two keyboard shortcuts;</li>
+          <li>business logic separated from UI callbacks.</li>
+        </ul>
+        <p>Minimum standalone functions outside the GUI:</p>
+      </div>
+      <pre class="worksheet-code"><code>{`def analyze_text(text: str) -> TextStats:
+    ...
+
+
+def find_matches(text: str, query: str) -> list[tuple[int, str]]:
+    ...
+
+
+def build_report(filename: str, stats: TextStats, matches: list[tuple[int, str]]) -> str:
+    ...`}</code></pre>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`File Dashboard
+
+Súbor: sample.txt
+Riadky: 12
+Slová: 148
+Zhody pre "python": 4
+
+3: Python sa často používa na automatizáciu.
+8: Tento skript používa Python 3.11.`}</code></pre>
+        <p>Aplikácia nemusí byť graficky efektná. Má byť použiteľná, rozdelená do funkcií a nesmie zamŕzať pri bežných akciách.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`File Dashboard
+
+File: sample.txt
+Lines: 12
+Words: 148
+Matches for "python": 4
+
+3: Python is often used for automation.
+8: This script uses Python 3.11.`}</code></pre>
+        <p>The application does not need to be visually impressive. It should be usable, split into functions and must not freeze during common actions.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>
+        <li><a href="https://docs.python.org/3/library/tkinter.html" target="_blank" rel="noreferrer">tkinter</a></li>
+        <li><a href="https://docs.python.org/3/library/tkinter.ttk.html" target="_blank" rel="noreferrer">ttk widgets</a></li>
+        <li><a href="https://docs.python.org/3/library/dialog.html" target="_blank" rel="noreferrer">tkinter dialogs</a></li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

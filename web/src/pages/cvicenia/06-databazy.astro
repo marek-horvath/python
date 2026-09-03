@@ -1,0 +1,475 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercise = getExerciseBySlug("06-databazy");
+if (!exercise) throw new Error("Cvičenie 06 nie je zaregistrované.");
+
+const titleEn = exercise.translations?.en?.title ?? exercise.title;
+const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+const descriptionEn = exercise.translations?.en?.description ?? exercise.description;
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${titleEn}: ${subtitleEn}`}
+  description={exercise.description}
+  descriptionEn={descriptionEn}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={titleEn} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></p>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`Python 3.x
+Štandardná knižnica: sqlite3
+Dependency pre ORM časť: sqlalchemy
+Pracovná databáza: library.db
+Pracovné súbory: schema.sql, library_db.py, library_orm.py`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`Python 3.x
+Standard library: sqlite3
+Dependency for the ORM part: sqlalchemy
+Working database: library.db
+Working files: schema.sql, library_db.py, library_orm.py`}</code></pre>
+      </div>
+      <pre class="worksheet-code"><code>{`python -m pip install sqlalchemy`}</code></pre>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul data-lang="sk">
+        <li>navrhnúť malú relačnú schému s väzbami a obmedzeniami;</li>
+        <li>používať bezpečné parametrizované SQL dotazy cez <code>sqlite3</code>;</li>
+        <li>pracovať s JOIN, transakciami a chybami databázy;</li>
+        <li>porovnať explicitné SQL so základným SQLAlchemy 2.x modelom.</li>
+      </ul>
+      <ul data-lang="en" hidden>
+        <li>design a small relational schema with relationships and constraints;</li>
+        <li>use safe parameterized SQL queries through <code>sqlite3</code>;</li>
+        <li>work with JOIN, transactions and database errors;</li>
+        <li>compare explicit SQL with a basic SQLAlchemy 2.x model.</li>
+      </ul>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 1 — Návrh schémy knižnice" en="Task 1 — Library Schema Design" /></h2>
+      <div data-lang="sk">
+        <p>Navrhnite SQLite schému pre malú knižnicu. Databáza má evidovať knihy, členov a výpožičky.</p>
+        <p>Minimálne tabuľky:</p>
+        <ul>
+          <li><code>books</code>: názov, autor, rok, ISBN, počet kusov;</li>
+          <li><code>members</code>: meno, email, dátum registrácie;</li>
+          <li><code>loans</code>: kniha, člen, dátum požičania, termín vrátenia, dátum vrátenia.</li>
+        </ul>
+        <p>Schéma má obsahovať:</p>
+        <ul>
+          <li>primary keys;</li>
+          <li><code>NOT NULL</code> pre povinné hodnoty;</li>
+          <li><code>UNIQUE</code> pre ISBN a email;</li>
+          <li>foreign keys medzi výpožičkami, knihami a členmi;</li>
+          <li>aspoň jeden <code>CHECK</code> constraint, napríklad počet kusov nesmie byť záporný.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Design a SQLite schema for a small library. The database should track books, members and loans.</p>
+        <p>Minimum tables:</p>
+        <ul>
+          <li><code>books</code>: title, author, year, ISBN, copy count;</li>
+          <li><code>members</code>: name, email, registration date;</li>
+          <li><code>loans</code>: book, member, borrowed date, due date, returned date.</li>
+        </ul>
+        <p>The schema should include:</p>
+        <ul>
+          <li>primary keys;</li>
+          <li><code>NOT NULL</code> for required values;</li>
+          <li><code>UNIQUE</code> for ISBN and email;</li>
+          <li>foreign keys between loans, books and members;</li>
+          <li>at least one <code>CHECK</code> constraint, for example copy count must not be negative.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`CREATE TABLE books (
+    id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    author TEXT NOT NULL,
+    year INTEGER,
+    isbn TEXT UNIQUE NOT NULL,
+    copies INTEGER NOT NULL CHECK (copies >= 0)
+);`}</code></pre>
+      <p data-lang="sk">Výsledok uložte do <code>schema.sql</code>.</p>
+      <p data-lang="en" hidden>Save the result into <code>schema.sql</code>.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 2 — Vytvorenie databázy z Pythonu" en="Task 2 — Creating a Database from Python" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte skript <code>library_db.py</code>, ktorý vytvorí databázu <code>library.db</code> zo súboru <code>schema.sql</code>.</p>
+        <p>Požiadavky:</p>
+        <ul>
+          <li>použite <code>sqlite3.connect()</code>;</li>
+          <li>zapnite foreign keys cez <code>PRAGMA foreign_keys = ON</code>;</li>
+          <li>schému načítajte zo súboru, nie z veľkého stringu v kóde;</li>
+          <li>skript má ísť spustiť opakovane;</li>
+          <li>po vytvorení vypíšte názvy tabuliek.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a script <code>library_db.py</code> that creates <code>library.db</code> from <code>schema.sql</code>.</p>
+        <p>Requirements:</p>
+        <ul>
+          <li>use <code>sqlite3.connect()</code>;</li>
+          <li>enable foreign keys with <code>PRAGMA foreign_keys = ON</code>;</li>
+          <li>load the schema from a file, not from a large string in code;</li>
+          <li>the script should be safe to run repeatedly;</li>
+          <li>after creation, print table names.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Database: library.db
+Tables:
+- books
+- members
+- loans`}</code></pre>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Viac SQL príkazov zo súboru môžete spustiť cez <code>connection.executescript()</code>.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> You can execute multiple SQL statements from a file with <code>connection.executescript()</code>.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Seed dáta a parametrizované INSERT dotazy" en="Task 3 — Seed Data and Parameterized INSERT Queries" /></h2>
+      <div data-lang="sk">
+        <p>Vložte do databázy počiatočné dáta. Použite parametrizované dotazy, nie f-string SQL.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Insert initial data into the database. Use parameterized queries, not f-string SQL.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`books = [
+    ("Clean Code", "Robert C. Martin", 2008, "9780132350884", 3),
+    ("Python Crash Course", "Eric Matthes", 2023, "9781718502703", 2),
+    ("Designing Data-Intensive Applications", "Martin Kleppmann", 2017, "9781449373320", 1),
+]
+
+members = [
+    ("Anna Horváthová", "anna@example.com", "2026-09-21"),
+    ("Peter Novák", "peter@example.com", "2026-09-22"),
+    ("Lucia Kováčová", "lucia@example.com", "2026-09-23"),
+]`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky:</p>
+        <ul>
+          <li>vložiť knihy a členov;</li>
+          <li>pri opakovanom spustení nevytvoriť duplicity;</li>
+          <li>zachytiť <code>sqlite3.IntegrityError</code> pri porušení unique constraintu;</li>
+          <li>vypísať, koľko záznamov bolo vložených a koľko preskočených.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Requirements:</p>
+        <ul>
+          <li>insert books and members;</li>
+          <li>do not create duplicates when the script is run repeatedly;</li>
+          <li>catch <code>sqlite3.IntegrityError</code> when a unique constraint is violated;</li>
+          <li>print how many records were inserted and how many were skipped.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Books inserted: 3
+Members inserted: 3
+Skipped duplicates: 0
+
+Second run:
+Skipped duplicates: 6`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Vyhľadávanie a filtre" en="Task 4 — Search and Filters" /></h2>
+      <div data-lang="sk">
+        <p>Implementujte funkcie na čítanie dát z databázy.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Implement functions for reading data from the database.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`def find_books(connection, query: str = "", author: str | None = None) -> list[tuple]:
+    ...
+
+
+def available_books(connection) -> list[tuple]:
+    ...
+
+
+def get_member_by_email(connection, email: str) -> tuple | None:
+    ...`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky:</p>
+        <ul>
+          <li>použiť <code>WHERE</code> a <code>LIKE</code> pre vyhľadávanie;</li>
+          <li>hodnoty vkladať cez parametre;</li>
+          <li>výsledky zoradiť podľa autora a názvu;</li>
+          <li>ak člen neexistuje, vrátiť <code>None</code>, nie prázdny tuple.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Requirements:</p>
+        <ul>
+          <li>use <code>WHERE</code> and <code>LIKE</code> for searching;</li>
+          <li>pass values through parameters;</li>
+          <li>sort results by author and title;</li>
+          <li>if a member does not exist, return <code>None</code>, not an empty tuple.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Martin Kleppmann | Designing Data-Intensive Applications | 1 copy
+Robert C. Martin | Clean Code | 3 copies`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — JOIN report výpožičiek" en="Task 5 — JOIN Loan Report" /></h2>
+      <div data-lang="sk">
+        <p>Vložte niekoľko výpožičiek a vytvorte report, ktorý spája tri tabuľky.</p>
+        <p>Report má obsahovať:</p>
+        <ul>
+          <li>meno člena;</li>
+          <li>email;</li>
+          <li>názov knihy;</li>
+          <li>dátum požičania;</li>
+          <li>termín vrátenia;</li>
+          <li>stav <code>active</code>, <code>returned</code> alebo <code>overdue</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Insert several loans and create a report that joins three tables.</p>
+        <p>The report should include:</p>
+        <ul>
+          <li>member name;</li>
+          <li>email;</li>
+          <li>book title;</li>
+          <li>borrowed date;</li>
+          <li>due date;</li>
+          <li>status <code>active</code>, <code>returned</code> or <code>overdue</code>.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Anna Horváthová | Clean Code | 2026-09-21 | due 2026-10-05 | active
+Peter Novák     | Python Crash Course | 2026-09-01 | due 2026-09-15 | overdue`}</code></pre>
+      <p data-lang="sk">Stav <code>overdue</code> počítajte v Pythone alebo v SQL podľa toho, čo je pre vaše riešenie čitateľnejšie.</p>
+      <p data-lang="en" hidden>Compute the <code>overdue</code> status in Python or SQL depending on what is more readable in your solution.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — CRUD funkcie s validáciou" en="Task 6 — CRUD Functions with Validation" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte základné CRUD funkcie pre členov knižnice.</p>
+        <p>Minimálne funkcie:</p>
+        <ul>
+          <li>pridať člena;</li>
+          <li>nájsť člena podľa emailu;</li>
+          <li>upraviť meno člena;</li>
+          <li>deaktivovať alebo odstrániť člena;</li>
+          <li>vypísať členov zoradených podľa mena.</li>
+        </ul>
+        <p>Požiadavky:</p>
+        <ul>
+          <li>email validujte aspoň jednoduchou kontrolou pred INSERTom;</li>
+          <li>duplicate email riešte zrozumiteľnou chybou;</li>
+          <li>funkcie nemajú priamo čítať hodnoty cez <code>input()</code>;</li>
+          <li>SQL dotazy majú byť parametrizované.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create basic CRUD functions for library members.</p>
+        <p>Minimum functions:</p>
+        <ul>
+          <li>add a member;</li>
+          <li>find a member by email;</li>
+          <li>update a member name;</li>
+          <li>deactivate or delete a member;</li>
+          <li>list members sorted by name.</li>
+        </ul>
+        <p>Requirements:</p>
+        <ul>
+          <li>validate email with at least a simple check before INSERT;</li>
+          <li>handle duplicate email with a readable error;</li>
+          <li>functions should not read values directly through <code>input()</code>;</li>
+          <li>SQL queries must be parameterized.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`add_member("Eva", "eva@example.com") -> OK
+add_member("Eva 2", "eva@example.com") -> duplicate email
+update_member_name("eva@example.com", "Eva Kráľová") -> OK`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Transakcia pri požičaní knihy" en="Task 7 — Transaction When Borrowing a Book" /></h2>
+      <div data-lang="sk">
+        <p>Implementujte funkciu <code>borrow_book(connection, member_email: str, isbn: str, borrowed_at: str, due_at: str)</code>.</p>
+        <p>Operácia má v jednej transakcii:</p>
+        <ul>
+          <li>nájsť člena;</li>
+          <li>nájsť knihu;</li>
+          <li>overiť, že existuje voľný kus;</li>
+          <li>vytvoriť záznam v <code>loans</code>;</li>
+          <li>znížiť počet dostupných kusov.</li>
+        </ul>
+        <p>Ak ktorýkoľvek krok zlyhá, databáza nesmie zostať v polovičnom stave.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Implement <code>borrow_book(connection, member_email: str, isbn: str, borrowed_at: str, due_at: str)</code>.</p>
+        <p>The operation should do the following in one transaction:</p>
+        <ul>
+          <li>find the member;</li>
+          <li>find the book;</li>
+          <li>verify that an available copy exists;</li>
+          <li>create a record in <code>loans</code>;</li>
+          <li>decrease the number of available copies.</li>
+        </ul>
+        <p>If any step fails, the database must not remain in a partial state.</p>
+      </div>
+      <pre class="expected-output"><code>{`borrow_book("anna@example.com", "9780132350884") -> OK
+borrow_book("missing@example.com", "9780132350884") -> unknown member
+borrow_book("anna@example.com", "missing-isbn") -> unknown book
+borrow_book("peter@example.com", "9781449373320") -> no available copies`}</code></pre>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Použite <code>commit()</code> až po úspechu všetkých krokov a <code>rollback()</code> pri chybe.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> Use <code>commit()</code> only after all steps succeed and <code>rollback()</code> on error.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — Constraints a chybové stavy" en="Task 8 — Constraints and Error States" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte krátky testovací skript, ktorý zámerne skúsi porušiť pravidlá databázy.</p>
+        <p>Overte tieto situácie:</p>
+        <ul>
+          <li>duplicitné ISBN;</li>
+          <li>duplicitný email;</li>
+          <li>záporný počet kusov;</li>
+          <li>výpožička pre neexistujúcu knihu;</li>
+          <li>výpožička pre neexistujúceho člena.</li>
+        </ul>
+        <p>Program má tieto chyby zachytiť a vypísať zrozumiteľný výsledok.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a short test script that intentionally tries to violate database rules.</p>
+        <p>Check these situations:</p>
+        <ul>
+          <li>duplicate ISBN;</li>
+          <li>duplicate email;</li>
+          <li>negative copy count;</li>
+          <li>a loan for a non-existing book;</li>
+          <li>a loan for a non-existing member.</li>
+        </ul>
+        <p>The program should catch these errors and print a readable result.</p>
+      </div>
+      <pre class="expected-output"><code>{`duplicate isbn: rejected
+duplicate email: rejected
+negative copies: rejected
+unknown book loan: rejected
+unknown member loan: rejected`}</code></pre>
+      <p data-lang="sk">Neriešte chyby tak, že ich potichu ignorujete. Chyba má byť viditeľná a pochopiteľná.</p>
+      <p data-lang="en" hidden>Do not handle errors by silently ignoring them. An error should be visible and understandable.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — SQLAlchemy 2.x modely" en="Task 9 — SQLAlchemy 2.x Models" /></h2>
+      <div data-lang="sk">
+        <p>V súbore <code>library_orm.py</code> vytvorte ORM modely pre rovnakú doménu.</p>
+        <p>Modely majú používať:</p>
+        <ul>
+          <li><code>DeclarativeBase</code>;</li>
+          <li><code>Mapped</code>;</li>
+          <li><code>mapped_column</code>;</li>
+          <li>primary keys;</li>
+          <li>unique constraints;</li>
+          <li>foreign keys;</li>
+          <li>relationships tam, kde zlepšia čitateľnosť práce s dátami.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create ORM models for the same domain in <code>library_orm.py</code>.</p>
+        <p>The models should use:</p>
+        <ul>
+          <li><code>DeclarativeBase</code>;</li>
+          <li><code>Mapped</code>;</li>
+          <li><code>mapped_column</code>;</li>
+          <li>primary keys;</li>
+          <li>unique constraints;</li>
+          <li>foreign keys;</li>
+          <li>relationships where they improve readability when working with data.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`class Book(Base):
+    __tablename__ = "books"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str]
+    author: Mapped[str]
+    isbn: Mapped[str] = mapped_column(unique=True)
+    copies: Mapped[int]`}</code></pre>
+      <p data-lang="sk">Nevytvárajte zbytočne rozsiahlu ORM vrstvu. Cieľom je pochopiť mapovanie medzi tabuľkou a Python objektom.</p>
+      <p data-lang="en" hidden>Do not create an unnecessarily large ORM layer. The goal is to understand the mapping between a table and a Python object.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 10 — Mini projekt: Library data access layer" en="Task 10 — Mini Project: Library Data Access Layer" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte malú data access vrstvu alebo CLI program pre knižnicu.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a small data access layer or CLI program for the library.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python library_cli.py init
+python library_cli.py add-book "Clean Code" --author "Robert C. Martin" --isbn 9780132350884 --copies 3
+python library_cli.py add-member "Anna Horváthová" --email anna@example.com
+python library_cli.py borrow anna@example.com 9780132350884
+python library_cli.py loans --overdue
+python library_cli.py report`}</code></pre>
+      <div data-lang="sk">
+        <p>Minimálne funkcie:</p>
+        <ul>
+          <li>vytvoriť databázu;</li>
+          <li>pridať knihu;</li>
+          <li>pridať člena;</li>
+          <li>požičať knihu transakčne;</li>
+          <li>vrátiť knihu transakčne;</li>
+          <li>vypísať aktívne a omeškané výpožičky;</li>
+          <li>vypísať súhrn knižnice;</li>
+          <li>ošetriť duplicate a missing entity chyby;</li>
+          <li>rozdeliť kód na funkcie mimo <code>main()</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Minimum functionality:</p>
+        <ul>
+          <li>create the database;</li>
+          <li>add a book;</li>
+          <li>add a member;</li>
+          <li>borrow a book transactionally;</li>
+          <li>return a book transactionally;</li>
+          <li>list active and overdue loans;</li>
+          <li>print a library summary;</li>
+          <li>handle duplicate and missing entity errors;</li>
+          <li>split code into functions outside <code>main()</code>.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Library summary
+Books: 3
+Members: 3
+Active loans: 2
+Overdue loans: 1
+Available copies: 4`}</code></pre>
+      <p data-lang="sk">Vyberte si, či finálnu verziu úlohy 10 spravíte cez priame SQL alebo cez SQLAlchemy. Dôležitá je konzistencia a čitateľné rozdelenie kódu.</p>
+      <p data-lang="en" hidden>Choose whether the final version of Task 10 uses direct SQL or SQLAlchemy. Consistency and readable code organization matter more.</p>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>
+        <li><a href="https://docs.python.org/3/library/sqlite3.html" target="_blank" rel="noreferrer">sqlite3</a></li>
+        <li><a href="https://www.sqlite.org/lang.html" target="_blank" rel="noreferrer">SQLite SQL language</a></li>
+        <li><a href="https://docs.sqlalchemy.org/en/20/" target="_blank" rel="noreferrer">SQLAlchemy 2.0</a></li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

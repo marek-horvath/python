@@ -1,0 +1,680 @@
+---
+import { localizedCourse } from "@shared/i18n";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LocalizedText from "./LocalizedText.astro";
+
+type Pair = { sk: string; en: string };
+
+const tocItems: Array<{ id: string; label: Pair }> = [
+  { id: "prehlad", label: { sk: "Prehľad", en: "Overview" } },
+  { id: "ciele", label: { sk: "Ciele", en: "Goals" } },
+  { id: "tema", label: { sk: "Téma projektu", en: "Project Topic" } },
+  { id: "technologie", label: { sk: "Technológie", en: "Technologies" } },
+  { id: "poziadavky", label: { sk: "Požiadavky", en: "Requirements" } },
+  { id: "milestone-1", label: { sk: "Milestone 1", en: "Milestone 1" } },
+  { id: "final", label: { sk: "Finále", en: "Final Submission" } },
+  { id: "dokumentacia", label: { sk: "Dokumentácia", en: "Documentation" } },
+  { id: "video", label: { sk: "Video", en: "Video" } },
+  { id: "odovzdavanie", label: { sk: "Odovzdávanie", en: "Submission" } },
+  { id: "samostatnost", label: { sk: "Samostatnosť", en: "Independent Work" } },
+  { id: "hodnotenie", label: { sk: "Hodnotenie", en: "Grading" } }
+];
+
+const goals: Pair[] = [
+  { sk: "Navrhnúť a implementovať vlastný Python projekt.", en: "Design and implement an individual Python project." },
+  { sk: "Prakticky využiť viacero tém a technológií predstavených počas semestra.", en: "Apply several topics and technologies covered during the semester." },
+  { sk: "Rozdeliť väčší problém na menšie moduly a komponenty.", en: "Break a larger problem into smaller modules and components." },
+  { sk: "Dodržiavať základné programátorské best practices primerané rozsahu projektu.", en: "Follow basic programming best practices appropriate for the project scope." },
+  { sk: "Dokumentovať návrh, implementáciu a spôsob používania vlastného riešenia.", en: "Document the design, implementation and usage of the solution." },
+  { sk: "Prezentovať funkčnosť a technické riešenie projektu.", en: "Present the functionality and the technical solution." }
+];
+
+const projectDirections: Array<{ title: Pair; items: Pair[] }> = [
+  {
+    title: { sk: "Webová aplikácia", en: "Web Application" },
+    items: [
+      { sk: "rezervačný systém", en: "reservation system" },
+      { sk: "evidencia používateľov, udalostí alebo záznamov", en: "user, event or record management" },
+      { sk: "jednoduchý informačný systém", en: "small information system" },
+      { sk: "správca financií, knižnica alebo katalóg", en: "finance manager, library or catalogue" },
+      { sk: "aplikácia napojená na externé API", en: "application integrated with an external API" }
+    ]
+  },
+  {
+    title: { sk: "Desktop aplikácia", en: "Desktop Application" },
+    items: [
+      { sk: "osobný organizér", en: "personal organizer" },
+      { sk: "správca dát alebo evidencia", en: "data manager or record system" },
+      { sk: "nástroj na prácu so súbormi", en: "file processing tool" },
+      { sk: "multimediálny nástroj", en: "multimedia tool" },
+      { sk: "GUI nad vlastnou aplikačnou logikou", en: "GUI on top of custom application logic" }
+    ]
+  },
+  {
+    title: { sk: "Hra alebo interaktívna aplikácia", en: "Game or Interactive Application" },
+    items: [
+      { sk: "jednoduchá 2D hra", en: "simple 2D game" },
+      { sk: "simulácia", en: "simulation" },
+      { sk: "puzzle, strategická alebo logická hra", en: "puzzle, strategy or logic game" },
+      { sk: "interaktívny výučbový alebo vizualizačný nástroj", en: "interactive educational or visualization tool" }
+    ]
+  },
+  {
+    title: { sk: "Automatizácia", en: "Automation" },
+    items: [
+      { sk: "organizácia súborov alebo backup nástroj", en: "file organizer or backup utility" },
+      { sk: "automatické spracovanie dát", en: "automated data processing" },
+      { sk: "batch processing alebo CLI utility", en: "batch processing or CLI utility" },
+      { sk: "automatizácia opakovanej práce alebo externých programov", en: "automation of repetitive work or external programs" }
+    ]
+  },
+  {
+    title: { sk: "Web scraping / monitoring", en: "Web Scraping / Monitoring" },
+    items: [
+      { sk: "sledovanie cien alebo dostupnosti", en: "price or availability monitoring" },
+      { sk: "agregácia informácií", en: "information aggregation" },
+      { sk: "monitoring zmien", en: "change monitoring" },
+      { sk: "zber verejne dostupných dát", en: "collection of publicly available data" },
+      { sk: "automatizácia browsera", en: "browser automation" }
+    ]
+  },
+  {
+    title: { sk: "Data Science", en: "Data Science" },
+    items: [
+      { sk: "analýza datasetu", en: "dataset analysis" },
+      { sk: "vizualizácia a spracovanie štatistík", en: "visualization and statistical processing" },
+      { sk: "porovnávanie dát", en: "data comparison" },
+      { sk: "jednoduchý analytický nástroj alebo dashboard", en: "small analytical tool or dashboard" }
+    ]
+  },
+  {
+    title: { sk: "API / backend", en: "API / Backend" },
+    items: [
+      { sk: "vlastné REST API", en: "custom REST API" },
+      { sk: "backend pre jednoduchú aplikáciu", en: "backend for a small application" },
+      { sk: "agregácia viacerých externých API", en: "aggregation of multiple external APIs" },
+      { sk: "služba pracujúca s databázou", en: "service backed by a database" }
+    ]
+  },
+  {
+    title: { sk: "Systémový alebo technický nástroj", en: "System or Developer Tool" },
+    items: [
+      { sk: "monitoring počítača", en: "system monitoring" },
+      { sk: "analýza Git repozitárov", en: "Git repository analysis" },
+      { sk: "práca so sieťovými alebo systémovými údajmi", en: "processing network or system data" },
+      { sk: "developer utility", en: "developer utility" }
+    ]
+  }
+];
+
+const notEnough: Pair[] = [
+  { sk: "samotný kalkulátor alebo jednoduchý prevodník jednotiek", en: "a standalone calculator or a simple unit converter" },
+  { sk: "program pozostávajúci z niekoľkých input/print operácií", en: "a program made of a few input/print operations" },
+  { sk: "jedna statická webová stránka", en: "a single static web page" },
+  { sk: "jednoduchý CRUD nad jednou tabuľkou bez ďalšej logiky", en: "a simple CRUD interface over one table without additional logic" },
+  { sk: "jeden notebook, ktorý iba načíta CSV a vytvorí jeden graf", en: "one notebook that only loads a CSV file and creates one chart" },
+  { sk: "script s niekoľkými príkazmi bez vlastnej aplikačnej logiky", en: "a script with a few commands and no meaningful application logic" }
+];
+
+const technologyAreas: Array<{ title: Pair; items: string[] }> = [
+  { title: { sk: "Skriptovanie a automatizácia", en: "Scripting and Automation" }, items: ["pathlib", "files", "CLI", "subprocess", "configuration"] },
+  { title: { sk: "Používateľské rozhranie", en: "User Interface" }, items: ["Tkinter", "ttk", "Pygame", "GUI", "web frontend"] },
+  { title: { sk: "HTTP a externé API", en: "HTTP and External APIs" }, items: ["HTTPX", "REST API", "JSON", "external services"] },
+  { title: { sk: "Databázy", en: "Databases" }, items: ["SQLite", "SQL", "SQLAlchemy", "database design"] },
+  { title: { sk: "Data Science", en: "Data Science" }, items: ["NumPy", "pandas", "Matplotlib", "data analysis"] },
+  { title: { sk: "Web scraping", en: "Web Scraping" }, items: ["BeautifulSoup", "Playwright", "web data extraction"] },
+  { title: { sk: "Web backend", en: "Web Backend" }, items: ["FastAPI", "Pydantic", "REST endpoints", "backend logic"] },
+  { title: { sk: "Ďalšie Python technológie", en: "Other Python Technologies" }, items: ["third-party libraries", "domain-specific frameworks"] }
+];
+
+const qualityRequirements: Pair[] = [
+  { sk: "modularitu a rozumnú štruktúru projektu", en: "modularity and a reasonable project structure" },
+  { sk: "error handling a validáciu vstupov", en: "error handling and input validation" },
+  { sk: "konfiguráciu oddelenú od aplikačnej logiky", en: "configuration separated from application logic" },
+  { sk: "testovanie primerané typu projektu", en: "testing appropriate for the project type" },
+  { sk: "bezpečné programovanie, čitateľnosť kódu a správu dependencies", en: "secure programming, code readability and dependency management" },
+  { sk: "technickú dokumentáciu a priebežnú prácu v Git", en: "technical documentation and continuous work with Git" }
+];
+
+const bestPractices: Pair[] = [
+  { sk: "Nepíšte celý projekt do jedného `main.py`, ak na to nie je dobrý dôvod.", en: "Do not put the entire project into one `main.py` unless there is a good reason." },
+  { sk: "Rozdeľte riešenie do logických modulov a používajte funkcie alebo triedy tam, kde dávajú zmysel.", en: "Split the solution into logical modules and use functions or classes where they make sense." },
+  { sk: "Pomenujte premenné, funkcie, triedy a moduly tak, aby vyjadrovali ich účel.", en: "Name variables, functions, classes and modules so their purpose is clear." },
+  { sk: "Minimalizujte duplicitu a oddeľte používateľské rozhranie od aplikačnej logiky, ak je to relevantné.", en: "Minimize duplication and separate the user interface from application logic where relevant." },
+  { sk: "Používajte type hints aspoň na dôležitých častiach vlastného API.", en: "Use type hints at least on the important parts of your own API." },
+  { sk: "Nepoužívajte `except: pass` a nereagujte na chyby tichým ignorovaním.", en: "Do not use `except: pass` and do not silently ignore errors." },
+  { sk: "Nehardcodujte absolútne cesty, heslá, API keys ani secrets do source code.", en: "Do not hardcode absolute paths, passwords, API keys or secrets in source code." },
+  { sk: "Pri SQL používajte parameterized queries.", en: "Use parameterized queries for SQL." },
+  { sk: "Git používajte priebežne, nie jedným commitom na konci.", en: "Use Git continuously, not as one final commit at the end." }
+];
+
+const mvpRequirements: Pair[] = [
+  { sk: "definovaný problém, téma a cieľ projektu", en: "defined problem, topic and project goal" },
+  { sk: "základná architektúra a vytvorený Git repository", en: "basic architecture and an initialized Git repository" },
+  { sk: "rozbehnutý projekt so spustiteľnou základnou funkcionalitou", en: "started project with runnable core functionality" },
+  { sk: "minimálne 3 plánované technologické oblasti a dôvod ich použitia", en: "at least 3 planned technology areas and a reason for using them" },
+  { sk: "plán toho, čo zostáva do finálnej verzie", en: "plan for what remains before the final version" }
+];
+
+const mvpReadme = [
+  "Názov projektu / Project title",
+  "Krátky popis / Short description",
+  "Čo projekt rieši / Problem being solved",
+  "Aktuálne funkcie / Current functionality",
+  "Plánované funkcie / Planned functionality",
+  "Použité alebo plánované technologické oblasti / Used or planned technology areas",
+  "Postup spustenia aktuálneho MVP / How to run the current MVP"
+];
+
+const mvpRubric: Array<{ category: Pair; points: string; description: Pair }> = [
+  { category: { sk: "Návrh a rozsah projektu", en: "Project Design and Scope" }, points: "5", description: { sk: "jasnosť problému, zmysluplný rozsah, realizovateľnosť a jasne definovaný cieľ", en: "clarity of the problem, meaningful scope, feasibility and a clearly defined goal" } },
+  { category: { sk: "Funkčné MVP", en: "Functional MVP" }, points: "12", description: { sk: "projekt sa dá spustiť, existuje hlavná funkcionalita a nejde iba o prázdnu štruktúru alebo mockup", en: "the project runs, core functionality exists and the result is not just an empty structure or mockup" } },
+  { category: { sk: "Štruktúra riešenia", en: "Solution Structure" }, points: "5", description: { sk: "základná modularita a rozumné rozdelenie kódu", en: "basic modularity and reasonable code organization" } },
+  { category: { sk: "Technický plán", en: "Technical Plan" }, points: "4", description: { sk: "zvolené technologické oblasti a ich zmysluplnosť pre projekt", en: "selected technology areas and their relevance to the project" } },
+  { category: { sk: "Repozitár a spustiteľnosť", en: "Repository and Run Instructions" }, points: "4", description: { sk: "priebežná práca v Git, README, dependencies a spustiteľnosť podľa návodu", en: "continuous Git work, README, dependencies and reproducible run instructions" } }
+];
+
+const finalRubric: Array<{ category: Pair; points: string; description: Pair }> = [
+  { category: { sk: "Funkčnosť a dokončenosť", en: "Functionality and Completion" }, points: "12", description: { sk: "hlavné use-cases fungujú od začiatku do konca a aplikácia rozumne reaguje na bežné chyby", en: "main use cases work end to end and the application handles common error situations reasonably" } },
+  { category: { sk: "Technická úroveň a použité oblasti", en: "Technical Level and Applied Areas" }, points: "10", description: { sk: "oblasti predmetu sú použité zmysluplne a majú v projekte reálny význam", en: "course areas are applied meaningfully and have a real role in the project" } },
+  { category: { sk: "Kvalita kódu a best practices", en: "Code Quality and Best Practices" }, points: "8", description: { sk: "modularita, názvy, oddelenie zodpovedností, type hints a kvalita Python kódu", en: "modularity, naming, separation of responsibilities, type hints and Python code quality" } },
+  { category: { sk: "Robustnosť, testovanie a bezpečnosť", en: "Robustness, Testing and Security" }, points: "5", description: { sk: "error handling, input validation, pytest, SQL bezpečnosť, secrets, HTTP timeouts, logging alebo práca s paths podľa typu projektu", en: "error handling, input validation, pytest, SQL safety, secrets, HTTP timeouts, logging or path handling depending on the project" } },
+  { category: { sk: "Originalita a vlastný prínos", en: "Originality and Individual Contribution" }, points: "5", description: { sk: "vlastné rozhodnutia, vlastná funkcionalita, spracovanie problému a rozšírenia nad rámec tutorialu", en: "own decisions, custom functionality, problem handling and extensions beyond a copied tutorial" } }
+];
+
+const documentationSections: Array<{ title: Pair; description: Pair }> = [
+  { title: { sk: "Titulná strana", en: "Title Page" }, description: { sk: `${localizedCourse.university.sk}, ${localizedCourse.faculty.sk}, predmet ${localizedCourse.title.sk}, názov projektu, meno študenta a akademický rok.`, en: `${localizedCourse.university.en}, ${localizedCourse.faculty.en}, course ${localizedCourse.title.en}, project title, student name and academic year.` } },
+  { title: { sk: "Úvod", en: "Introduction" }, description: { sk: "čo projekt rieši, prečo bola téma zvolená a aký je hlavný cieľ", en: "what the project solves, why the topic was chosen and what the main goal is" } },
+  { title: { sk: "Požiadavky a funkcionalita", en: "Requirements and Functionality" }, description: { sk: "hlavné funkcie, používateľské scenáre, MVP a finálna verzia", en: "main features, user scenarios, MVP and final version" } },
+  { title: { sk: "Návrh riešenia", en: "Solution Design" }, description: { sk: "architektúra a jednoduchý diagram, ak pomáha vysvetliť systém", en: "architecture and a simple diagram if it helps explain the system" } },
+  { title: { sk: "Použité technológie", en: "Technologies Used" }, description: { sk: "technologické oblasti, použité knižnice, účel a dôvod použitia", en: "technology areas, libraries used, purpose and rationale" } },
+  { title: { sk: "Implementácia", en: "Implementation" }, description: { sk: "hlavné moduly, dátové modely, databáza, API, GUI, algoritmus alebo spracovanie dát podľa projektu", en: "main modules, data models, database, API, GUI, algorithm or data processing depending on the project" } },
+  { title: { sk: "Testovanie a robustnosť", en: "Testing and Robustness" }, description: { sk: "automatické alebo manuálne testovanie, chybové situácie a validácia", en: "automated or manual testing, error cases and validation" } },
+  { title: { sk: "Bezpečnosť", en: "Security" }, description: { sk: "secrets, vstupy, SQL, API, filesystem alebo autentifikácia, ak sú relevantné", en: "secrets, inputs, SQL, APIs, filesystem or authentication where relevant" } },
+  { title: { sk: "Použitie programu", en: "Using the Program" }, description: { sk: "príprava prostredia, dependencies, konfigurácia, spustenie a základné používanie", en: "environment setup, dependencies, configuration, running and basic usage" } },
+  { title: { sk: "Čo som sa naučil", en: "What I Learned" }, description: { sk: "nové technológie, riešené problémy, technické rozhodnutia a čo by ste nabudúce urobili inak", en: "new technologies, problems solved, technical decisions and what you would do differently next time" } },
+  { title: { sk: "Obmedzenia a možné rozšírenia", en: "Limitations and Possible Extensions" }, description: { sk: "čo projekt zatiaľ nerieši a čo by sa dalo doplniť", en: "what the project does not cover yet and what could be added" } },
+  { title: { sk: "Zdroje a použité nástroje", en: "Sources and Tools Used" }, description: { sk: "dokumentácie, knižnice, tutoriály, datasety a výraznejšie použité nástroje vrátane AI nástrojov", en: "documentation, libraries, tutorials, datasets and significant tools used, including AI tools" } }
+];
+
+const documentationRubric: Array<{ category: Pair; points: string; description: Pair }> = [
+  { category: { sk: "Formálna úroveň a štruktúra", en: "Form and Structure" }, points: "3", description: { sk: "titulná strana, čitateľnosť, logická štruktúra a formátovanie", en: "title page, readability, logical structure and formatting" } },
+  { category: { sk: "Popis problému a návrhu", en: "Problem and Design Description" }, points: "5", description: { sk: "cieľ, požiadavky, architektúra a návrh riešenia", en: "goal, requirements, architecture and solution design" } },
+  { category: { sk: "Technický popis implementácie", en: "Technical Implementation Description" }, points: "6", description: { sk: "technológie, moduly, dôležité rozhodnutia a primeraná technická hĺbka", en: "technologies, modules, important decisions and appropriate technical depth" } },
+  { category: { sk: "Testovanie, použitie, skúsenosti a obmedzenia", en: "Testing, Usage, Experience and Limitations" }, points: "4", description: { sk: "testovanie, návod, získané skúsenosti, nedostatky a ďalší vývoj", en: "testing, usage instructions, lessons learned, limitations and future work" } },
+  { category: { sk: "Jazyk, zdroje a celková kvalita", en: "Language, Sources and Overall Quality" }, points: "2", description: { sk: "jazyková úroveň, korektné zdroje a celková kvalita dokumentu", en: "language quality, proper sources and overall document quality" } }
+];
+
+const videoRubric: Array<{ category: Pair; points: string; description: Pair }> = [
+  { category: { sk: "Demonštrácia funkčnosti", en: "Functionality Demonstration" }, points: "5", description: { sk: "projekt je reálne spustený a ukazuje hlavné use-cases", en: "the project is actually running and shows the main use cases" } },
+  { category: { sk: "Technické vysvetlenie", en: "Technical Explanation" }, points: "3", description: { sk: "študent vie stručne vysvetliť technológie, organizáciu a hlavné časti", en: "the student can briefly explain technologies, structure and main parts" } },
+  { category: { sk: "Zrozumiteľnosť a štruktúra", en: "Clarity and Structure" }, points: "2", description: { sk: "video je zrozumiteľné, primerane krátke a logicky usporiadané", en: "the video is understandable, reasonably short and logically structured" } }
+];
+
+const finalScore: Array<{ part: Pair; points: string }> = [
+  { part: { sk: "Milestone 1 — MVP", en: "Milestone 1 — MVP" }, points: "30" },
+  { part: { sk: "Finálna aplikácia", en: "Final Application" }, points: "40" },
+  { part: { sk: "Dokumentácia", en: "Documentation" }, points: "20" },
+  { part: { sk: "Videoprezentácia", en: "Video Presentation" }, points: "10" },
+  { part: { sk: "Spolu", en: "Total" }, points: "100" }
+];
+---
+
+<BaseLayout title="Projekt" titleEn="Project" description="Semestrálny projekt v predmete Programovanie v Pythone." descriptionEn="Semester project for the Programming in Python course.">
+  <main class="page assignment-page project-page">
+    <section class="project-hero" aria-labelledby="project-title">
+      <div>
+        <p class="section-kicker">
+          <LocalizedText sk="Semestrálne zadanie" en="Semester Assignment" />
+        </p>
+        <h1 id="project-title">
+          <LocalizedText sk="Semestrálny projekt" en="Semester Project" />
+        </h1>
+        <p class="project-lead">
+          <LocalizedText
+            sk="Každý študent počas semestra vytvorí vlastný individuálny projekt v jazyku Python. Téma je voľná, ale projekt musí riešiť konkrétny problém alebo poskytovať ucelenú funkcionalitu a musí primerane využívať viaceré oblasti predmetu."
+            en="Each student creates an individual Python project during the semester. The topic is open, but the project must solve a concrete problem or provide coherent functionality and should apply several areas covered in the course."
+          />
+        </p>
+      </div>
+      <dl class="project-summary">
+        <div>
+          <dt><LocalizedText sk="Rozsah" en="Scope" /></dt>
+          <dd><LocalizedText sk="individuálny projekt" en="individual project" /></dd>
+        </div>
+        <div>
+          <dt><LocalizedText sk="Jazyk" en="Language" /></dt>
+          <dd>Python</dd>
+        </div>
+        <div>
+          <dt><LocalizedText sk="Hodnotenie" en="Grading" /></dt>
+          <dd>100 <LocalizedText sk="bodov" en="points" /></dd>
+        </div>
+        <div>
+          <dt><LocalizedText sk="Výstupy" en="Deliverables" /></dt>
+          <dd><LocalizedText sk="aplikácia, PDF, video" en="application, PDF, video" /></dd>
+        </div>
+      </dl>
+    </section>
+
+    <div class="project-layout">
+      <nav class="project-toc" aria-label="Obsah zadania">
+        {tocItems.map((item) => <a href={`#${item.id}`}><LocalizedText sk={item.label.sk} en={item.label.en} /></a>)}
+      </nav>
+
+      <div class="project-content">
+        <section id="prehlad" class="project-section project-section--overview">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Znenie zadania" en="Assignment" /></h2>
+          </div>
+          <div class="project-prose">
+            <p>
+              <LocalizedText
+                sk="Navrhnite a implementujte vlastný softvérový projekt v jazyku Python. Tému projektu si volíte sami. Projekt musí riešiť konkrétny problém alebo poskytovať ucelenú funkcionalitu a musí vhodným spôsobom využívať viacero oblastí preberaných počas predmetu."
+                en="Design and implement your own software project in Python. You choose the topic yourself. The project must solve a concrete problem or provide coherent functionality and must meaningfully use several areas covered during the course."
+              />
+            </p>
+            <p>
+              <LocalizedText
+                sk="Výsledkom musí byť funkčný a spustiteľný projekt, ku ktorému odovzdáte zdrojový kód, technickú dokumentáciu vo formáte PDF a približne 5-minútovú videoprezentáciu."
+                en="The result must be a functional, runnable project submitted with source code, technical documentation in PDF format and an approximately 5-minute video presentation."
+              />
+            </p>
+          </div>
+          <div class="project-inline-metrics">
+            <div><strong>30</strong><span><LocalizedText sk="bodov MVP" en="points MVP" /></span></div>
+            <div><strong>40</strong><span><LocalizedText sk="bodov finálna aplikácia" en="points final application" /></span></div>
+            <div><strong>20</strong><span><LocalizedText sk="bodov dokumentácia" en="points documentation" /></span></div>
+            <div><strong>10</strong><span><LocalizedText sk="bodov video" en="points video" /></span></div>
+            <div><strong>3+</strong><span><LocalizedText sk="technologické oblasti" en="technology areas" /></span></div>
+          </div>
+        </section>
+
+        <section id="ciele" class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+          </div>
+          <ol>
+            {goals.map((goal) => <li><LocalizedText sk={goal.sk} en={goal.en} /></li>)}
+          </ol>
+        </section>
+
+        <section id="tema" class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Voľba témy" en="Choosing a Topic" /></h2>
+          </div>
+          <p>
+            <LocalizedText
+              sk="Téma projektu je na študentovi. Nasledujúce kategórie sú iba inšpiráciou, nie uzavretým zoznamom povolených tém."
+              en="The project topic is chosen by the student. The categories below are examples for inspiration, not a closed list of allowed topics."
+            />
+          </p>
+          <div class="project-topic-grid">
+            {projectDirections.map((direction) => (
+              <article>
+                <h3><LocalizedText sk={direction.title.sk} en={direction.title.en} /></h3>
+                <ul>{direction.items.map((item) => <li><LocalizedText sk={item.sk} en={item.en} /></li>)}</ul>
+              </article>
+            ))}
+          </div>
+          <p class="project-note">
+            <LocalizedText
+              sk="Môžete vytvoriť aj úplne iný typ projektu. Tieto kategórie slúžia iba ako inšpirácia."
+              en="You may create a completely different type of project. These categories are only meant as inspiration."
+            />
+          </p>
+        </section>
+
+        <section class="project-section project-section--surface">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Čo nie je dostatočný projekt" en="What Is Not Sufficient" /></h2>
+          </div>
+          <p>
+            <LocalizedText
+              sk="Za dostatočný semestrálny projekt sa nepovažuje samotný:"
+              en="The following by itself is not considered sufficient for a semester project:"
+            />
+          </p>
+          <ul>{notEnough.map((item) => <li><LocalizedText sk={item.sk} en={item.en} /></li>)}</ul>
+          <p class="project-note">
+            <LocalizedText
+              sk="Splnenie minimálnych technických podmienok samo osebe nezaručuje plný počet bodov."
+              en="Meeting the minimum technical requirements alone does not guarantee full points."
+            />
+          </p>
+        </section>
+
+        <section id="technologie" class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Technologické oblasti" en="Technology Areas" /></h2>
+          </div>
+          <p>
+            <LocalizedText
+              sk="Projekt musí významným spôsobom kombinovať minimálne 3 technologické oblasti. Technológia sa počíta iba vtedy, keď rieši reálnu časť projektu."
+              en="The project must meaningfully combine at least 3 technology areas. A technology counts only when it solves a real part of the project."
+            />
+          </p>
+          <div class="technology-list">
+            {technologyAreas.map((area) => (
+              <article>
+                <h3><LocalizedText sk={area.title.sk} en={area.title.en} /></h3>
+                <p>{area.items.join(" · ")}</p>
+              </article>
+            ))}
+          </div>
+          <div class="project-note project-note--strong">
+            <p>
+              <LocalizedText
+                sk="Päť povrchne použitých knižníc nie je hodnotnejších než tri technológie použité zmysluplne a dobre."
+                en="Five superficially used libraries are not more valuable than three technologies used meaningfully and well."
+              />
+            </p>
+            <p>
+              <LocalizedText
+                sk="Napríklad samotný `import pandas`, prázdna SQLite databáza, jeden GET request alebo jedno tlačidlo v GUI nie sú významným použitím technologickej oblasti."
+                en="For example, a bare `import pandas`, an empty SQLite database, one GET request or one GUI button is not meaningful use of a technology area."
+              />
+            </p>
+          </div>
+        </section>
+
+        <section id="poziadavky" class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Kvalitatívne požiadavky" en="Quality Requirements" /></h2>
+          </div>
+          <p>
+            <LocalizedText
+              sk="Tieto veci nie sú samostatné technologické moduly, ale základná kvalita každého projektu. Hodnotí sa primeranosť riešenia vzhľadom na typ projektu."
+              en="These are not separate technology modules, but baseline quality expectations for every project. Evaluation considers what is appropriate for the project type."
+            />
+          </p>
+          <ul>{qualityRequirements.map((item) => <li><LocalizedText sk={item.sk} en={item.en} /></li>)}</ul>
+
+          <div class="project-plain-block">
+            <h3><LocalizedText sk="Programátorský štýl a best practices" en="Programming Style and Best Practices" /></h3>
+            <ul>{bestPractices.map((item) => <li><LocalizedText sk={item.sk} en={item.en} /></li>)}</ul>
+            <p>
+              <LocalizedText
+                sk="Každé riešenie nemusí používať OOP. Python projekt môže byť kvalitne modulárny aj pomocou funkcií. Architektúra má zodpovedať problému."
+                en="Not every solution has to use OOP. A Python project can be well structured using functions. The architecture should match the problem."
+              />
+            </p>
+          </div>
+
+          <div class="project-plain-block">
+            <h3><LocalizedText sk="Spustiteľnosť" en="Run Instructions" /></h3>
+            <p>
+              <LocalizedText
+                sk="Projekt musí byť možné spustiť aj na inom počítači podľa README. Nesmie fungovať iba vďaka hardcoded adresárom, ručne vytvorenej databáze mimo projektu, chýbajúcim assets, neuvedeným dependencies alebo secretom uloženým iba v IDE."
+                en="The project must be runnable on another computer using the README. It must not work only because of hardcoded paths, a manually created database outside the project, missing assets, undocumented dependencies or secrets stored only in an IDE."
+              />
+            </p>
+            <pre class="expected-output"><code>{`. 
+├── src/
+├── tests/
+├── docs/
+│   └── documentation.pdf
+├── README.md
+├── pyproject.toml alebo requirements.txt
+├── .gitignore
+└── .env.example`}</code></pre>
+          </div>
+        </section>
+
+        <section id="milestone-1" class="project-section project-milestone">
+          <div class="project-section__heading">
+            <h2>Milestone 1 — MVP</h2>
+          </div>
+          <p class="project-meta"><LocalizedText sk="6. týždeň semestra · 30 bodov" en="Week 6 · 30 points" /></p>
+          <p>
+            <LocalizedText
+              sk="MVP je prvá funkčná verzia projektu, na ktorej už musí byť viditeľná hlavná myšlienka aplikácie a základ technického riešenia. Nie je to iba PDF s návrhom. Musí existovať reálny kód a spustiteľná časť projektu."
+              en="The MVP is the first functional version of the project where the main idea and the basis of the technical solution are already visible. It is not just a design PDF. Real code and a runnable part of the project must exist."
+            />
+          </p>
+          <ul>{mvpRequirements.map((item) => <li><LocalizedText sk={item.sk} en={item.en} /></li>)}</ul>
+          <div class="project-split">
+            <div>
+              <h3>README</h3>
+              <pre class="expected-output"><code>{mvpReadme.join("\n")}</code></pre>
+            </div>
+            <div>
+              <h3><LocalizedText sk="Zmena projektu po MVP" en="Changing the Project after the MVP" /></h3>
+              <p>
+                <LocalizedText
+                  sk="Po MVP je možné projekt primerane upraviť alebo zmeniť jeho rozsah. Výrazná zmena témy však nesmie slúžiť na obídenie hodnotenia MVP a študent by mal vedieť vysvetliť, prečo návrh zmenil."
+                  en="After the MVP, the project may be adjusted or its scope may change reasonably. A major topic change must not be used to bypass MVP grading, and the student should be able to explain why the change was made."
+                />
+              </p>
+            </div>
+          </div>
+          <h3><LocalizedText sk="Hodnotenie MVP" en="MVP Grading" /></h3>
+          <table class="content-table project-table score-table">
+            <thead>
+              <tr>
+                <th><LocalizedText sk="Kategória" en="Category" /></th>
+                <th><LocalizedText sk="Body" en="Points" /></th>
+                <th><LocalizedText sk="Hodnotí sa" en="Evaluated Aspects" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              {mvpRubric.map((row) => (
+                <tr>
+                  <td><LocalizedText sk={row.category.sk} en={row.category.en} /></td>
+                  <td>{row.points}</td>
+                  <td><LocalizedText sk={row.description.sk} en={row.description.en} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <section id="final" class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Finálne odovzdávanie" en="Final Submission" /></h2>
+          </div>
+          <p class="project-meta"><LocalizedText sk="11.–13. týždeň semestra · 70 bodov" en="Weeks 11–13 · 70 points" /></p>
+          <p>
+            <LocalizedText
+              sk="Vo finálnej etape študent odovzdáva finálnu aplikáciu, dokumentáciu vo formáte PDF a približne 5-minútovú videoprezentáciu."
+              en="In the final stage, the student submits the final application, documentation in PDF format and an approximately 5-minute video presentation."
+            />
+          </p>
+          <pre class="expected-output"><code>{`Finálna aplikácia / Final application   40
+Dokumentácia / Documentation            20
+Video / Video                           10
+------------------------------------------
+                                         70`}</code></pre>
+
+          <h3><LocalizedText sk="Finálna aplikácia" en="Final Application" /> — 40</h3>
+          <table class="content-table project-table score-table">
+            <thead>
+              <tr>
+                <th><LocalizedText sk="Kategória" en="Category" /></th>
+                <th><LocalizedText sk="Body" en="Points" /></th>
+                <th><LocalizedText sk="Hodnotí sa" en="Evaluated Aspects" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              {finalRubric.map((row) => (
+                <tr>
+                  <td><LocalizedText sk={row.category.sk} en={row.category.en} /></td>
+                  <td>{row.points}</td>
+                  <td><LocalizedText sk={row.description.sk} en={row.description.en} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p class="project-note">
+            <LocalizedText
+              sk="Projekt pozostávajúci z jedného obrovského `main.py` bude v kategórii kvality kódu výrazne penalizovaný, ak na takúto štruktúru neexistuje rozumný dôvod."
+              en="A project consisting of one huge `main.py` will be heavily penalized in code quality unless there is a reasonable justification for that structure."
+            />
+          </p>
+        </section>
+
+        <section id="dokumentacia" class="project-section project-section--surface">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Dokumentácia" en="Documentation" /> — 20</h2>
+          </div>
+          <p>
+            <LocalizedText
+              sk="Každý projekt musí obsahovať technickú dokumentáciu vo formáte PDF. Odporúčaný rozsah je približne 10–15 strán. Nemá ísť o umelo nafúknutý dokument; obrázky, diagramy a ukážky používajte tam, kde pomáhajú vysvetliť riešenie."
+              en="Each project must include technical documentation in PDF format. The recommended length is about 10–15 pages. The document should not be artificially padded; use images, diagrams and snippets where they help explain the solution."
+            />
+          </p>
+          <ol class="documentation-list">
+            {documentationSections.map((section) => (
+              <li>
+                <strong><LocalizedText sk={section.title.sk} en={section.title.en} /></strong>
+                <span><LocalizedText sk={section.description.sk} en={section.description.en} /></span>
+              </li>
+            ))}
+          </ol>
+
+          <h3><LocalizedText sk="Hodnotenie dokumentácie" en="Documentation Grading" /></h3>
+          <table class="content-table project-table score-table">
+            <thead>
+              <tr>
+                <th><LocalizedText sk="Kategória" en="Category" /></th>
+                <th><LocalizedText sk="Body" en="Points" /></th>
+                <th><LocalizedText sk="Hodnotí sa" en="Evaluated Aspects" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              {documentationRubric.map((row) => (
+                <tr>
+                  <td><LocalizedText sk={row.category.sk} en={row.category.en} /></td>
+                  <td>{row.points}</td>
+                  <td><LocalizedText sk={row.description.sk} en={row.description.en} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <section id="video" class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Videoprezentácia" en="Video Presentation" /> — 10</h2>
+          </div>
+          <p>
+            <LocalizedText
+              sk="Video má mať približne 5 minút. Stačí kvalitný screen recording so slovným komentárom. Cieľom je ukázať reálne fungujúci projekt, hlavné funkcie a stručne vysvetliť technické riešenie."
+              en="The video should be about 5 minutes long. A clear screen recording with spoken commentary is sufficient. The goal is to show the running project, its main features and a brief explanation of the technical solution."
+            />
+          </p>
+          <div class="project-split">
+            <div>
+              <h3><LocalizedText sk="Obsah videa" en="Video Content" /></h3>
+              <ol>
+                <li><LocalizedText sk="predstavenie projektu: názov a problém" en="project introduction: title and problem" /></li>
+                <li><LocalizedText sk="ukážka hlavnej funkcionality na spustenom projekte" en="demonstration of main functionality on the running project" /></li>
+                <li><LocalizedText sk="stručné technické riešenie: štruktúra, moduly, technológie" en="brief technical solution: structure, modules, technologies" /></li>
+                <li><LocalizedText sk="záver: čo sa podarilo a čo bolo náročné" en="conclusion: what worked well and what was challenging" /></li>
+              </ol>
+            </div>
+            <div>
+              <h3><LocalizedText sk="Hodnotenie videa" en="Video Grading" /></h3>
+              <table class="content-table project-table score-table">
+                <tbody>
+                  {videoRubric.map((row) => (
+                    <tr>
+                      <td><LocalizedText sk={row.category.sk} en={row.category.en} /></td>
+                      <td>{row.points}</td>
+                      <td><LocalizedText sk={row.description.sk} en={row.description.en} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="odovzdavanie" class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Odovzdávanie" en="Submission" /></h2>
+          </div>
+          <p>
+            <LocalizedText
+              sk="Zdrojový kód sa bude odovzdávať prostredníctvom Git repozitára podľa pravidiel predmetu. Finálny repozitár musí obsahovať zdrojový kód, README, dependency/configuration files, dokumentáciu PDF, potrebné assets/datasets a testy, ak sú súčasťou projektu."
+              en="Source code will be submitted through a Git repository according to the course rules. The final repository must contain source code, README, dependency/configuration files, PDF documentation, required assets/datasets and tests if they are part of the project."
+            />
+          </p>
+          <p>
+            <LocalizedText
+              sk="Video necommitujte priamo ako veľký binárny súbor do Git repozitára. Spôsob odovzdania videoprezentácie bude upresnený počas semestra."
+              en="Do not commit the video directly as a large binary file into the Git repository. The exact video submission method will be specified during the semester."
+            />
+          </p>
+          <h3>README</h3>
+          <pre class="expected-output"><code>{`Názov projektu / Project title
+Krátky popis / Short description
+Autor / Author
+Použité technologické oblasti / Technology areas used
+Požiadavky / Requirements
+Inštalácia / Installation
+Konfigurácia / Configuration
+Spustenie / Running
+Základné použitie / Basic usage`}</code></pre>
+        </section>
+
+        <section id="samostatnost" class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Samostatnosť a zdroje" en="Independent Work and Sources" /></h2>
+          </div>
+          <p>
+            <LocalizedText
+              sk="Projekt musí byť výsledkom vlastnej práce študenta. Je možné používať dokumentáciu, knihy, Stack Overflow, tutoriály, AI nástroje a bežné vývojárske zdroje, ale študent musí rozumieť výslednému riešeniu a vedieť vysvetliť svoje technické rozhodnutia."
+              en="The project must be the student's own work. Documentation, books, Stack Overflow, tutorials, AI tools and common developer resources may be used, but the student must understand the submitted solution and be able to explain technical decisions."
+            />
+          </p>
+          <p>
+            <LocalizedText
+              sk="Nie je v poriadku odovzdať cudzí alebo kompletne prevzatý projekt ako vlastný. Výraznejší externý zdroj, template, knižnica alebo AI nástroj má byť transparentne uvedený v dokumentácii spolu s tým, na čo bol použitý."
+              en="Submitting someone else's project or a fully copied project as your own is not acceptable. Significant external sources, templates, libraries or AI tools should be transparently listed in the documentation together with how they were used."
+            />
+          </p>
+        </section>
+
+        <section class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Dôležité poznámky" en="Important Notes" /></h2>
+          </div>
+          <div class="project-reminders">
+            <p><strong><LocalizedText sk="Minimum ≠ plný počet bodov." en="Minimum ≠ full points." /></strong><br /><LocalizedText sk="Projekt, ktorý iba technicky splní minimum, automaticky nedostáva 100 bodov." en="A project that only technically meets the minimum does not automatically receive 100 points." /></p>
+            <p><strong><LocalizedText sk="Rozsah má byť primeraný." en="Scope should be reasonable." /></strong><br /><LocalizedText sk="Hodnotí sa kvalita a technické rozhodnutia, nie objem source code." en="Quality and technical decisions matter more than the amount of source code." /></p>
+            <p><strong><LocalizedText sk="Framework nie je funkcionalita." en="A framework is not functionality." /></strong><br /><LocalizedText sk="FastAPI, pandas alebo SQLAlchemy majú hodnotu až vtedy, keď nimi riešite reálnu časť projektu." en="FastAPI, pandas or SQLAlchemy add value only when they solve a real part of the project." /></p>
+            <p><strong><LocalizedText sk="Projekt nemusí použiť všetko." en="The project does not have to use everything." /></strong><br /><LocalizedText sk="Výber technológií má zodpovedať problému." en="Technology choices should match the problem." /></p>
+            <p><strong><LocalizedText sk="Menší kvalitný projekt môže byť lepší." en="A smaller high-quality project can be better." /></strong><br /><LocalizedText sk="Jednoduchší funkčný projekt je hodnotnejší než veľký nefunkčný projekt." en="A simpler working project is more valuable than a large project that does not work." /></p>
+          </div>
+        </section>
+
+        <section id="hodnotenie" class="project-section project-section--final">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Celkové hodnotenie" en="Overall Grading" /></h2>
+          </div>
+          <table class="content-table project-table score-table">
+            <thead>
+              <tr>
+                <th><LocalizedText sk="Časť" en="Part" /></th>
+                <th><LocalizedText sk="Body" en="Points" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              {finalScore.map((row, index) => (
+                <tr class={index === finalScore.length - 1 ? "score-total" : undefined}>
+                  <td><LocalizedText sk={row.part.sk} en={row.part.en} /></td>
+                  <td>{row.points}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <pre class="expected-output"><code>{`Aplikácia celkovo = MVP 30 + finálna aplikácia 40 = 70 bodov
+Application total = MVP 30 + final application 40 = 70 points
+Dokumentácia / Documentation = 20 bodov / points
+Video = 10 bodov / points`}</code></pre>
+        </section>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

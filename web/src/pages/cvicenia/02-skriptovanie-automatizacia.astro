@@ -1,0 +1,545 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercise = getExerciseBySlug("02-skriptovanie-automatizacia");
+if (!exercise) throw new Error("Cvičenie 02 nie je zaregistrované.");
+
+const titleEn = exercise.translations?.en?.title ?? exercise.title;
+const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+const descriptionEn = exercise.translations?.en?.description ?? exercise.description;
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${titleEn}: ${subtitleEn}`}
+  description={exercise.description}
+  descriptionEn={descriptionEn}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={titleEn} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></p>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`Python 3.x
+Externé knižnice: nie
+Odporúčané: samostatný pracovný priečinok
+Odovzdávané súbory: .py skripty podľa úloh`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`Python 3.x
+External libraries: no
+Recommended: a separate working directory
+Submitted files: .py scripts for the tasks`}</code></pre>
+      </div>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul data-lang="sk">
+        <li>písať použiteľné skripty bez hardcoded absolútnych ciest;</li>
+        <li>pracovať so súbormi a adresármi cez <code>pathlib</code>;</li>
+        <li>spracovať JSON, CSV, text a logy;</li>
+        <li>navrhovať CLI cez <code>argparse</code>;</li>
+        <li>ošetriť chyby pri práci s filesystemom a externými príkazmi.</li>
+      </ul>
+      <ul data-lang="en" hidden>
+        <li>write usable scripts without hardcoded absolute paths;</li>
+        <li>work with files and directories through <code>pathlib</code>;</li>
+        <li>process JSON, CSV, text and logs;</li>
+        <li>design a CLI with <code>argparse</code>;</li>
+        <li>handle errors when working with the filesystem and external commands.</li>
+      </ul>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 1 — Filesystem report" en="Task 1 — Filesystem Report" /></h2>
+      <div data-lang="sk">
+        <p>Napíšte skript <code>scan.py</code>, ktorý rekurzívne analyzuje zadaný adresár.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Write a script <code>scan.py</code> that recursively analyzes a given directory.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python scan.py ./project`}</code></pre>
+      <div data-lang="sk">
+        <p>Výstup musí obsahovať:</p>
+        <ul>
+          <li>počet súborov;</li>
+          <li>počet adresárov;</li>
+          <li>počet súborov podľa prípony;</li>
+          <li>päť najväčších súborov;</li>
+          <li>celkovú veľkosť súborov;</li>
+          <li>počet súborov bez prípony.</li>
+        </ul>
+        <p>Použite <code>pathlib</code>, sorting a vhodnú kolekciu na počítanie prípon. Program má rozumne reagovať na neexistujúci adresár.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The output must include:</p>
+        <ul>
+          <li>number of files;</li>
+          <li>number of directories;</li>
+          <li>number of files by extension;</li>
+          <li>the five largest files;</li>
+          <li>total file size;</li>
+          <li>number of files without an extension.</li>
+        </ul>
+        <p>Use <code>pathlib</code>, sorting and a suitable collection for counting extensions. The program should handle a missing directory reasonably.</p>
+      </div>
+      <pre class="expected-output"><code>{`$ python scan.py ./project
+
+Files: 84
+Directories: 12
+Total size: 2.4 MB
+Without extension: 3
+
+By extension:
+.py      28
+.md       4
+.json     3
+
+Largest files:
+data/sample.csv       842 KB
+assets/image.png      418 KB
+dist/bundle.js        211 KB`}</code></pre>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Veľkosť súboru získate cez <code>Path.stat()</code>. Pri chybách s právami nepoužívajte <code>except: pass</code>.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> Use <code>Path.stat()</code> to get file size. Do not handle permission errors with <code>except: pass</code>.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 2 — Duplicate finder" en="Task 2 — Duplicate Finder" /></h2>
+      <div data-lang="sk">
+        <p>Napíšte skript, ktorý nájde potenciálne duplicitné súbory v adresári.</p>
+        <p>Postup riešenia:</p>
+        <ul>
+          <li>najprv zoskupte súbory podľa veľkosti;</li>
+          <li>obsah/hash počítajte iba pre skupiny, kde majú aspoň dva súbory rovnakú veľkosť;</li>
+          <li>použite napríklad <code>hashlib</code>;</li>
+          <li>prázdne súbory ignorujte;</li>
+          <li>riešenie rozdeľte do menších funkcií.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Write a script that finds potential duplicate files in a directory.</p>
+        <p>Suggested procedure:</p>
+        <ul>
+          <li>first group files by size;</li>
+          <li>compute content/hash only for groups where at least two files have the same size;</li>
+          <li>use <code>hashlib</code>, for example;</li>
+          <li>ignore empty files;</li>
+          <li>split the solution into smaller functions.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Duplicate group:
+photos/photo.jpg
+photos/photo-copy.jpg
+archive/old/photo.jpg
+
+Duplicate group:
+docs/report.pdf
+backup/report.pdf`}</code></pre>
+      <p data-lang="sk">Program nemá porovnávať každý súbor s každým, ak sa tomu dá rozumne vyhnúť.</p>
+      <p data-lang="en" hidden>The program should not compare every file with every other file when that can be reasonably avoided.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Batch rename" en="Task 3 — Batch Rename" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte skript <code>rename.py</code>, ktorý hromadne premenuje súbory v adresári.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a script <code>rename.py</code> that renames files in a directory in bulk.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python rename.py ./photos --prefix holiday --start 1
+python rename.py ./photos --prefix holiday --start 1 --dry-run`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky:</p>
+        <ul>
+          <li>zachovať pôvodnú príponu súboru;</li>
+          <li>číslovať s nulami, napríklad <code>holiday_001.jpg</code>;</li>
+          <li>neprepísať existujúci súbor;</li>
+          <li>rozumne riešiť kolízie názvov;</li>
+          <li>pri <code>--dry-run</code> nevykonať žiadnu zmenu vo filesysteme;</li>
+          <li>vypísať plánované alebo vykonané premenovania.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Requirements:</p>
+        <ul>
+          <li>preserve the original file extension;</li>
+          <li>number files with zero padding, for example <code>holiday_001.jpg</code>;</li>
+          <li>do not overwrite an existing file;</li>
+          <li>handle filename collisions reasonably;</li>
+          <li>when <code>--dry-run</code> is used, do not change the filesystem;</li>
+          <li>print planned or completed renames.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`IMG_8472.jpg -> holiday_001.jpg
+IMG_9123.jpg -> holiday_002.jpg
+IMG_9441.jpg -> holiday_003.jpg`}</code></pre>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Cieľovú cestu skladajte cez operátor <code>/</code> nad <code>Path</code>, nie cez ručné spájanie stringov.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> Build the destination path with the <code>/</code> operator on <code>Path</code>, not by manually concatenating strings.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Config-driven organizer" en="Task 4 — Config-Driven Organizer" /></h2>
+      <div data-lang="sk">
+        <p>Napíšte organizér súborov riadený JSON konfiguráciou.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Write a file organizer driven by a JSON configuration file.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`{
+  "images": [".jpg", ".png", ".gif"],
+  "documents": [".pdf", ".docx", ".txt"],
+  "archives": [".zip", ".7z"]
+}`}</code></pre>
+      <pre class="worksheet-code"><code>{`python organize.py ./Downloads --config categories.json
+python organize.py ./Downloads --config categories.json --dry-run`}</code></pre>
+      <div data-lang="sk">
+        <p>Skript má:</p>
+        <ul>
+          <li>načítať konfiguračný JSON;</li>
+          <li>vytvoriť mapping <code>extension -> category</code>;</li>
+          <li>kategorizovať iba súbory v zadanom adresári;</li>
+          <li>vytvoriť cieľové adresáre;</li>
+          <li>presunúť súbory do kategórií;</li>
+          <li>neznáme prípony presunúť do <code>other</code>;</li>
+          <li>ošetriť chýbajúci alebo poškodený JSON.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The script should:</p>
+        <ul>
+          <li>load the JSON configuration;</li>
+          <li>create an <code>extension -> category</code> mapping;</li>
+          <li>categorize only files in the given directory;</li>
+          <li>create destination directories;</li>
+          <li>move files into categories;</li>
+          <li>move unknown extensions into <code>other</code>;</li>
+          <li>handle a missing or invalid JSON file.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`MOVE report.pdf -> documents/report.pdf
+MOVE photo.jpg -> images/photo.jpg
+MOVE archive.zip -> archives/archive.zip
+MOVE data.bin -> other/data.bin`}</code></pre>
+      <p data-lang="sk"><strong><code>--dry-run</code> nesmie vykonať žiadnu zmenu vo filesysteme.</strong></p>
+      <p data-lang="en" hidden><strong><code>--dry-run</code> must not make any filesystem changes.</strong></p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — CSV cleaner" en="Task 5 — CSV Cleaner" /></h2>
+      <div data-lang="sk">
+        <p>Pripravte si CSV súbor s nekonzistentnými dátami a napíšte skript, ktorý ho vyčistí.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Prepare a CSV file with inconsistent data and write a script that cleans it.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`name,email,points
+ Anna ,ANNA@example.com,92
+Peter,peter@example.com, 67
+Lucia,lucia@example.com,
+Anna,ANNA@example.com,92
+Martin,martin@example.com,abc
+Eva, eva@example.com ,88`}</code></pre>
+      <div data-lang="sk">
+        <p>Skript má:</p>
+        <ul>
+          <li>normalizovať whitespace;</li>
+          <li>previesť email na lowercase;</li>
+          <li>odstrániť presné duplicity;</li>
+          <li>validovať, že <code>points</code> je celé číslo;</li>
+          <li>validné riadky uložiť do nového CSV;</li>
+          <li>chybné riadky uložiť do samostatného CSV aj s dôvodom chyby;</li>
+          <li>vypísať stručný report.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The script should:</p>
+        <ul>
+          <li>normalize whitespace;</li>
+          <li>convert email to lowercase;</li>
+          <li>remove exact duplicates;</li>
+          <li>validate that <code>points</code> is an integer;</li>
+          <li>write valid rows to a new CSV file;</li>
+          <li>write invalid rows to a separate CSV file with the reason;</li>
+          <li>print a short report.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Processed: 6
+Valid: 3
+Invalid: 2
+Duplicates: 1
+
+Output:
+clean_students.csv
+invalid_students.csv`}</code></pre>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Použite modul <code>csv</code>. Nepokúšajte sa spoľahlivo parsovať CSV cez <code>split(",")</code>.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> Use the <code>csv</code> module. Do not try to parse CSV reliably with <code>split(",")</code>.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — Log analysis" en="Task 6 — Log Analysis" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte skript <code>logstats.py</code>, ktorý analyzuje aplikačný log.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a script <code>logstats.py</code> that analyzes an application log.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`2026-09-21T10:14:22 INFO api Started request id=REQ-1001
+2026-09-21T10:14:23 ERROR storage Cannot open file path=data.csv
+2026-09-21T10:15:10 WARNING auth Invalid login user=peter
+2026-09-21T10:17:45 ERROR api Timeout id=REQ-1002
+2026-09-22T09:03:11 INFO worker Job finished id=JOB-42`}</code></pre>
+      <pre class="worksheet-code"><code>{`python logstats.py application.log
+python logstats.py application.log --level ERROR`}</code></pre>
+      <div data-lang="sk">
+        <p>Program musí:</p>
+        <ul>
+          <li>spočítať log levels;</li>
+          <li>nájsť a vypísať <code>ERROR</code> záznamy;</li>
+          <li>zistiť najčastejší module;</li>
+          <li>nájsť časový rozsah logu;</li>
+          <li>podporovať filter <code>--level</code>;</li>
+          <li>použiť regex aspoň na extrakciu identifikátorov typu <code>REQ-1002</code> alebo <code>JOB-42</code>.</li>
+        </ul>
+        <p>Jednoduché časti riadku riešte cez string operácie. Regex nepoužívajte na všetko.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The program must:</p>
+        <ul>
+          <li>count log levels;</li>
+          <li>find and print <code>ERROR</code> records;</li>
+          <li>identify the most frequent module;</li>
+          <li>find the time range of the log;</li>
+          <li>support a <code>--level</code> filter;</li>
+          <li>use regex at least for extracting identifiers such as <code>REQ-1002</code> or <code>JOB-42</code>.</li>
+        </ul>
+        <p>Handle simple parts of the line with string operations. Do not use regex for everything.</p>
+      </div>
+      <pre class="expected-output"><code>{`Levels:
+INFO: 2
+WARNING: 1
+ERROR: 2
+
+Most active module: api
+Range: 2026-09-21T10:14:22 -> 2026-09-22T09:03:11
+IDs: REQ-1001, REQ-1002, JOB-42`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Text search tool" en="Task 7 — Text Search Tool" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte jednoduchú mini verziu nástroja <code>grep</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a small simplified version of <code>grep</code>.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python search.py ./src "TODO"
+python search.py ./src "todo" --ignore-case
+python search.py ./src "def .*_handler" --extension .py --regex`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky:</p>
+        <ul>
+          <li>rekurzívne prechádzať súbory v adresári;</li>
+          <li>voliteľne filtrovať príponu cez <code>--extension</code>;</li>
+          <li>podporovať case-insensitive hľadanie;</li>
+          <li>podporovať obyčajný text aj regex režim;</li>
+          <li>pri zhode vypísať cestu, číslo riadku a celý riadok;</li>
+          <li>rozumne zvládnuť encoding errors.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Requirements:</p>
+        <ul>
+          <li>walk files in a directory recursively;</li>
+          <li>optionally filter by extension with <code>--extension</code>;</li>
+          <li>support case-insensitive search;</li>
+          <li>support both plain text and regex modes;</li>
+          <li>for each match, print the path, line number and full line;</li>
+          <li>handle encoding errors reasonably.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`src/main.py:18: # TODO: validate input
+src/api.py:42: # TODO cleanup
+src/tasks/runner.py:7: TODO = "replace with config"`}</code></pre>
+      <p data-lang="sk">Toto má byť reálne použiteľný skript, nie iba demonštračný príklad pre jeden súbor.</p>
+      <p data-lang="en" hidden>This should be a genuinely usable script, not just a demonstration for one file.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — Backup tool" en="Task 8 — Backup Tool" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte skript na vytvorenie timestamped zálohy projektu.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a script that produces a timestamped project backup.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python backup.py ./project ./backups`}</code></pre>
+      <div data-lang="sk">
+        <p>Program má:</p>
+        <ul>
+          <li>vytvoriť ZIP archív v cieľovom adresári;</li>
+          <li>do názvu zálohy pridať timestamp;</li>
+          <li>ignorovať <code>.venv</code>, <code>__pycache__</code> a <code>.git</code>;</li>
+          <li>spočítať počet zahrnutých súborov;</li>
+          <li>spočítať celkovú veľkosť zahrnutých súborov;</li>
+          <li>vytvoriť JSON manifest;</li>
+          <li>neprepísať starší backup pri opakovanom spustení.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The program should:</p>
+        <ul>
+          <li>create a ZIP archive in the target directory;</li>
+          <li>include a timestamp in the backup name;</li>
+          <li>ignore <code>.venv</code>, <code>__pycache__</code> and <code>.git</code>;</li>
+          <li>count included files;</li>
+          <li>count total size of included files;</li>
+          <li>create a JSON manifest;</li>
+          <li>avoid overwriting an older backup on repeated runs.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`{
+  "created": "2026-09-21T13:30:00",
+  "source": "project",
+  "archive": "project-20260921-133000.zip",
+  "files": 84,
+  "size": 1048576
+}`}</code></pre>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Pozrite sa na <code>shutil.make_archive()</code> alebo modul <code>zipfile</code>. Pri ignorovaní adresárov buďte explicitní.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> Look at <code>shutil.make_archive()</code> or the <code>zipfile</code> module. Be explicit when ignoring directories.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — External command runner" en="Task 9 — External Command Runner" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte skript, ktorý spustí sériu externých príkazov definovaných v JSON súbore.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a script that runs a series of external commands defined in a JSON file.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`{
+  "commands": [
+    ["python", "--version"],
+    ["git", "status"],
+    ["git", "log", "-1", "--oneline"]
+  ]
+}`}</code></pre>
+      <div data-lang="sk">
+        <p>Pre každý command uložte do JSON reportu:</p>
+        <ul>
+          <li>spustený command ako zoznam argumentov;</li>
+          <li>return code;</li>
+          <li>stdout;</li>
+          <li>stderr;</li>
+          <li>status <code>ok</code>, <code>failed</code> alebo <code>not_found</code>.</li>
+        </ul>
+        <p>Použite <code>subprocess.run(...)</code>, <code>capture_output=True</code> a <code>text=True</code>. Nepoužívajte <code>shell=True</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>For each command, save the following into a JSON report:</p>
+        <ul>
+          <li>the executed command as a list of arguments;</li>
+          <li>return code;</li>
+          <li>stdout;</li>
+          <li>stderr;</li>
+          <li>status <code>ok</code>, <code>failed</code> or <code>not_found</code>.</li>
+        </ul>
+        <p>Use <code>subprocess.run(...)</code>, <code>capture_output=True</code> and <code>text=True</code>. Do not use <code>shell=True</code>.</p>
+      </div>
+      <pre class="expected-output"><code>{`[
+  {
+    "command": ["python", "--version"],
+    "returncode": 0,
+    "status": "ok"
+  },
+  {
+    "command": ["missing-command"],
+    "returncode": null,
+    "status": "not_found"
+  }
+]`}</code></pre>
+      <p data-lang="sk">Ak command neexistuje, program nemá spadnúť tracebackom.</p>
+      <p data-lang="en" hidden>If a command does not exist, the program should not crash with a traceback.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 10 — Mini projekt: Project Inspector" en="Task 10 — Mini Project: Project Inspector" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte CLI nástroj, ktorý analyzuje Python projekt a uloží výsledok do JSON reportu.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a CLI tool that analyzes a Python project and stores the result in a JSON report.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python inspect_project.py ./my-project
+python inspect_project.py . --output project-report.json`}</code></pre>
+      <div data-lang="sk">
+        <p>Nástroj má minimálne:</p>
+        <ul>
+          <li>skontrolovať existenciu <code>.git</code>;</li>
+          <li>nájsť všetky <code>.py</code> súbory;</li>
+          <li>spočítať počet Python súborov;</li>
+          <li>spočítať počet riadkov Python kódu;</li>
+          <li>nájsť najväčšie súbory v projekte;</li>
+          <li>nájsť riadky obsahujúce <code>TODO</code> alebo <code>FIXME</code>;</li>
+          <li>zistiť prítomnosť <code>README</code>, <code>pyproject.toml</code>, <code>requirements.txt</code> a <code>tests</code>;</li>
+          <li>identifikovať potenciálne veľké binárne súbory;</li>
+          <li>ak ide o Git repository, bezpečne spustiť <code>git status --short</code>;</li>
+          <li>uložiť report do súboru určeného argumentom <code>--output</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The tool should at least:</p>
+        <ul>
+          <li>check whether <code>.git</code> exists;</li>
+          <li>find all <code>.py</code> files;</li>
+          <li>count Python files;</li>
+          <li>count lines of Python code;</li>
+          <li>find the largest files in the project;</li>
+          <li>find lines containing <code>TODO</code> or <code>FIXME</code>;</li>
+          <li>detect the presence of <code>README</code>, <code>pyproject.toml</code>, <code>requirements.txt</code> and <code>tests</code>;</li>
+          <li>identify potentially large binary files;</li>
+          <li>if the directory is a Git repository, safely run <code>git status --short</code>;</li>
+          <li>write the report to the file specified by <code>--output</code>.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`{
+  "path": ".",
+  "git": true,
+  "python_files": 18,
+  "python_lines": 2140,
+  "has_readme": true,
+  "has_tests": true,
+  "todos": [
+    "src/main.py:18: # TODO: validate input"
+  ],
+  "git_status": "clean"
+}`}</code></pre>
+      <p data-lang="sk">Program musí byť rozdelený do viacerých funkcií. Celé riešenie v jednom veľkom <code>main()</code> nebude prehľadné.</p>
+      <p data-lang="en" hidden>The program must be split into multiple functions. A solution contained in one large <code>main()</code> will be hard to read.</p>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Táto úloha spája <code>pathlib</code>, string processing, JSON, <code>argparse</code>, <code>subprocess</code>, exceptions a collections.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> This task combines <code>pathlib</code>, string processing, JSON, <code>argparse</code>, <code>subprocess</code>, exceptions and collections.</p>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>
+        <li><a href="https://docs.python.org/3/library/pathlib.html" target="_blank" rel="noreferrer">pathlib</a></li>
+        <li><a href="https://docs.python.org/3/library/csv.html" target="_blank" rel="noreferrer">csv</a></li>
+        <li><a href="https://docs.python.org/3/library/json.html" target="_blank" rel="noreferrer">json</a></li>
+        <li><a href="https://docs.python.org/3/library/argparse.html" target="_blank" rel="noreferrer">argparse</a></li>
+        <li><a href="https://docs.python.org/3/library/subprocess.html" target="_blank" rel="noreferrer">subprocess</a></li>
+        <li><a href="https://docs.python.org/3/library/re.html" target="_blank" rel="noreferrer">re</a></li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

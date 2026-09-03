@@ -1,0 +1,189 @@
+---
+import type { CodeBlock, LectureSlide, LectureSlideTranslation } from "@shared/slide.types";
+import CodeBlock from "./CodeBlock.astro";
+import LocalizedText from "./LocalizedText.astro";
+
+type Props = {
+  slide: LectureSlide;
+  translation?: LectureSlideTranslation;
+  index: number;
+  total: number;
+  lectureNumber: number;
+};
+
+const { slide, translation, index, total, lectureNumber } = Astro.props;
+const slideNumber = `${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+const lectureLabelSk = `Prednáška ${String(lectureNumber).padStart(2, "0")}`;
+const lectureLabelEn = `Lecture ${String(lectureNumber).padStart(2, "0")}`;
+const className = ["slide", `${slide.type}-slide`, index === 0 ? "is-active" : ""].filter(Boolean).join(" ");
+
+const title = { sk: slide.title, en: translation?.title ?? slide.title };
+const subtitle = slide.subtitle ? { sk: slide.subtitle, en: translation?.subtitle ?? slide.subtitle } : undefined;
+const body = slide.body ? { sk: slide.body, en: translation?.body ?? slide.body } : undefined;
+const prompt = slide.prompt ? { sk: slide.prompt, en: translation?.prompt ?? slide.prompt } : undefined;
+
+function localizedItems(items: string[] | undefined, translated: string[] | undefined) {
+  return (items ?? []).map((item, itemIndex) => ({
+    sk: item,
+    en: translated?.[itemIndex] ?? item
+  }));
+}
+
+function translatedCodeBlock(block: CodeBlock, code?: string): CodeBlock {
+  return code ? { ...block, code } : block;
+}
+
+const points = localizedItems(slide.points, translation?.points);
+const columns = (slide.columns ?? []).map((column, columnIndex) => {
+  const translatedColumn = translation?.columns?.[columnIndex];
+
+  return {
+    title: {
+      sk: column.title,
+      en: translatedColumn?.title ?? column.title
+    },
+    items: localizedItems(column.items, translatedColumn?.items)
+  };
+});
+const tableHeaders = localizedItems(slide.table?.headers, translation?.table?.headers);
+const tableRows = (slide.table?.rows ?? []).map((row, rowIndex) =>
+  row.map((cell, cellIndex) => ({
+    sk: cell,
+    en: translation?.table?.rows?.[rowIndex]?.[cellIndex] ?? cell
+  }))
+);
+const diagramItems = localizedItems(slide.diagramItems, translation?.diagramItems);
+---
+
+<section class={className} data-slide data-slide-id={slide.id} data-slide-number={slideNumber} aria-hidden={index === 0 ? "false" : "true"}>
+  {slide.type === "title" && (
+    <>
+      <span class="slide-section"><LocalizedText sk={lectureLabelSk} en={lectureLabelEn} /></span>
+      <h1><LocalizedText sk={title.sk} en={title.en} /></h1>
+      {subtitle && <p><LocalizedText sk={subtitle.sk} en={subtitle.en} /></p>}
+      {body && <p><LocalizedText sk={body.sk} en={body.en} /></p>}
+    </>
+  )}
+
+  {slide.type === "section" && (
+    <>
+      <h1><LocalizedText sk={title.sk} en={title.en} /></h1>
+      {subtitle && <p><LocalizedText sk={subtitle.sk} en={subtitle.en} /></p>}
+    </>
+  )}
+
+  {slide.type === "statement" && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      {body && <p><LocalizedText sk={body.sk} en={body.en} /></p>}
+      {points.length > 0 && <ul>{points.map((point) => <li><LocalizedText sk={point.sk} en={point.en} /></li>)}</ul>}
+    </>
+  )}
+
+  {slide.type === "bullets" && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      {body && <p><LocalizedText sk={body.sk} en={body.en} /></p>}
+      {points.length > 0 && <ul>{points.map((point) => <li><LocalizedText sk={point.sk} en={point.en} /></li>)}</ul>}
+    </>
+  )}
+
+  {slide.type === "code" && slide.code && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      <div class="code-layout">
+        <CodeBlock block={translatedCodeBlock(slide.code, translation?.code?.code)} labelEn={translation?.code?.label} />
+        {body && <p><LocalizedText sk={body.sk} en={body.en} /></p>}
+      </div>
+    </>
+  )}
+
+  {slide.type === "split-code" && slide.codeBlocks && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      <div class="split-code">
+        {
+          slide.codeBlocks.map((block, blockIndex) => (
+            <CodeBlock
+              block={translatedCodeBlock(block, translation?.codeBlocks?.[blockIndex]?.code)}
+              labelEn={translation?.codeBlocks?.[blockIndex]?.label}
+            />
+          ))
+        }
+      </div>
+    </>
+  )}
+
+  {slide.type === "question" && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      {prompt && <p><LocalizedText sk={prompt.sk} en={prompt.en} /></p>}
+      {slide.code && (
+        <div class="code-layout">
+          <CodeBlock block={translatedCodeBlock(slide.code, translation?.code?.code)} labelEn={translation?.code?.label} />
+        </div>
+      )}
+    </>
+  )}
+
+  {slide.type === "compare" && columns.length > 0 && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      <div class="columns">
+        {
+          columns.map((column) => (
+            <section class="column">
+              <h3><LocalizedText sk={column.title.sk} en={column.title.en} /></h3>
+              <ul>{column.items.map((item) => <li><LocalizedText sk={item.sk} en={item.en} /></li>)}</ul>
+            </section>
+          ))
+        }
+      </div>
+    </>
+  )}
+
+  {slide.type === "table" && slide.table && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      <table class="slide-table">
+        <thead>
+          <tr>{tableHeaders.map((header) => <th><LocalizedText sk={header.sk} en={header.en} /></th>)}</tr>
+        </thead>
+        <tbody>
+          {tableRows.map((row) => <tr>{row.map((cell) => <td><LocalizedText sk={cell.sk} en={cell.en} html /></td>)}</tr>)}
+        </tbody>
+      </table>
+    </>
+  )}
+
+  {slide.type === "diagram" && diagramItems.length > 0 && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      <div class="diagram">
+        {diagramItems.map((item) => <div class="diagram-item"><LocalizedText sk={item.sk} en={item.en} /></div>)}
+      </div>
+    </>
+  )}
+
+  {slide.type === "demo" && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      {points.length > 0 && <ul>{points.map((point) => <li><LocalizedText sk={point.sk} en={point.en} /></li>)}</ul>}
+    </>
+  )}
+
+  {slide.type === "takeaway" && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      {body && <p><LocalizedText sk={body.sk} en={body.en} /></p>}
+      {points.length > 0 && <ul>{points.map((point) => <li><LocalizedText sk={point.sk} en={point.en} /></li>)}</ul>}
+    </>
+  )}
+
+  {slide.type === "semester-map" && (
+    <>
+      <h2><LocalizedText sk={title.sk} en={title.en} /></h2>
+      {points.length > 0 && <ul class="semester-map">{points.map((point) => <li><LocalizedText sk={point.sk} en={point.en} /></li>)}</ul>}
+    </>
+  )}
+</section>

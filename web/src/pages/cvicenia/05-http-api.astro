@@ -1,0 +1,491 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercise = getExerciseBySlug("05-http-api");
+if (!exercise) throw new Error("Cvičenie 05 nie je zaregistrované.");
+
+const titleEn = exercise.translations?.en?.title ?? exercise.title;
+const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+const descriptionEn = exercise.translations?.en?.description ?? exercise.description;
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${titleEn}: ${subtitleEn}`}
+  description={exercise.description}
+  descriptionEn={descriptionEn}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={titleEn} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></p>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`Python 3.x
+Dependency: httpx
+API: Open-Meteo Forecast + Geocoding
+Odovzdávaný súbor: weather_cli.py`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`Python 3.x
+Dependency: httpx
+API: Open-Meteo Forecast + Geocoding
+Submitted file: weather_cli.py`}</code></pre>
+      </div>
+      <pre class="worksheet-code"><code>{`python -m pip install httpx`}</code></pre>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul data-lang="sk">
+        <li>čítať API dokumentáciu a preložiť ju na request cez <code>httpx</code>;</li>
+        <li>pracovať s query parameters, headers, status codes a JSON;</li>
+        <li>oddeliť request, parsing, model a výpis;</li>
+        <li>riešiť timeout, HTTP chyby, network chyby a neplatný vstup.</li>
+      </ul>
+      <ul data-lang="en" hidden>
+        <li>read API documentation and translate it into requests with <code>httpx</code>;</li>
+        <li>work with query parameters, headers, status codes and JSON;</li>
+        <li>separate request code, parsing, model and output;</li>
+        <li>handle timeouts, HTTP errors, network errors and invalid input.</li>
+      </ul>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 1 — API probe" en="Task 1 — API Probe" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte skript <code>api_probe.py</code>, ktorý zavolá Open-Meteo forecast endpoint pre pevne zadané súradnice Košíc.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a script <code>api_probe.py</code> that calls the Open-Meteo forecast endpoint for fixed Košice coordinates.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`import httpx
+
+url = "https://api.open-meteo.com/v1/forecast"
+params = {
+    "latitude": 48.7164,
+    "longitude": 21.2611,
+    "current": "temperature_2m,wind_speed_10m",
+}
+
+response = httpx.get(url, params=params, timeout=5.0)
+response.raise_for_status()`}</code></pre>
+      <div data-lang="sk">
+        <p>Vypíšte:</p>
+        <ul>
+          <li>finálnu URL, ktorú HTTPX zostavil;</li>
+          <li>status code;</li>
+          <li>content type;</li>
+          <li>top-level JSON kľúče;</li>
+          <li>hodnotu <code>current.temperature_2m</code>, ak existuje.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Print:</p>
+        <ul>
+          <li>the final URL built by HTTPX;</li>
+          <li>status code;</li>
+          <li>content type;</li>
+          <li>top-level JSON keys;</li>
+          <li>the value of <code>current.temperature_2m</code>, if present.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Status: 200
+Content-Type: application/json
+Keys: latitude, longitude, generationtime_ms, utc_offset_seconds, timezone, current_units, current
+Temperature: 18.7 °C`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 2 — Query parameters bez ručného URL stringu" en="Task 2 — Query Parameters Without Manual URL Strings" /></h2>
+      <div data-lang="sk">
+        <p>Rozšírte request tak, aby sa všetky meniteľné hodnoty posielali cez <code>params</code>.</p>
+        <p>Požadované parametre:</p>
+        <ul>
+          <li><code>latitude</code>;</li>
+          <li><code>longitude</code>;</li>
+          <li><code>current</code> s teplotou, vetrom a relatívnou vlhkosťou;</li>
+          <li><code>timezone</code> nastavený na <code>Europe/Bratislava</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Extend the request so that all variable values are passed through <code>params</code>.</p>
+        <p>Required parameters:</p>
+        <ul>
+          <li><code>latitude</code>;</li>
+          <li><code>longitude</code>;</li>
+          <li><code>current</code> with temperature, wind and relative humidity;</li>
+          <li><code>timezone</code> set to <code>Europe/Bratislava</code>.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`params = {
+    "latitude": latitude,
+    "longitude": longitude,
+    "current": "temperature_2m,wind_speed_10m,relative_humidity_2m",
+    "timezone": "Europe/Bratislava",
+}`}</code></pre>
+      <p data-lang="sk">Overte request pre Košice, Bratislavu a Prahu. Súradnice uložte do dictionary, nie do troch samostatných premenných.</p>
+      <p data-lang="en" hidden>Check the request for Košice, Bratislava and Prague. Store coordinates in a dictionary, not in three separate variables.</p>
+      <pre class="expected-output"><code>{`Košice      48.7164  21.2611
+Bratislava  48.1486  17.1077
+Prague      50.0755  14.4378`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Parsing nested JSON" en="Task 3 — Parsing Nested JSON" /></h2>
+      <div data-lang="sk">
+        <p>Nevypisujte celú JSON odpoveď. Vytvorte funkciu, ktorá z odpovede vyberie iba údaje potrebné pre textový report.</p>
+        <p>Report má obsahovať:</p>
+        <ul>
+          <li>mesto;</li>
+          <li>čas merania;</li>
+          <li>teplotu;</li>
+          <li>rýchlosť vetra;</li>
+          <li>relatívnu vlhkosť;</li>
+          <li>jednotky načítané z <code>current_units</code>.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Košice
+Čas: 2026-09-21T13:30
+Teplota: 18.7 °C
+Vietor: 9.4 km/h
+Vlhkosť: 62 %`}</code></pre>
+        <p>Ak odpoveď neobsahuje očakávaný kľúč, vyhoďte vlastnú zrozumiteľnú chybu, napríklad <code>ValueError</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Do not print the whole JSON response. Create a function that extracts only the data needed for a text report.</p>
+        <p>The report should include:</p>
+        <ul>
+          <li>city;</li>
+          <li>measurement time;</li>
+          <li>temperature;</li>
+          <li>wind speed;</li>
+          <li>relative humidity;</li>
+          <li>units loaded from <code>current_units</code>.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Košice
+Time: 2026-09-21T13:30
+Temperature: 18.7 °C
+Wind: 9.4 km/h
+Humidity: 62 %`}</code></pre>
+        <p>If the response does not contain an expected key, raise your own readable error, for example <code>ValueError</code>.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Dataclass model odpovede" en="Task 4 — Dataclass Response Model" /></h2>
+      <div data-lang="sk">
+        <p>Preložte vybrané dáta z API do Python objektu.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Translate selected API data into a Python object.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`from dataclasses import dataclass
+
+
+@dataclass
+class Weather:
+    city: str
+    time: str
+    temperature: float
+    temperature_unit: str
+    wind_speed: float
+    wind_unit: str
+    humidity: int
+    humidity_unit: str`}</code></pre>
+      <div data-lang="sk">
+        <p>Implementujte funkcie:</p>
+        <ul>
+          <li><code>fetch_weather(latitude: float, longitude: float) -> dict</code>;</li>
+          <li><code>parse_weather(city: str, data: dict) -> Weather</code>;</li>
+          <li><code>format_weather(weather: Weather) -> str</code>.</li>
+        </ul>
+        <p>HTTP request, parsing a výpis nemajú byť v jednej päťdesiatriadkovej funkcii.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Implement these functions:</p>
+        <ul>
+          <li><code>fetch_weather(latitude: float, longitude: float) -> dict</code>;</li>
+          <li><code>parse_weather(city: str, data: dict) -> Weather</code>;</li>
+          <li><code>format_weather(weather: Weather) -> str</code>.</li>
+        </ul>
+        <p>The HTTP request, parsing and output should not live in one fifty-line function.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — Geocoding search" en="Task 5 — Geocoding Search" /></h2>
+      <div data-lang="sk">
+        <p>Namiesto pevne zadaných súradníc pridajte vyhľadanie mesta cez Open-Meteo Geocoding API.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Instead of fixed coordinates, add city lookup through the Open-Meteo Geocoding API.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`url = "https://geocoding-api.open-meteo.com/v1/search"
+params = {
+    "name": "Kosice",
+    "count": 5,
+    "language": "en",
+    "format": "json",
+}`}</code></pre>
+      <div data-lang="sk">
+        <p>Funkcia <code>search_locations(query: str) -> list[Location]</code> má vrátiť zoznam kandidátov.</p>
+        <p>Každý kandidát má obsahovať:</p>
+        <ul>
+          <li>názov;</li>
+          <li>krajinu;</li>
+          <li>latitude;</li>
+          <li>longitude;</li>
+          <li>timezone, ak je v odpovedi dostupný.</li>
+        </ul>
+        <pre class="expected-output"><code>{`1. Košice, Slovakia        48.7164  21.2611
+2. Košice-okolie, Slovakia 48.7000  21.3333`}</code></pre>
+        <p>Ak API nevráti žiadne výsledky, program má vypísať stručnú správu a neskončiť náhodným <code>IndexError</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The function <code>search_locations(query: str) -> list[Location]</code> should return a list of candidates.</p>
+        <p>Each candidate should contain:</p>
+        <ul>
+          <li>name;</li>
+          <li>country;</li>
+          <li>latitude;</li>
+          <li>longitude;</li>
+          <li>timezone, if available in the response.</li>
+        </ul>
+        <pre class="expected-output"><code>{`1. Košice, Slovakia        48.7164  21.2611
+2. Košice-okolie, Slovakia 48.7000  21.3333`}</code></pre>
+        <p>If the API returns no results, the program should print a short message and not end with an accidental <code>IndexError</code>.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — Error handling a timeout" en="Task 6 — Error Handling and Timeout" /></h2>
+      <div data-lang="sk">
+        <p>Všetky requesty musia mať timeout a zrozumiteľné spracovanie chýb.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>All requests must have a timeout and readable error handling.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`try:
+    response = httpx.get(url, params=params, timeout=5.0)
+    response.raise_for_status()
+except httpx.TimeoutException:
+    ...
+except httpx.HTTPStatusError:
+    ...
+except httpx.NetworkError:
+    ...`}</code></pre>
+      <div data-lang="sk">
+        <p>Požiadavky:</p>
+        <ul>
+          <li>timeout nastavte explicitne;</li>
+          <li>pri 4xx/5xx zobrazte status code;</li>
+          <li>pri network chybe zobrazte, že služba alebo sieť nie je dostupná;</li>
+          <li>nepoužívajte <code>except: pass</code>;</li>
+          <li>do README alebo komentára dopíšte jednu vetu, prečo timeout patrí do sieťového requestu.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Chyba: Open-Meteo neodpovedalo do 5.0 s.
+Chyba: API vrátilo status 400.
+Chyba: sieťové spojenie zlyhalo.`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Requirements:</p>
+        <ul>
+          <li>set the timeout explicitly;</li>
+          <li>for 4xx/5xx responses, show the status code;</li>
+          <li>for a network error, show that the service or network is unavailable;</li>
+          <li>do not use <code>except: pass</code>;</li>
+          <li>add one sentence to README or a comment explaining why network requests need a timeout.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Error: Open-Meteo did not respond within 5.0 s.
+Error: API returned status 400.
+Error: network connection failed.`}</code></pre>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Headers a základná diagnostika" en="Task 7 — Headers and Basic Diagnostics" /></h2>
+      <div data-lang="sk">
+        <p>Doplňte jednoduchú diagnostiku requestu a odpovede.</p>
+        <p>Program má voliteľne pri argumente <code>--verbose</code> vypísať:</p>
+        <ul>
+          <li>HTTP method;</li>
+          <li>URL bez ručného skladania query stringu;</li>
+          <li>status code;</li>
+          <li>content type;</li>
+          <li>dĺžku response body;</li>
+          <li>čas requestu, ak ho viete rozumne zmerať.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Add simple diagnostics for the request and response.</p>
+        <p>When the optional argument <code>--verbose</code> is used, the program should print:</p>
+        <ul>
+          <li>HTTP method;</li>
+          <li>URL without manually building the query string;</li>
+          <li>status code;</li>
+          <li>content type;</li>
+          <li>response body length;</li>
+          <li>request time, if you can measure it reasonably.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`headers = {
+    "User-Agent": "python-course-weather-cli/1.0",
+}`}</code></pre>
+      <pre class="expected-output"><code>{`GET https://api.open-meteo.com/v1/forecast?latitude=48.7164&...
+Status: 200
+Content-Type: application/json
+Body size: 812 bytes`}</code></pre>
+      <p data-lang="sk">Diagnostika má pomôcť pri debugovaní, ale bežný výstup programu má ostať krátky.</p>
+      <p data-lang="en" hidden>Diagnostics should help debugging, but the normal program output should remain short.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — Viac výsledkov a výber lokality" en="Task 8 — Multiple Results and Location Selection" /></h2>
+      <div data-lang="sk">
+        <p>Geocoding API môže vrátiť viac lokalít s podobným názvom. Program nemá slepo zobrať prvý záznam bez kontroly.</p>
+        <p>Implementujte jednu z možností:</p>
+        <ul>
+          <li>argument <code>--country</code>, ktorý obmedzí výsledky podľa krajiny;</li>
+          <li>výpis kandidátov a výber cez číslo;</li>
+          <li>automatický výber iba vtedy, keď je výsledok jednoznačný.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The Geocoding API may return multiple locations with similar names. The program should not blindly take the first record without checking it.</p>
+        <p>Implement one of these options:</p>
+        <ul>
+          <li>a <code>--country</code> argument that restricts results by country;</li>
+          <li>print candidates and let the user select by number;</li>
+          <li>select automatically only when the result is unambiguous.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`python weather_cli.py "Kosice" --country Slovakia
+python weather_cli.py "Paris" --count 5`}</code></pre>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`Nájdené lokality:
+1. Paris, France
+2. Paris, United States
+3. Paris, Canada
+
+Vyberte číslo lokality: 1`}</code></pre>
+        <p>Neplatný výber ošetrite zrozumiteľnou správou.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`Found locations:
+1. Paris, France
+2. Paris, United States
+3. Paris, Canada
+
+Select location number: 1`}</code></pre>
+        <p>Handle invalid selections with a readable message.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — API composition" en="Task 9 — API Composition" /></h2>
+      <div data-lang="sk">
+        <p>Spojte geocoding endpoint a forecast endpoint do jedného workflow.</p>
+        <p>Funkcia <code>get_weather_for_city(city: str) -> Weather</code> má:</p>
+        <ul>
+          <li>vyhľadať lokalitu;</li>
+          <li>získať súradnice;</li>
+          <li>zavolať forecast endpoint;</li>
+          <li>spracovať JSON;</li>
+          <li>vrátiť <code>Weather</code> objekt;</li>
+          <li>pri chybe vyhodiť alebo vrátiť zmysluplne popísaný problém.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Košice, Slovakia
+Teplota: 18.7 °C
+Vietor: 9.4 km/h
+Vlhkosť: 62 %
+Zdroj: Open-Meteo`}</code></pre>
+        <p>Táto úloha má otestovať, či máte request, parsing a model rozdelené tak, aby sa dali kombinovať bez kopírovania kódu.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Combine the geocoding endpoint and forecast endpoint into one workflow.</p>
+        <p>The function <code>get_weather_for_city(city: str) -> Weather</code> should:</p>
+        <ul>
+          <li>search for a location;</li>
+          <li>obtain coordinates;</li>
+          <li>call the forecast endpoint;</li>
+          <li>process JSON;</li>
+          <li>return a <code>Weather</code> object;</li>
+          <li>raise or return a meaningfully described problem on error.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Košice, Slovakia
+Temperature: 18.7 °C
+Wind: 9.4 km/h
+Humidity: 62 %
+Source: Open-Meteo`}</code></pre>
+        <p>This task checks whether request code, parsing and the model are separated well enough to combine them without copying code.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 10 — Kompletný CLI API client" en="Task 10 — Complete CLI API Client" /></h2>
+      <div data-lang="sk">
+        <p>Dokončite <code>weather_cli.py</code> ako použiteľný command-line nástroj.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Finish <code>weather_cli.py</code> as a usable command-line tool.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python weather_cli.py Kosice
+python weather_cli.py Kosice --country Slovakia
+python weather_cli.py Kosice Bratislava Praha --verbose
+python weather_cli.py --lat 48.7164 --lon 21.2611 --name Košice`}</code></pre>
+      <div data-lang="sk">
+        <p>Minimálne požiadavky:</p>
+        <ul>
+          <li>argumenty cez <code>argparse</code>;</li>
+          <li>podpora mesta aj priamych súradníc;</li>
+          <li>viac miest v jednom spustení;</li>
+          <li>requesty cez <code>httpx</code> s timeoutom;</li>
+          <li>geocoding + forecast workflow;</li>
+          <li>dataclass modely pre lokalitu a počasie;</li>
+          <li>čitateľný textový report;</li>
+          <li>zrozumiteľné chybové správy;</li>
+          <li>bez vypisovania celého JSON na používateľa.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Košice, Slovakia     18.7 °C   vietor  9.4 km/h   vlhkosť 62 %
+Bratislava, Slovakia 20.1 °C   vietor 12.0 km/h   vlhkosť 58 %
+Praha, Czechia       17.9 °C   vietor  8.8 km/h   vlhkosť 65 %`}</code></pre>
+        <p>Async nepoužívajte. Dôležitejšie je správne rozdelenie kódu, chybové stavy a práca s API odpoveďou.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Minimum requirements:</p>
+        <ul>
+          <li>arguments through <code>argparse</code>;</li>
+          <li>support both city names and direct coordinates;</li>
+          <li>multiple cities in one run;</li>
+          <li>requests through <code>httpx</code> with a timeout;</li>
+          <li>geocoding + forecast workflow;</li>
+          <li>dataclass models for location and weather;</li>
+          <li>readable text report;</li>
+          <li>clear error messages;</li>
+          <li>do not print the whole JSON response to the user.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Košice, Slovakia     18.7 °C   wind  9.4 km/h   humidity 62 %
+Bratislava, Slovakia 20.1 °C   wind 12.0 km/h   humidity 58 %
+Prague, Czechia      17.9 °C   wind  8.8 km/h   humidity 65 %`}</code></pre>
+        <p>Do not use async. Correct code separation, error states and working with the API response are more important here.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>
+        <li><a href="https://www.python-httpx.org/" target="_blank" rel="noreferrer">HTTPX</a></li>
+        <li><a href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer">Open-Meteo Forecast API</a></li>
+        <li><a href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noreferrer">Open-Meteo Geocoding API</a></li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

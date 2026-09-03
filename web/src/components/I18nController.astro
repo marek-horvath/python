@@ -1,0 +1,201 @@
+---
+import { defaultLanguage, languageStorageKey, uiTranslations, type I18nDictionary } from "@shared/i18n";
+
+type Props = {
+  translations?: I18nDictionary;
+};
+
+const translations = {
+  ...uiTranslations,
+  ...(Astro.props.translations ?? {})
+} satisfies I18nDictionary;
+---
+
+<script type="application/json" data-i18n-translations set:html={JSON.stringify(translations)}></script>
+<script type="application/json" data-i18n-config set:html={JSON.stringify({ storageKey: languageStorageKey, defaultLanguage })}></script>
+
+<script>
+  type Language = "sk" | "en";
+  type TranslationEntry = Record<Language, string>;
+  type TranslationValues = Record<string, string | number>;
+  type TranslationDictionary = Record<string, TranslationEntry>;
+  type I18nApi = {
+    language: Language;
+    t: (key: string, values?: TranslationValues) => string;
+    setLanguage: (language: Language) => void;
+    applyLanguage: () => void;
+  };
+
+  const configSource = document.querySelector<HTMLScriptElement>("[data-i18n-config]");
+  const translationSource = document.querySelector<HTMLScriptElement>("[data-i18n-translations]");
+  const i18nConfig = readConfig();
+  const storageKey = i18nConfig.storageKey;
+  const defaultLang = i18nConfig.defaultLanguage;
+  const dictionary = readDictionary();
+
+  function readConfig() {
+    if (!configSource?.textContent) {
+      return { storageKey: "python-course.language", defaultLanguage: "sk" as Language };
+    }
+
+    try {
+      const parsed = JSON.parse(configSource.textContent) as { storageKey?: string; defaultLanguage?: string };
+      return {
+        storageKey: parsed.storageKey ?? "python-course.language",
+        defaultLanguage: normalizeLanguage(parsed.defaultLanguage)
+      };
+    } catch {
+      return { storageKey: "python-course.language", defaultLanguage: "sk" as Language };
+    }
+  }
+
+  function readDictionary(): TranslationDictionary {
+    if (!translationSource?.textContent) return {};
+
+    try {
+      return JSON.parse(translationSource.textContent) as TranslationDictionary;
+    } catch {
+      return {};
+    }
+  }
+
+  function normalizeLanguage(value: string | null | undefined): Language {
+    return value === "en" ? "en" : "sk";
+  }
+
+  function getStoredLanguage(): Language {
+    try {
+      return normalizeLanguage(window.localStorage.getItem(storageKey));
+    } catch {
+      return defaultLang;
+    }
+  }
+
+  function saveLanguage(language: Language) {
+    try {
+      window.localStorage.setItem(storageKey, language);
+    } catch {
+      // Language preference is local convenience state.
+    }
+  }
+
+  function interpolate(value: string, values: TranslationValues = {}) {
+    return value.replace(/\{(\w+)\}/g, (match, key) => String(values[key] ?? match));
+  }
+
+  function readValues(element: HTMLElement) {
+    const raw = element.getAttribute("data-i18n-values");
+    if (!raw) return {};
+
+    try {
+      return JSON.parse(raw) as TranslationValues;
+    } catch {
+      return {};
+    }
+  }
+
+  function t(key: string, values?: TranslationValues) {
+    const language = getStoredLanguage();
+    const entry = dictionary[key];
+    return interpolate(entry?.[language] ?? entry?.sk ?? key, values);
+  }
+
+  function translateElement(element: HTMLElement, language: Language) {
+    const values = readValues(element);
+
+    const textKey = element.getAttribute("data-i18n-key");
+    if (textKey) {
+      const entry = dictionary[textKey];
+      element.textContent = interpolate(entry?.[language] ?? entry?.sk ?? element.textContent ?? "", values);
+    }
+
+    const htmlKey = element.getAttribute("data-i18n-html");
+    if (htmlKey) {
+      const entry = dictionary[htmlKey];
+      element.innerHTML = interpolate(entry?.[language] ?? entry?.sk ?? element.innerHTML, values);
+    }
+
+    const ariaKey = element.getAttribute("data-i18n-aria-label");
+    if (ariaKey) {
+      const entry = dictionary[ariaKey];
+      element.setAttribute("aria-label", interpolate(entry?.[language] ?? entry?.sk ?? element.getAttribute("aria-label") ?? "", values));
+    }
+
+    const titleKey = element.getAttribute("data-i18n-title");
+    if (titleKey) {
+      const entry = dictionary[titleKey];
+      element.setAttribute("title", interpolate(entry?.[language] ?? entry?.sk ?? element.getAttribute("title") ?? "", values));
+    }
+
+    const placeholderKey = element.getAttribute("data-i18n-placeholder");
+    if (placeholderKey) {
+      const entry = dictionary[placeholderKey];
+      element.setAttribute(
+        "placeholder",
+        interpolate(entry?.[language] ?? entry?.sk ?? element.getAttribute("placeholder") ?? "", values)
+      );
+    }
+  }
+
+  function updateMetadata(language: Language) {
+    const title = document.documentElement.getAttribute(`data-title-${language}`);
+    const description = document.documentElement.getAttribute(`data-description-${language}`);
+
+    if (title) document.title = title;
+
+    const metaDescription = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (metaDescription && description) metaDescription.content = description;
+  }
+
+  function applyLanguage(language: Language = getStoredLanguage()) {
+    document.documentElement.lang = language;
+    document.documentElement.dataset.language = language;
+
+    document.querySelectorAll<HTMLElement>("[data-i18n-key], [data-i18n-html], [data-i18n-aria-label], [data-i18n-title], [data-i18n-placeholder]").forEach((element) => {
+      translateElement(element, language);
+    });
+
+    document.querySelectorAll<HTMLElement>("[data-lang]").forEach((element) => {
+      element.hidden = element.getAttribute("data-lang") !== language;
+    });
+
+    document.querySelectorAll<HTMLButtonElement>("[data-language-option]").forEach((button) => {
+      const active = button.dataset.languageOption === language;
+      button.toggleAttribute("data-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
+    updateMetadata(language);
+    window.dispatchEvent(new CustomEvent("python-course-language-applied", { detail: { language } }));
+  }
+
+  function setLanguage(language: Language) {
+    saveLanguage(language);
+    applyLanguage(language);
+    window.dispatchEvent(new CustomEvent("python-course-language-change", { detail: { language } }));
+  }
+
+  const api: I18nApi = {
+    get language() {
+      return getStoredLanguage();
+    },
+    t,
+    setLanguage,
+    applyLanguage: () => applyLanguage()
+  };
+
+  (window as Window & { pythonCourseI18n?: I18nApi }).pythonCourseI18n = api;
+
+  document.querySelectorAll<HTMLButtonElement>("[data-language-option]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const language = normalizeLanguage(button.dataset.languageOption);
+      setLanguage(language);
+    });
+  });
+
+  window.addEventListener("storage", (event) => {
+    if (event.key === storageKey) applyLanguage(normalizeLanguage(event.newValue));
+  });
+
+  applyLanguage(getStoredLanguage());
+</script>

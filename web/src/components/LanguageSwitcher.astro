@@ -1,0 +1,21 @@
+---
+import { languages, translate, uiTranslations } from "@shared/i18n";
+---
+
+<div class="language-switcher" role="group" aria-label={translate(uiTranslations, "language.label", "sk")} data-i18n-aria-label="language.label">
+  {
+    languages.map((language) => (
+      <button
+        type="button"
+        class="language-switcher__option"
+        data-language-option={language.code}
+        data-active={language.code === "sk" ? "" : undefined}
+        aria-pressed={language.code === "sk" ? "true" : "false"}
+        title={translate(uiTranslations, `language.${language.code}`, "sk")}
+        data-i18n-title={`language.${language.code}`}
+      >
+        {language.label}
+      </button>
+    ))
+  }
+</div>

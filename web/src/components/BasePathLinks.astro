@@ -1,0 +1,45 @@
+---
+const basePath = process.env.PUBLIC_BASE_PATH ?? (process.env.GITHUB_PAGES === "true" ? "/python" : "/");
+---
+
+<script define:vars={{ basePath }}>
+  (() => {
+    const rawBasePath = typeof basePath === "string" ? basePath : "/";
+    const normalizedBasePath = rawBasePath === "/" ? "" : rawBasePath.replace(/\/$/, "");
+
+    function withBasePath(path) {
+      if (
+        !normalizedBasePath ||
+        typeof path !== "string" ||
+        !path.startsWith("/") ||
+        path.startsWith("//") ||
+        path === normalizedBasePath ||
+        path.startsWith(`${normalizedBasePath}/`)
+      ) {
+        return path;
+      }
+
+      return `${normalizedBasePath}${path}`;
+    }
+
+    function applyBasePath(root = document) {
+      if (!normalizedBasePath) {
+        return;
+      }
+
+      root.querySelectorAll("a[href]").forEach((link) => {
+        const href = link.getAttribute("href");
+
+        if (!href) {
+          return;
+        }
+
+        link.setAttribute("href", withBasePath(href));
+      });
+    }
+
+    window.pythonCourseWithBasePath = withBasePath;
+    window.pythonCourseApplyBasePath = applyBasePath;
+    applyBasePath();
+  })();
+</script>

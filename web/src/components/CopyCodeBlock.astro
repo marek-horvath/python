@@ -1,0 +1,63 @@
+---
+import type { CodeLanguage } from "@shared/slide.types";
+import { highlightedCode } from "../lib/highlight";
+
+type Props = {
+  code: string;
+  language?: CodeLanguage;
+};
+
+const { language = "python" } = Astro.props;
+const code = Astro.props.code.replace(/\r\n/g, "\n").replace(/\n$/, "");
+const html = highlightedCode({ language, code });
+---
+
+<div class="copy-code" data-copy-code-block>
+  <button class="copy-code__copy" type="button" data-copy-code={code} data-i18n-key="ui.copy">Kopírovať</button>
+  <pre aria-label={language}><code set:html={html} /></pre>
+</div>
+
+<script>
+  type I18nApi = {
+    t: (key: string) => string;
+  };
+
+  function i18n() {
+    return (window as Window & { pythonCourseI18n?: I18nApi }).pythonCourseI18n;
+  }
+
+  function translate(key: string, fallback: string) {
+    return i18n()?.t(key) ?? fallback;
+  }
+
+  async function copyCodeText(value: string) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.append(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    textarea.remove();
+  }
+
+  document.querySelectorAll<HTMLButtonElement>("[data-copy-code]").forEach((button) => {
+    if (button.dataset.copyReady === "true") return;
+    button.dataset.copyReady = "true";
+
+    button.addEventListener("click", async () => {
+      const code = button.getAttribute("data-copy-code") ?? "";
+      await copyCodeText(code);
+      button.textContent = translate("ui.copied", "Skopírované");
+      window.setTimeout(() => {
+        button.textContent = translate("ui.copy", "Kopírovať");
+      }, 1400);
+    });
+  });
+</script>

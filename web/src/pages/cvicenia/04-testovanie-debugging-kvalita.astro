@@ -1,0 +1,392 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercise = getExerciseBySlug("04-testovanie-debugging-kvalita");
+if (!exercise) throw new Error("Cvičenie 04 nie je zaregistrované.");
+
+const titleEn = exercise.translations?.en?.title ?? exercise.title;
+const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+const descriptionEn = exercise.translations?.en?.description ?? exercise.description;
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${titleEn}: ${subtitleEn}`}
+  description={exercise.description}
+  descriptionEn={descriptionEn}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={titleEn} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></p>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`Starter projekt: exercises/exercise-04/
+Dependencies: pytest, ruff
+Spúšťanie testov: python -m pytest
+Kontrola štýlu: ruff check .`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`Starter project: exercises/exercise-04/
+Dependencies: pytest, ruff
+Running tests: python -m pytest
+Style check: ruff check .`}</code></pre>
+      </div>
+      <pre class="worksheet-code"><code>{`python -m pip install pytest ruff
+python -m pytest
+ruff check .`}</code></pre>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul data-lang="sk">
+        <li>písať testy pre existujúci kód, nie iba pre vlastné ideálne funkcie;</li>
+        <li>reprodukovať bug cez zlyhávajúci test;</li>
+        <li>použiť parametrizáciu, fixtures, exceptions a <code>tmp_path</code>;</li>
+        <li>kombinovať debugger, logging a Ruff pri oprave malej codebase.</li>
+      </ul>
+      <ul data-lang="en" hidden>
+        <li>write tests for existing code, not only for your own ideal functions;</li>
+        <li>reproduce a bug with a failing test;</li>
+        <li>use parametrization, fixtures, exceptions and <code>tmp_path</code>;</li>
+        <li>combine a debugger, logging and Ruff when fixing a small codebase.</li>
+      </ul>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 1 — Baseline a prvý test" en="Task 1 — Baseline and First Test" /></h2>
+      <div data-lang="sk">
+        <p>Otvorte starter projekt a spustite testy. Na začiatku môže byť testov málo alebo žiadne.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Open the starter project and run the tests. At the beginning there may be only a few tests or none at all.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`cd exercises/exercise-04
+python -m pytest`}</code></pre>
+      <div data-lang="sk">
+        <p>Vytvorte testovací súbor pre <code>app/calculator.py</code> a napíšte test pre bežný prípad funkcie <code>calculate_discount()</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a test file for <code>app/calculator.py</code> and write a test for a regular case of <code>calculate_discount()</code>.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`from app.calculator import calculate_discount
+
+
+def test_calculate_discount_for_regular_price():
+    assert calculate_discount(100, 0.2) == 80`}</code></pre>
+      <p data-lang="sk">Po spustení pytestu si všimnite názov testu, cestu k súboru a výsledok test runu.</p>
+      <p data-lang="en" hidden>After running pytest, note the test name, file path and test run result.</p>
+      <pre class="expected-output"><code>{`collected 1 item
+
+tests/test_calculator.py .                                      [100%]`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 2 — Edge cases pred opravou implementácie" en="Task 2 — Edge Cases Before Fixing Implementation" /></h2>
+      <div data-lang="sk">
+        <p>Funkcia <code>calculate_discount(price, discount)</code> potrebuje jasný kontrakt.</p>
+        <p>Najprv navrhnite testy pre tieto prípady:</p>
+        <ul>
+          <li><code>price == 0</code>;</li>
+          <li><code>discount == 0</code>;</li>
+          <li><code>discount == 1</code>;</li>
+          <li><code>discount &lt; 0</code>;</li>
+          <li><code>discount &gt; 1</code>;</li>
+          <li>negatívna cena.</li>
+        </ul>
+        <p>Až potom upravte implementáciu. Neplatné hodnoty majú vyvolať <code>ValueError</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The function <code>calculate_discount(price, discount)</code> needs a clear contract.</p>
+        <p>First design tests for these cases:</p>
+        <ul>
+          <li><code>price == 0</code>;</li>
+          <li><code>discount == 0</code>;</li>
+          <li><code>discount == 1</code>;</li>
+          <li><code>discount &lt; 0</code>;</li>
+          <li><code>discount &gt; 1</code>;</li>
+          <li>negative price.</li>
+        </ul>
+        <p>Only then change the implementation. Invalid values should raise <code>ValueError</code>.</p>
+      </div>
+      <pre class="expected-output"><code>{`calculate_discount(100, 0)   -> 100
+calculate_discount(100, 1)   -> 0
+calculate_discount(100, -0.1) -> ValueError
+calculate_discount(-5, 0.2)  -> ValueError`}</code></pre>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Testy majú rozhodnúť, čo je povolené správanie. Implementáciu prispôsobte až po tom.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> Tests should define the allowed behavior. Adapt the implementation only after that.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Parametrized tests" en="Task 3 — Parametrized Tests" /></h2>
+      <div data-lang="sk">
+        <p>Podobné testy pre platné výpočty z úlohy 2 prepíšte cez <code>pytest.mark.parametrize</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Rewrite similar tests for valid calculations from Task 2 using <code>pytest.mark.parametrize</code>.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`import pytest
+
+
+@pytest.mark.parametrize(
+    "price, discount, expected",
+    [
+        (100, 0.0, 100),
+        (100, 0.2, 80),
+        (100, 1.0, 0),
+        (59.9, 0.5, 29.95),
+    ],
+)
+def test_valid_discounts(price, discount, expected):
+    assert calculate_discount(price, discount) == pytest.approx(expected)`}</code></pre>
+      <p data-lang="sk">Pridajte ešte parametrizovaný test pre neplatné hodnoty. Použite minimálne štyri prípady.</p>
+      <p data-lang="en" hidden>Add another parametrized test for invalid values. Use at least four cases.</p>
+      <p data-lang="sk">Vysvetlite jednou vetou, prečo sa pri <code>float</code> hodnotách používa <code>pytest.approx()</code>.</p>
+      <p data-lang="en" hidden>Explain in one sentence why <code>pytest.approx()</code> is used for <code>float</code> values.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Exception contract" en="Task 4 — Exception Contract" /></h2>
+      <div data-lang="sk">
+        <p>Otestujte funkciu <code>validate_score()</code>. Platné skóre vráti pôvodnú hodnotu, neplatné skóre vyvolá <code>ValueError</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Test the function <code>validate_score()</code>. A valid score returns the original value; an invalid score raises <code>ValueError</code>.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`with pytest.raises(ValueError):
+    validate_score(-1)`}</code></pre>
+      <div data-lang="sk">
+        <p>Požadované test cases:</p>
+        <ul>
+          <li><code>0</code>, <code>51</code>, <code>100</code> sú platné hodnoty;</li>
+          <li><code>-1</code> a <code>101</code> sú neplatné hodnoty;</li>
+          <li>ak sa rozhodnete riešiť typy, string alebo <code>None</code> majú mať jasné správanie.</li>
+        </ul>
+        <p>Test má kontrolovať výnimku, nie iba to, že program "nejako spadne".</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Required test cases:</p>
+        <ul>
+          <li><code>0</code>, <code>51</code>, <code>100</code> are valid values;</li>
+          <li><code>-1</code> and <code>101</code> are invalid values;</li>
+          <li>if you decide to handle types, a string or <code>None</code> should have clearly defined behavior.</li>
+        </ul>
+        <p>The test should check the exception, not only that the program "somehow crashes".</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — Fixtures a spoločné testovacie dáta" en="Task 5 — Fixtures and Shared Test Data" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte testy pre funkciu <code>final_grade()</code>. Použite fixture alebo parametrizáciu tak, aby sa neopakovali rovnaké vstupné dáta vo viacerých testoch.</p>
+        <p>Otestujte hranice hodnotenia:</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create tests for the function <code>final_grade()</code>. Use a fixture or parametrization so the same input data is not repeated across multiple tests.</p>
+        <p>Test grading boundaries:</p>
+      </div>
+      <pre class="expected-output"><code>{`100 -> A
+90  -> A or B depending on your chosen contract
+80  -> B or C depending on your chosen contract
+51  -> E
+50  -> FX`}</code></pre>
+      <p data-lang="sk">Ak test odhalí nejasné správanie na hraniciach, najprv ho presne pomenujte a až potom upravte implementáciu.</p>
+      <p data-lang="en" hidden>If a test reveals unclear boundary behavior, name it precisely first and only then change the implementation.</p>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Pri hodnotení je často lepšie explicitne testovať hraničné body než iba "typické" hodnoty.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> For grading, it is often better to explicitly test boundary values than only "typical" values.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — Temporary filesystem" en="Task 6 — Temporary Filesystem" /></h2>
+      <div data-lang="sk">
+        <p>Otestujte <code>save_report(path: Path, content: str) -> None</code> z modulu <code>app/storage.py</code> bez zápisu do reálneho pracovného adresára.</p>
+        <p>Požiadavky:</p>
+        <ul>
+          <li>použite pytest fixture <code>tmp_path</code>;</li>
+          <li>overte, že súbor vznikol;</li>
+          <li>overte obsah súboru;</li>
+          <li>doplňte test pre zápis do podadresára, ktorý ešte neexistuje;</li>
+          <li>implementáciu upravte tak, aby vytvorila potrebné parent directories.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Test <code>save_report(path: Path, content: str) -> None</code> from <code>app/storage.py</code> without writing into your real working directory.</p>
+        <p>Requirements:</p>
+        <ul>
+          <li>use the pytest fixture <code>tmp_path</code>;</li>
+          <li>verify that the file was created;</li>
+          <li>verify the file contents;</li>
+          <li>add a test for writing into a subdirectory that does not exist yet;</li>
+          <li>adjust the implementation so it creates the required parent directories.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`def test_save_report_creates_file(tmp_path):
+    output = tmp_path / "reports" / "summary.txt"
+
+    save_report(output, "OK")
+
+    assert output.read_text(encoding="utf-8") == "OK"`}</code></pre>
+      <p data-lang="sk">Ak test zlyhá pre encoding, upravte implementáciu tak, aby používala <code>encoding="utf-8"</code>.</p>
+      <p data-lang="en" hidden>If the test fails because of encoding, adjust the implementation to use <code>encoding="utf-8"</code>.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Regression bug v textových štatistikách" en="Task 7 — Regression Bug in Text Statistics" /></h2>
+      <div data-lang="sk">
+        <p>V <code>app/text_stats.py</code> je chyba pri počítaní slov a riadkov.</p>
+        <p>Najprv vytvorte testy pre:</p>
+        <ul>
+          <li>prázdny text;</li>
+          <li>text s viacerými medzerami;</li>
+          <li>text s newline znakmi;</li>
+          <li>text, ktorý končí newline znakom;</li>
+          <li>text s tabulátorom.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>There is a bug in <code>app/text_stats.py</code> when counting words and lines.</p>
+        <p>First create tests for:</p>
+        <ul>
+          <li>empty text;</li>
+          <li>text with multiple spaces;</li>
+          <li>text with newline characters;</li>
+          <li>text ending with a newline character;</li>
+          <li>text with a tab character.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`""                   -> words=0, lines=0
+"Anna  Peter"        -> words=2
+"one\\ntwo\\nthree"    -> lines=3
+"one\\n"              -> lines=1`}</code></pre>
+      <p data-lang="sk">Postup: napíšte zlyhávajúci test, spustite ho, opravte implementáciu, spustite celý test suite.</p>
+      <p data-lang="en" hidden>Procedure: write a failing test, run it, fix the implementation and run the whole test suite.</p>
+      <p data-lang="sk"><strong>Regression test</strong> je test pridaný po nájdení chyby, aby sa rovnaká chyba nevrátila.</p>
+      <p data-lang="en" hidden>A <strong>regression test</strong> is a test added after finding a bug so the same bug does not return later.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — Debugging namiesto hádania" en="Task 8 — Debugging Instead of Guessing" /></h2>
+      <div data-lang="sk">
+        <p>Vyberte jednu z chýb vo funkciách <code>final_grade()</code> alebo <code>analyze_text()</code> a nájdite ju cez debugger.</p>
+        <p>Postup:</p>
+        <ul>
+          <li>nastavte breakpoint na začiatok funkcie;</li>
+          <li>spustite konkrétny zlyhávajúci test v debug režime;</li>
+          <li>sledujte hodnoty vstupov a lokálnych premenných;</li>
+          <li>krokujte cez podmienky;</li>
+          <li>zapíšte, ktorý riadok spôsoboval nesprávne správanie.</li>
+        </ul>
+        <p>Potom pridajte do vhodného miesta logging, ktorý by pri reálnom použití pomohol problém diagnostikovať.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Choose one bug in <code>final_grade()</code> or <code>analyze_text()</code> and find it with a debugger.</p>
+        <p>Procedure:</p>
+        <ul>
+          <li>set a breakpoint at the start of the function;</li>
+          <li>run the specific failing test in debug mode;</li>
+          <li>inspect input values and local variables;</li>
+          <li>step through conditions;</li>
+          <li>write down which line caused the incorrect behavior.</li>
+        </ul>
+        <p>Then add logging at a suitable place that would help diagnose the problem in real use.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`import logging
+
+logger = logging.getLogger(__name__)
+
+logger.warning("Invalid score received: %s", score)`}</code></pre>
+      <p data-lang="sk">Logging nemá nahradiť test. Má pomôcť pri pochopení správania programu počas behu.</p>
+      <p data-lang="en" hidden>Logging should not replace a test. It should help understand program behavior at runtime.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — Ruff a čitateľnosť" en="Task 9 — Ruff and Readability" /></h2>
+      <div data-lang="sk">
+        <p>Spustite Ruff nad starter projektom.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Run Ruff on the starter project.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`ruff check .
+ruff format .`}</code></pre>
+      <div data-lang="sk">
+        <p>Opravte nájdené problémy tak, aby sa nezmenilo správanie programu. Pri každej úprave rozlišujte:</p>
+        <ul>
+          <li>lint problém, ktorý vie nástroj spoľahlivo nájsť;</li>
+          <li>formátovanie, ktoré vie nástroj upraviť automaticky;</li>
+          <li>logickú chybu, ktorú musí pokryť test.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Fix the reported issues without changing program behavior. For every change, distinguish between:</p>
+        <ul>
+          <li>a lint issue that the tool can reliably find;</li>
+          <li>formatting that the tool can adjust automatically;</li>
+          <li>a logic bug that must be covered by a test.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`All checks passed!`}</code></pre>
+      <p data-lang="sk">Po formátovaní znovu spustite <code>python -m pytest</code>. Čistý Ruff výstup neznamená, že program funguje správne.</p>
+      <p data-lang="en" hidden>After formatting, run <code>python -m pytest</code> again. A clean Ruff result does not mean the program works correctly.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 10 — Integračná oprava starter projektu" en="Task 10 — Integrated Starter Project Fix" /></h2>
+      <div data-lang="sk">
+        <p>Upravte starter projekt tak, aby mal zmysluplný test suite a opravené hlavné chyby.</p>
+        <p>Minimálne požiadavky:</p>
+        <ul>
+          <li>testy pre <code>calculate_discount()</code> vrátane neplatných vstupov;</li>
+          <li>testy pre hranice <code>final_grade()</code>;</li>
+          <li>regression testy pre <code>analyze_text()</code>;</li>
+          <li>testy pre <code>save_report()</code> s <code>tmp_path</code>;</li>
+          <li>jeden test s nahradenou dependency vo funkcii <code>price_in_eur()</code>;</li>
+          <li>opravený kód bez tichého ignorovania chýb;</li>
+          <li>prechádzajúce <code>pytest</code> aj <code>ruff check .</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Modify the starter project so it has a meaningful test suite and the main bugs are fixed.</p>
+        <p>Minimum requirements:</p>
+        <ul>
+          <li>tests for <code>calculate_discount()</code>, including invalid inputs;</li>
+          <li>tests for <code>final_grade()</code> boundaries;</li>
+          <li>regression tests for <code>analyze_text()</code>;</li>
+          <li>tests for <code>save_report()</code> with <code>tmp_path</code>;</li>
+          <li>one test with a replaced dependency in <code>price_in_eur()</code>;</li>
+          <li>fixed code without silently ignored errors;</li>
+          <li>passing <code>pytest</code> and <code>ruff check .</code>.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`def test_price_in_eur_uses_exchange_rate(monkeypatch):
+    monkeypatch.setattr("app.pricing.get_exchange_rate", lambda: 0.92)
+
+    assert price_in_eur(100) == 92`}</code></pre>
+      <pre class="expected-output"><code>{`$ python -m pytest
+12 passed in 0.08s
+
+$ ruff check .
+All checks passed!`}</code></pre>
+      <p data-lang="sk">Výsledkom nemá byť veľká architektúra. Stačí malý projekt, ktorého správanie je presne popísané testami.</p>
+      <p data-lang="en" hidden>The result should not be a large architecture. A small project whose behavior is precisely described by tests is enough.</p>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>
+        <li><a href="https://docs.pytest.org/en/stable/" target="_blank" rel="noreferrer">pytest documentation</a></li>
+        <li><a href="https://docs.pytest.org/en/stable/how-to/parametrize.html" target="_blank" rel="noreferrer">pytest parametrization</a></li>
+        <li><a href="https://docs.pytest.org/en/stable/how-to/tmp_path.html" target="_blank" rel="noreferrer">tmp_path</a></li>
+        <li><a href="https://docs.astral.sh/ruff/" target="_blank" rel="noreferrer">Ruff</a></li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

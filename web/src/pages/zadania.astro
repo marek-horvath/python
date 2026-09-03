@@ -1,0 +1,20 @@
+---
+import LocalizedText from "../components/LocalizedText.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const target = "/projekt/";
+const basePath = process.env.PUBLIC_BASE_PATH ?? (process.env.GITHUB_PAGES === "true" ? "/python" : "/");
+const normalizedBasePath = basePath === "/" ? "" : basePath.replace(/\/$/, "");
+const targetUrl = `${normalizedBasePath}${target}`;
+---
+
+<BaseLayout title="Presmerovanie" titleEn="Redirect">
+  <main class="page">
+    <p>
+      <a href={targetUrl} data-i18n-key="ui.continueProject">
+        <LocalizedText sk="Pokračovať na stránku Projekt" en="Continue to Project" />
+      </a>
+    </p>
+  </main>
+  <script define:vars={{ targetUrl }}>window.location.replace(targetUrl + window.location.hash);</script>
+</BaseLayout>

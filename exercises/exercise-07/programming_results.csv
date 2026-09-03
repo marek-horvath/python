@@ -1,0 +1,46 @@
+student_id,course,task,points,duration_minutes,attempts,submitted_at,language
+1,Python,collections,92,48,1,2026-09-28,Python
+2,Python,collections,67,65,2,2026-09-28,Python
+3,Python,collections,81,54,1,2026-09-28,Python
+4,Python,collections,45,90,3,2026-09-29,Python
+5,Python,collections,74,62,1,2026-09-29,Python
+6,Python,collections,88,51,1,2026-09-29,Python
+7,Python,functions,95,55,1,2026-10-05,Python
+8,Python,functions,58,80,2,2026-10-05,Python
+9,Python,functions,72,70,2,2026-10-05,Python
+10,Python,functions,,76,2,2026-10-06,Python
+11,Skriptovanie,files,86,57,1,2026-10-12,Python
+12,Skriptovanie,files,64,93,3,2026-10-12,Python
+13,Skriptovanie,files,77,68,2,2026-10-12,Python
+14,Skriptovanie,files,91,52,1,2026-10-13,Python
+15,Skriptovanie,files,49,99,,2026-10-13,Python
+16,Skriptovanie,json_csv,83,61,1,2026-10-19,Python
+17,Skriptovanie,json_csv,70,75,2,2026-10-19,Python
+18,Skriptovanie,json_csv,56,88,3,2026-10-19,Python
+19,GUI,callbacks,79,84,2,2026-10-26,Python
+20,GUI,callbacks,61,92,3,2026-10-26,Python
+21,GUI,callbacks,87,73,1,2026-10-26,Python
+22,GUI,canvas,68,101,2,2026-11-02,Python
+23,GUI,canvas,52,118,3,2026-11-02,Python
+24,GUI,canvas,90,79,1,2026-11-02,Python
+25,Testovanie,pytest,93,44,1,2026-11-09,Python
+26,Testovanie,pytest,71,69,2,2026-11-09,Python
+27,Testovanie,debugging,66,,2,2026-11-16,Python
+28,Testovanie,debugging,84,63,1,2026-11-16,Python
+29,HTTP,api_client,78,58,1,2026-11-23,Python
+30,HTTP,api_client,55,87,2,2026-11-23,Python
+31,HTTP,api_client,89,53,1,2026-11-23,Python
+32,Databázy,sqlite,82,72,1,2026-11-30,Python
+33,Databázy,sqlite,60,95,2,2026-11-30,Python
+34,Databázy,sqlalchemy,76,83,2,2026-12-07,Python
+35,Databázy,sqlalchemy,94,59,1,2026-12-07,Python
+36,Data Science,pandas,91,66,1,2026-12-14,Python
+37,Data Science,pandas,73,82,2,2026-12-14,Python
+38,Data Science,plotting,69,97,2,2026-12-21,Python
+39,Data Science,plotting,86,71,1,2026-12-21,Python
+,Python,collections,80,60,1,2026-09-28,Python
+12,Skriptovanie,files,64,93,3,2026-10-12,Python
+37,Data Science,pandas,73,82,2,2026-12-14,Python
+40,HTTP,api_client,33,120,4,2026-11-24,Python
+41,Databázy,sqlite,57,105,3,2026-12-01,Python
+42,GUI,callbacks,88,78,1,2026-10-27,Python

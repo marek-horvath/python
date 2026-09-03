@@ -1,0 +1,21 @@
+---
+type Props = {
+  sk: string;
+  en?: string;
+  html?: boolean;
+};
+
+const { sk, en = sk, html = false } = Astro.props;
+---
+
+{
+  html ? (
+    <>
+      <span data-lang="sk" set:html={sk}></span><span data-lang="en" hidden set:html={en}></span>
+    </>
+  ) : (
+    <>
+      <span data-lang="sk">{sk}</span><span data-lang="en" hidden>{en}</span>
+    </>
+  )
+}

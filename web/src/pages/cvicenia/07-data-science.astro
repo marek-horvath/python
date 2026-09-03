@@ -1,0 +1,461 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercise = getExerciseBySlug("07-data-science");
+if (!exercise) throw new Error("Cvičenie 07 nie je zaregistrované.");
+
+const titleEn = exercise.translations?.en?.title ?? exercise.title;
+const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+const descriptionEn = exercise.translations?.en?.description ?? exercise.description;
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${titleEn}: ${subtitleEn}`}
+  description={exercise.description}
+  descriptionEn={descriptionEn}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={titleEn} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></p>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <div data-lang="sk">
+        <p>
+          Budete pracovať s datasetom výsledkov programátorských úloh. Cieľom je prejsť celý malý data-science workflow:
+          načítanie dát, kontrola kvality, čistenie, transformácie, agregácie, spájanie tabuliek a vizualizácia.
+        </p>
+        <pre class="expected-output"><code>{`Starter súbory: ${exercise.starterPath}
+Datasety: programming_results.csv, students.csv
+Výstupy: krátky notebook alebo Python skript + 3 grafy + stručné zistenia`}</code></pre>
+        <p>
+          Starter súbory sú dostupné aj ako <a href="/downloads/exercise-07-starter.zip">ZIP archív</a>.
+        </p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>
+          You will work with a dataset of programming assignment results. The goal is to go through a small data-science workflow:
+          loading data, checking quality, cleaning, transformations, aggregations, table joins and visualization.
+        </p>
+        <pre class="expected-output"><code>{`Starter files: ${exercise.starterPath}
+Datasets: programming_results.csv, students.csv
+Outputs: short notebook or Python script + 3 charts + concise findings`}</code></pre>
+        <p>
+          Starter files are also available as a <a href="/downloads/exercise-07-starter.zip">ZIP archive</a>.
+        </p>
+      </div>
+      <pre class="worksheet-code"><code>{`python -m pip install numpy pandas matplotlib`}</code></pre>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul data-lang="sk">
+        <li>použiť <code>pandas</code> na praktickú prácu s CSV datasetom;</li>
+        <li>robiť čistiace rozhodnutia podľa pravidiel, nie naslepo;</li>
+        <li>vytvoriť odvodené stĺpce, agregácie, merge a základné grafy;</li>
+        <li>oddeliť technický výpočet od stručnej interpretácie výsledkov.</li>
+      </ul>
+      <ul data-lang="en" hidden>
+        <li>use <code>pandas</code> for practical work with a CSV dataset;</li>
+        <li>make cleaning decisions based on explicit rules, not guesswork;</li>
+        <li>create derived columns, aggregations, merge operations and basic charts;</li>
+        <li>separate technical computation from concise interpretation of results.</li>
+      </ul>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 1 — Dataset intake" en="Task 1 — Dataset Intake" /></h2>
+      <div data-lang="sk">
+        <p>Načítajte súbor <code>programming_results.csv</code> a vytvorte krátky prehľad o tom, s akými dátami pracujete.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Load <code>programming_results.csv</code> and create a short overview of the data you are working with.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`from pathlib import Path
+
+import pandas as pd
+
+data_path = Path("programming_results.csv")
+df = pd.read_csv(data_path)`}</code></pre>
+      <div data-lang="sk">
+        <p>Vypíšte:</p>
+        <ul>
+          <li>počet riadkov a stĺpcov;</li>
+          <li>názvy stĺpcov;</li>
+          <li>dátové typy;</li>
+          <li>prvých 5 riadkov;</li>
+          <li>počet chýbajúcich hodnôt v každom stĺpci.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Print:</p>
+        <ul>
+          <li>number of rows and columns;</li>
+          <li>column names;</li>
+          <li>data types;</li>
+          <li>first 5 rows;</li>
+          <li>number of missing values in each column.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Rows: ...
+Columns: ...
+
+Missing values:
+student_id           0
+points               ...
+attempts             ...
+duration_minutes     ...`}</code></pre>
+      <p data-lang="sk">Na konci napíšte 2-3 vety: čo dataset zjavne obsahuje a ktoré stĺpce bude treba skontrolovať pred analýzou.</p>
+      <p data-lang="en" hidden>At the end, write 2-3 sentences: what the dataset clearly contains and which columns need to be checked before analysis.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 2 — Kontrola kvality dát" en="Task 2 — Data Quality Check" /></h2>
+      <div data-lang="sk">
+        <p>Pred výpočtami nájdite problémy, ktoré by mohli skresliť výsledky.</p>
+        <p>Skontrolujte:</p>
+        <ul>
+          <li>chýbajúce hodnoty v <code>student_id</code>, <code>points</code>, <code>attempts</code> a <code>duration_minutes</code>;</li>
+          <li>presné duplicitné riadky;</li>
+          <li>hodnoty <code>points</code> mimo intervalu 0-100;</li>
+          <li>pokusy menšie ako 1;</li>
+          <li>extrémne krátke alebo extrémne dlhé trvania riešenia.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Before calculations, find issues that could distort results.</p>
+        <p>Check:</p>
+        <ul>
+          <li>missing values in <code>student_id</code>, <code>points</code>, <code>attempts</code> and <code>duration_minutes</code>;</li>
+          <li>exact duplicate rows;</li>
+          <li><code>points</code> values outside the 0-100 range;</li>
+          <li>attempt counts lower than 1;</li>
+          <li>extremely short or extremely long solution durations.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`print(df.isna().sum())
+print(df.duplicated().sum())
+print(df[df["points"].notna() & ~df["points"].between(0, 100)])`}</code></pre>
+      <p data-lang="sk">Výsledkom úlohy nie je ešte opravený dataset, ale zoznam nájdených problémov a stručné rozhodnutie, ako ich budete čistiť.</p>
+      <p data-lang="en" hidden>The result of this task is not yet a fixed dataset, but a list of found issues and a short decision on how you will clean them.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Čistenie podľa pravidiel" en="Task 3 — Rule-Based Cleaning" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte nový DataFrame <code>clean_df</code>. Pôvodný <code>df</code> ponechajte pre porovnanie.</p>
+        <p>Použite tieto pravidlá:</p>
+        <ul>
+          <li>riadky bez <code>student_id</code> odstráňte;</li>
+          <li>riadky bez <code>points</code> odstráňte;</li>
+          <li>chýbajúce <code>attempts</code> doplňte hodnotou <code>1</code>;</li>
+          <li>chýbajúce <code>duration_minutes</code> doplňte mediánom trvania;</li>
+          <li>odstráňte presné duplicity;</li>
+          <li>stĺpec <code>submitted_at</code> skonvertujte na dátumový typ.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a new DataFrame <code>clean_df</code>. Keep the original <code>df</code> for comparison.</p>
+        <p>Use these rules:</p>
+        <ul>
+          <li>remove rows without <code>student_id</code>;</li>
+          <li>remove rows without <code>points</code>;</li>
+          <li>fill missing <code>attempts</code> with <code>1</code>;</li>
+          <li>fill missing <code>duration_minutes</code> with the median duration;</li>
+          <li>remove exact duplicates;</li>
+          <li>convert the <code>submitted_at</code> column to a datetime type.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Original rows: ...
+Clean rows: ...
+Removed rows: ...
+Missing values after cleaning: 0`}</code></pre>
+      <p class="hint" data-lang="sk">
+        <strong>Pomôcka:</strong> Použite <code>dropna()</code>, <code>fillna()</code>, <code>drop_duplicates()</code> a
+        <code>pd.to_datetime()</code>. Nerobte zmenu cez <code>iterrows()</code>.
+      </p>
+      <p class="hint" data-lang="en" hidden>
+        <strong>Hint:</strong> Use <code>dropna()</code>, <code>fillna()</code>, <code>drop_duplicates()</code> and
+        <code>pd.to_datetime()</code>. Do not perform this change with <code>iterrows()</code>.
+      </p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Odvodené stĺpce" en="Task 4 — Derived Columns" /></h2>
+      <div data-lang="sk">
+        <p>Do <code>clean_df</code> pridajte stĺpce, ktoré budú užitočné pri analýze.</p>
+        <p>Vytvorte:</p>
+        <ul>
+          <li><code>passed</code>: <code>points &gt;= 50</code>;</li>
+          <li><code>points_per_attempt</code>: body delené počtom pokusov;</li>
+          <li><code>duration_category</code>: <code>short</code>, <code>medium</code>, <code>long</code> podľa trvania;</li>
+          <li><code>submitted_weekday</code>: deň v týždni odvodený zo <code>submitted_at</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Add columns to <code>clean_df</code> that will be useful for analysis.</p>
+        <p>Create:</p>
+        <ul>
+          <li><code>passed</code>: <code>points &gt;= 50</code>;</li>
+          <li><code>points_per_attempt</code>: points divided by attempt count;</li>
+          <li><code>duration_category</code>: <code>short</code>, <code>medium</code>, <code>long</code> based on duration;</li>
+          <li><code>submitted_weekday</code>: weekday derived from <code>submitted_at</code>.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`import numpy as np
+
+clean_df["passed"] = clean_df["points"] >= 50
+clean_df["duration_category"] = np.select(
+    [
+        clean_df["duration_minutes"] < 60,
+        clean_df["duration_minutes"] <= 90,
+    ],
+    ["short", "medium"],
+    default="long",
+)`}</code></pre>
+      <p data-lang="sk">Overte, že nové stĺpce majú očakávané typy a nevznikli v nich chýbajúce hodnoty.</p>
+      <p data-lang="en" hidden>Verify that the new columns have expected types and contain no missing values.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — Filtrovanie a výbery" en="Task 5 — Filtering and Selection" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte menšie výbery dát pre konkrétne otázky. Použite boolean indexing, nie cyklus cez riadky.</p>
+        <p>Pripravte výbery:</p>
+        <ul>
+          <li>všetky výsledky predmetu <code>Python</code>;</li>
+          <li>úspešné výsledky s aspoň 80 bodmi;</li>
+          <li>riešenia s viac ako 2 pokusmi;</li>
+          <li>dlhé riešenia, ktoré aj napriek tomu neprešli;</li>
+          <li>výsledky odovzdané po zadanom dátume, napríklad <code>2026-10-01</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create smaller data selections for specific questions. Use boolean indexing, not a loop over rows.</p>
+        <p>Prepare selections for:</p>
+        <ul>
+          <li>all results for the <code>Python</code> course;</li>
+          <li>passing results with at least 80 points;</li>
+          <li>solutions with more than 2 attempts;</li>
+          <li>long solutions that still did not pass;</li>
+          <li>results submitted after a given date, for example <code>2026-10-01</code>.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`strong_results = clean_df[
+    (clean_df["passed"]) & (clean_df["points"] >= 80)
+]`}</code></pre>
+      <p data-lang="sk">Pri každom výbere vypíšte počet riadkov a jeden krátky príklad riadku.</p>
+      <p data-lang="en" hidden>For each selection, print the row count and one short example row.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — GroupBy agregácie" en="Task 6 — GroupBy Aggregations" /></h2>
+      <div data-lang="sk">
+        <p>Pomocou <code>groupby</code> vytvorte tabuľky, ktoré odpovedajú na konkrétne otázky.</p>
+        <p>Zistite:</p>
+        <ul>
+          <li>priemerné, minimálne a maximálne body podľa predmetu;</li>
+          <li>počet odovzdaní podľa predmetu a tasku;</li>
+          <li>úspešnosť podľa predmetu v percentách;</li>
+          <li>priemerný počet pokusov podľa tasku;</li>
+          <li>ktorý predmet má najvyšší priemerný výsledok.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Use <code>groupby</code> to create tables that answer concrete questions.</p>
+        <p>Find:</p>
+        <ul>
+          <li>average, minimum and maximum points by course;</li>
+          <li>number of submissions by course and task;</li>
+          <li>pass rate by course in percent;</li>
+          <li>average number of attempts by task;</li>
+          <li>which course has the highest average result.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`course_summary = clean_df.groupby("course").agg(
+    submissions=("student_id", "count"),
+    average_points=("points", "mean"),
+    pass_rate=("passed", "mean"),
+)
+
+course_summary["pass_rate"] = course_summary["pass_rate"] * 100`}</code></pre>
+      <p data-lang="sk">Výstup zaokrúhlite tak, aby bol čitateľný pre človeka.</p>
+      <p data-lang="en" hidden>Round the output so it is readable for a person.</p>
+      <pre class="expected-output"><code>{`course         submissions  average_points  pass_rate
+Python         ...          ...             ...
+Scripting      ...          ...             ...`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Merge so študentmi" en="Task 7 — Merge with Students" /></h2>
+      <div data-lang="sk">
+        <p>Načítajte <code>students.csv</code> a spojte ho s vyčistenými výsledkami cez <code>student_id</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Load <code>students.csv</code> and merge it with the cleaned results through <code>student_id</code>.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`students = pd.read_csv("students.csv")
+merged = clean_df.merge(students, on="student_id", how="left", validate="many_to_one")`}</code></pre>
+      <div data-lang="sk">
+        <p>Po spojení skontrolujte:</p>
+        <ul>
+          <li>či počet riadkov zostal rovnaký ako v <code>clean_df</code>;</li>
+          <li>či niektorým výsledkom chýba <code>study_program</code>;</li>
+          <li>priemerné body podľa <code>study_program</code>;</li>
+          <li>úspešnosť podľa ročníka.</li>
+        </ul>
+        <p>Ak sa pri <code>merge</code> objaví neočakávaný počet riadkov, vysvetlite, čo to znamená.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>After the merge, check:</p>
+        <ul>
+          <li>whether the row count stayed the same as in <code>clean_df</code>;</li>
+          <li>whether any result is missing <code>study_program</code>;</li>
+          <li>average points by <code>study_program</code>;</li>
+          <li>pass rate by year of study.</li>
+        </ul>
+        <p>If <code>merge</code> produces an unexpected row count, explain what it means.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — Analytická otázka" en="Task 8 — Analytical Question" /></h2>
+      <div data-lang="sk">
+        <p>Preskúmajte vzťah medzi časom riešenia, počtom pokusov a výslednými bodmi.</p>
+        <p>Odpovedzte na otázky:</p>
+        <ul>
+          <li>majú dlhšie riešenia v priemere vyššie alebo nižšie body;</li>
+          <li>ako sa mení priemer bodov podľa počtu pokusov;</li>
+          <li>koľko študentov prešlo na prvý pokus;</li>
+          <li>či je vhodné tvrdiť kauzalitu iba z týchto dát.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Explore the relationship between solution time, number of attempts and final points.</p>
+        <p>Answer these questions:</p>
+        <ul>
+          <li>do longer solutions have higher or lower points on average;</li>
+          <li>how average points change by number of attempts;</li>
+          <li>how many students passed on the first attempt;</li>
+          <li>whether it is appropriate to claim causality from this data alone.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`attempt_summary = clean_df.groupby("attempts").agg(
+    submissions=("student_id", "count"),
+    average_points=("points", "mean"),
+    pass_rate=("passed", "mean"),
+)`}</code></pre>
+      <p data-lang="sk">Napíšte krátku interpretáciu v 4-6 vetách. Nestačí vypísať tabuľku bez slovného záveru.</p>
+      <p data-lang="en" hidden>Write a short interpretation in 4-6 sentences. Printing a table without a written conclusion is not enough.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — Vizualizácie" en="Task 9 — Visualizations" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte tri grafy, ktoré súvisia s predchádzajúcimi otázkami.</p>
+        <p>Minimálne grafy:</p>
+        <ul>
+          <li>histogram bodov;</li>
+          <li>bar chart priemerných bodov podľa predmetu;</li>
+          <li>scatter plot <code>duration_minutes</code> vs. <code>points</code>.</li>
+        </ul>
+        <p>Každý graf musí mať názov, označené osi a rozumnú veľkosť. Grafy uložte do súborov.</p>
+        <pre class="worksheet-code"><code>{`import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 4))
+clean_df["points"].plot(kind="hist", bins=10, ax=ax)
+ax.set_title("Rozdelenie bodov")
+ax.set_xlabel("Body")
+ax.set_ylabel("Počet odovzdaní")
+fig.tight_layout()
+fig.savefig("points_histogram.png", dpi=150)`}</code></pre>
+        <p>Ku každému grafu dopíšte jednu vetu, čo z neho vidíte a čo z neho naopak tvrdiť neviete.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create three charts related to the previous questions.</p>
+        <p>Minimum charts:</p>
+        <ul>
+          <li>histogram of points;</li>
+          <li>bar chart of average points by course;</li>
+          <li>scatter plot of <code>duration_minutes</code> vs. <code>points</code>.</li>
+        </ul>
+        <p>Each chart must have a title, labeled axes and a reasonable size. Save the charts to files.</p>
+        <pre class="worksheet-code"><code>{`import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 4))
+clean_df["points"].plot(kind="hist", bins=10, ax=ax)
+ax.set_title("Distribution of points")
+ax.set_xlabel("Points")
+ax.set_ylabel("Number of submissions")
+fig.tight_layout()
+fig.savefig("points_histogram.png", dpi=150)`}</code></pre>
+        <p>For each chart, add one sentence explaining what you can see and what you cannot claim from it.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 10 — Krátky analytický výstup" en="Task 10 — Short Analytical Output" /></h2>
+      <div data-lang="sk">
+        <p>Pripravte finálny výstup z cvičenia ako jeden notebook alebo jeden spustiteľný Python skript.</p>
+        <p>Výstup má obsahovať:</p>
+        <ul>
+          <li>načítanie oboch CSV súborov;</li>
+          <li>kontrolu kvality a čistenie dát;</li>
+          <li>minimálne 4 agregované tabuľky;</li>
+          <li>minimálne 3 uložené grafy;</li>
+          <li>5 stručných textových zistení;</li>
+          <li>krátku poznámku o obmedzeniach datasetu.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Analýza výsledkov programátorských úloh
+----------------------------------------
+Po čistení zostalo ... odovzdaní.
+Najvyšší priemer má predmet ...
+Najviac problémové zadanie podľa úspešnosti je ...
+Grafy uložené:
+- points_histogram.png
+- course_average_points.png
+- duration_vs_points.png`}</code></pre>
+        <p>Neodovzdávajte iba screenshoty grafov. Kód musí byť spustiteľný opakovane nad dodanými CSV súbormi.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Prepare the final output of the exercise as one notebook or one runnable Python script.</p>
+        <p>The output should include:</p>
+        <ul>
+          <li>loading both CSV files;</li>
+          <li>data quality checks and cleaning;</li>
+          <li>at least 4 aggregated tables;</li>
+          <li>at least 3 saved charts;</li>
+          <li>5 concise written findings;</li>
+          <li>a short note about dataset limitations.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Analysis of programming assignment results
+------------------------------------------
+After cleaning, ... submissions remained.
+The highest average belongs to ...
+The most problematic task by pass rate is ...
+Saved charts:
+- points_histogram.png
+- course_average_points.png
+- duration_vs_points.png`}</code></pre>
+        <p>Do not submit only screenshots of charts. The code must be runnable repeatedly on the provided CSV files.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>
+        <li><a href="https://pandas.pydata.org/docs/" target="_blank" rel="noreferrer">pandas documentation</a></li>
+        <li><a href="https://numpy.org/doc/stable/" target="_blank" rel="noreferrer">NumPy documentation</a></li>
+        <li><a href="https://matplotlib.org/stable/users/index.html" target="_blank" rel="noreferrer">Matplotlib user guide</a></li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

@@ -1,0 +1,436 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercise = getExerciseBySlug("10-web-backend");
+if (!exercise) throw new Error("Cvičenie 10 nie je zaregistrované.");
+
+const titleEn = exercise.translations?.en?.title ?? exercise.title;
+const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+const descriptionEn = exercise.translations?.en?.description ?? exercise.description;
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${titleEn}: ${subtitleEn}`}
+  description={exercise.description}
+  descriptionEn={descriptionEn}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={titleEn} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></p>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <div data-lang="sk">
+        <p>
+          V tomto cvičení vytvoríte malé REST API bez frontendu. Doména je jednoduchá: <strong>Notes API</strong>.
+          Dôležité nie je množstvo endpointov, ale jasný kontrakt, validácia, správne status kódy, databáza a testovateľnosť.
+        </p>
+        <pre class="expected-output"><code>{`Starter súbory: ${exercise.starterPath}
+Aplikácia: FastAPI + Pydantic + SQLAlchemy + SQLite
+Výstup: funkčné CRUD API, testy a stručné README spustenia`}</code></pre>
+        <p>
+          Starter súbory sú dostupné aj ako <a href="/downloads/exercise-10-starter.zip">ZIP archív</a>.
+        </p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>
+          In this exercise you will create a small REST API without a frontend. The domain is simple: <strong>Notes API</strong>.
+          The important part is not the number of endpoints, but a clear contract, validation, correct status codes, database use and testability.
+        </p>
+        <pre class="expected-output"><code>{`Starter files: ${exercise.starterPath}
+Application: FastAPI + Pydantic + SQLAlchemy + SQLite
+Output: working CRUD API, tests and a short README for running it`}</code></pre>
+        <p>
+          Starter files are also available as a <a href="/downloads/exercise-10-starter.zip">ZIP archive</a>.
+        </p>
+      </div>
+      <pre class="worksheet-code"><code>{`python -m pip install fastapi uvicorn sqlalchemy pytest httpx
+uvicorn main:app --reload`}</code></pre>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul data-lang="sk">
+        <li>navrhnúť a implementovať malé REST API vo FastAPI;</li>
+        <li>použiť Pydantic modely na validáciu vstupu a tvar odpovede;</li>
+        <li>prepojiť endpointy so SQLite databázou cez SQLAlchemy;</li>
+        <li>napísať základné API testy a overiť chybové stavy.</li>
+      </ul>
+      <ul data-lang="en" hidden>
+        <li>design and implement a small REST API in FastAPI;</li>
+        <li>use Pydantic models for input validation and response shape;</li>
+        <li>connect endpoints to a SQLite database through SQLAlchemy;</li>
+        <li>write basic API tests and verify error states.</li>
+      </ul>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 1 — Spustenie starter API" en="Task 1 — Running the Starter API" /></h2>
+      <div data-lang="sk">
+        <p>Spustite starter projekt a overte, že základný endpoint funguje.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Run the starter project and verify that the basic endpoint works.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`uvicorn main:app --reload`}</code></pre>
+      <div data-lang="sk">
+        <p>Otvorte:</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Open:</p>
+      </div>
+      <ul>
+        <li><code>http://127.0.0.1:8000/</code>;</li>
+        <li><code>http://127.0.0.1:8000/docs</code>;</li>
+        <li><code>http://127.0.0.1:8000/openapi.json</code>.</li>
+      </ul>
+      <pre class="expected-output"><code>{`GET /
+200 OK
+{
+  "message": "Notes API"
+}`}</code></pre>
+      <p data-lang="sk">Zapíšte si, ktoré endpointy už v dokumentácii vidíte a ktoré zatiaľ vracajú iba nedokončené správanie.</p>
+      <p data-lang="en" hidden>Write down which endpoints you already see in the documentation and which still return unfinished behavior.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 2 — API kontrakt pre poznámky" en="Task 2 — API Contract for Notes" /></h2>
+      <div data-lang="sk">
+        <p>Upravte alebo skontrolujte Pydantic modely v <code>schemas.py</code>.</p>
+        <p>Požiadavky:</p>
+        <ul>
+          <li><code>NoteCreate</code>: povinný <code>title</code>, voliteľný <code>body</code>;</li>
+          <li><code>NoteUpdate</code>: voliteľný <code>title</code> aj <code>body</code>;</li>
+          <li><code>NoteResponse</code>: <code>id</code>, <code>title</code>, <code>body</code>;</li>
+          <li>title nesmie byť prázdny a má mať rozumnú maximálnu dĺžku;</li>
+          <li>request model a response model nemajú byť ten istý objekt bez rozmyslu.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Adjust or review Pydantic models in <code>schemas.py</code>.</p>
+        <p>Requirements:</p>
+        <ul>
+          <li><code>NoteCreate</code>: required <code>title</code>, optional <code>body</code>;</li>
+          <li><code>NoteUpdate</code>: optional <code>title</code> and <code>body</code>;</li>
+          <li><code>NoteResponse</code>: <code>id</code>, <code>title</code>, <code>body</code>;</li>
+          <li>title must not be empty and should have a reasonable maximum length;</li>
+          <li>request model and response model should not be the same object without a reason.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`class NoteCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=120)
+    body: str | None = None`}</code></pre>
+      <p data-lang="sk">V <code>/docs</code> overte, že OpenAPI schema zodpovedá modelom.</p>
+      <p data-lang="en" hidden>In <code>/docs</code>, verify that the OpenAPI schema matches the models.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — List a detail endpoint" en="Task 3 — List and Detail Endpoint" /></h2>
+      <div data-lang="sk">
+        <p>Doplňte endpointy <code>GET /items</code> a <code>GET /items/&#123;item_id&#125;</code>.</p>
+        <p>Požiadavky:</p>
+        <ul>
+          <li><code>GET /items</code> vráti zoznam poznámok;</li>
+          <li>query parameter <code>limit</code> obmedzí počet výsledkov;</li>
+          <li><code>limit</code> má byť validovaný, napríklad 1 až 100;</li>
+          <li><code>GET /items/&#123;item_id&#125;</code> vráti jednu poznámku;</li>
+          <li>neexistujúce ID vráti <code>404</code>.</li>
+        </ul>
+        <pre class="expected-output"><code>{`GET /items?limit=2
+200 OK
+[
+  {"id": 1, "title": "Prvá poznámka", "body": "Text"}
+]`}</code></pre>
+        <p>Neexistujúce ID nie je prázdny úspešný výsledok. Je to chybový stav klienta.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Add endpoints <code>GET /items</code> and <code>GET /items/&#123;item_id&#125;</code>.</p>
+        <p>Requirements:</p>
+        <ul>
+          <li><code>GET /items</code> returns a list of notes;</li>
+          <li>query parameter <code>limit</code> limits the number of results;</li>
+          <li><code>limit</code> should be validated, for example from 1 to 100;</li>
+          <li><code>GET /items/&#123;item_id&#125;</code> returns one note;</li>
+          <li>a non-existing ID returns <code>404</code>.</li>
+        </ul>
+        <pre class="expected-output"><code>{`GET /items?limit=2
+200 OK
+[
+  {"id": 1, "title": "First note", "body": "Text"}
+]`}</code></pre>
+        <p>A non-existing ID is not an empty successful result. It is a client error state.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Create endpoint a databázový zápis" en="Task 4 — Create Endpoint and Database Write" /></h2>
+      <div data-lang="sk">
+        <p>Doplňte <code>POST /items</code>, aby vytvoril novú poznámku v databáze.</p>
+        <p>Požiadavky:</p>
+        <ul>
+          <li>použite SQLAlchemy model <code>Note</code>;</li>
+          <li>uložte objekt cez session;</li>
+          <li>po uložení vráťte objekt s prideleným <code>id</code>;</li>
+          <li>úspešné vytvorenie má vrátiť <code>201 Created</code>;</li>
+          <li>duplicitný title ošetrite vhodnou chybou, napríklad <code>409 Conflict</code>.</li>
+        </ul>
+        <pre class="worksheet-code"><code>{`POST /items
+{
+  "title": "Poznámka k API",
+  "body": "Endpointy majú vracať správne status kódy."
+}`}</code></pre>
+        <pre class="expected-output"><code>{`201 Created
+{
+  "id": 1,
+  "title": "Poznámka k API",
+  "body": "Endpointy majú vracať správne status kódy."
+}`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Add <code>POST /items</code> so it creates a new note in the database.</p>
+        <p>Requirements:</p>
+        <ul>
+          <li>use the SQLAlchemy model <code>Note</code>;</li>
+          <li>save the object through a session;</li>
+          <li>after saving, return the object with the assigned <code>id</code>;</li>
+          <li>successful creation should return <code>201 Created</code>;</li>
+          <li>handle duplicate title with a suitable error, for example <code>409 Conflict</code>.</li>
+        </ul>
+        <pre class="worksheet-code"><code>{`POST /items
+{
+  "title": "API note",
+  "body": "Endpoints should return correct status codes."
+}`}</code></pre>
+        <pre class="expected-output"><code>{`201 Created
+{
+  "id": 1,
+  "title": "API note",
+  "body": "Endpoints should return correct status codes."
+}`}</code></pre>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — Update a delete endpoint" en="Task 5 — Update and Delete Endpoint" /></h2>
+      <div data-lang="sk">
+        <p>Doplňte <code>PATCH /items/&#123;item_id&#125;</code> a <code>DELETE /items/&#123;item_id&#125;</code>.</p>
+        <p>Požiadavky pre update:</p>
+        <ul>
+          <li>umožniť zmeniť iba <code>title</code>, iba <code>body</code> alebo obe hodnoty;</li>
+          <li>hodnoty, ktoré neprišli v requeste, ponechať bez zmeny;</li>
+          <li>neexistujúce ID vráti <code>404</code>;</li>
+          <li>duplicitný title vráti zrozumiteľnú chybu.</li>
+        </ul>
+        <p>Požiadavky pre delete:</p>
+        <ul>
+          <li>existujúcu poznámku odstrániť;</li>
+          <li>vrátiť <code>204 No Content</code>;</li>
+          <li>po odstránení má detail toho ID vrátiť <code>404</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Add <code>PATCH /items/&#123;item_id&#125;</code> and <code>DELETE /items/&#123;item_id&#125;</code>.</p>
+        <p>Update requirements:</p>
+        <ul>
+          <li>allow changing only <code>title</code>, only <code>body</code> or both values;</li>
+          <li>keep values that were not sent in the request unchanged;</li>
+          <li>a non-existing ID returns <code>404</code>;</li>
+          <li>duplicate title returns a readable error.</li>
+        </ul>
+        <p>Delete requirements:</p>
+        <ul>
+          <li>delete an existing note;</li>
+          <li>return <code>204 No Content</code>;</li>
+          <li>after deletion, detail for that ID should return <code>404</code>.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`PATCH /items/1 -> 200 OK
+DELETE /items/1 -> 204 No Content
+GET /items/1 -> 404 Not Found`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — Query parameters a filtrovanie" en="Task 6 — Query Parameters and Filtering" /></h2>
+      <div data-lang="sk">
+        <p>Rozšírte <code>GET /items</code> o praktické query parametre.</p>
+        <p>Implementujte aspoň:</p>
+        <ul>
+          <li><code>limit</code>: počet výsledkov, validovaný rozsah;</li>
+          <li><code>offset</code>: preskočenie prvých výsledkov;</li>
+          <li><code>q</code>: jednoduché vyhľadávanie v title alebo body;</li>
+          <li><code>sort</code>: napríklad <code>id</code>, <code>title</code> alebo <code>-id</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Extend <code>GET /items</code> with practical query parameters.</p>
+        <p>Implement at least:</p>
+        <ul>
+          <li><code>limit</code>: number of results, validated range;</li>
+          <li><code>offset</code>: skip the first results;</li>
+          <li><code>q</code>: simple search in title or body;</li>
+          <li><code>sort</code>: for example <code>id</code>, <code>title</code> or <code>-id</code>.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`GET /items?q=api&limit=10&offset=0&sort=-id`}</code></pre>
+      <p data-lang="sk">Neplatný parameter, napríklad nepodporovaný sort field, má vrátiť vhodnú chybu, nie ignorovaný výsledok.</p>
+      <p data-lang="en" hidden>An invalid parameter, for example an unsupported sort field, should return a suitable error, not an ignored result.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Error handling a status kódy" en="Task 7 — Error Handling and Status Codes" /></h2>
+      <div data-lang="sk">
+        <p>Prejdite API a zjednoťte chybové správanie.</p>
+        <p>Overte minimálne tieto prípady:</p>
+        <ul>
+          <li>neexistujúce ID → <code>404 Not Found</code>;</li>
+          <li>duplicitný title → <code>409 Conflict</code>;</li>
+          <li>nevalidný request body → validačná odpoveď FastAPI/Pydantic;</li>
+          <li>neplatný query parameter → <code>400 Bad Request</code> alebo validačná chyba;</li>
+          <li>nečakaná chyba databázy nemá odhaliť interné detaily používateľovi.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Review the API and unify error behavior.</p>
+        <p>Verify at least these cases:</p>
+        <ul>
+          <li>non-existing ID → <code>404 Not Found</code>;</li>
+          <li>duplicate title → <code>409 Conflict</code>;</li>
+          <li>invalid request body → FastAPI/Pydantic validation response;</li>
+          <li>invalid query parameter → <code>400 Bad Request</code> or a validation error;</li>
+          <li>an unexpected database error must not reveal internal details to the user.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`HTTP/1.1 404 Not Found
+{
+  "detail": "Item not found"
+}`}</code></pre>
+      <p data-lang="sk">Nepoužívajte <code>200 OK</code> pre situácie, kde klient žiada neexistujúci alebo nevalidný zdroj.</p>
+      <p data-lang="en" hidden>Do not use <code>200 OK</code> for situations where the client requests a non-existing or invalid resource.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — Testovateľná databáza" en="Task 8 — Testable Database" /></h2>
+      <div data-lang="sk">
+        <p>Pripravte API tak, aby sa dalo testovať bez zapisovania do vašej bežnej <code>notes.db</code>.</p>
+        <p>Možnosti:</p>
+        <ul>
+          <li>použiť <code>DATABASE_URL</code> z environment variable;</li>
+          <li>v testoch nastaviť dočasnú SQLite databázu;</li>
+          <li>alebo vo FastAPI testoch použiť dependency override pre <code>get_session</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Prepare the API so it can be tested without writing into your regular <code>notes.db</code>.</p>
+        <p>Options:</p>
+        <ul>
+          <li>use <code>DATABASE_URL</code> from an environment variable;</li>
+          <li>set a temporary SQLite database in tests;</li>
+          <li>or use a dependency override for <code>get_session</code> in FastAPI tests.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`DATABASE_URL=sqlite:///test_notes.db python -m pytest`}</code></pre>
+      <p data-lang="sk">Výsledok testov nesmie závisieť od poznámok, ktoré ste manuálne vytvorili cez browser alebo <code>/docs</code>.</p>
+      <p data-lang="en" hidden>Test results must not depend on notes that you manually created through a browser or <code>/docs</code>.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — API testy" en="Task 9 — API Tests" /></h2>
+      <div data-lang="sk">
+        <p>Doplňte <code>test_api.py</code> cez <code>TestClient</code>.</p>
+        <p>Napíšte minimálne testy pre:</p>
+        <ul>
+          <li><code>GET /</code>;</li>
+          <li>vytvorenie poznámky;</li>
+          <li>zoznam poznámok;</li>
+          <li>detail existujúcej poznámky;</li>
+          <li>detail neexistujúcej poznámky;</li>
+          <li>nevalidný request body;</li>
+          <li>update poznámky;</li>
+          <li>delete poznámky;</li>
+          <li>duplicitný title;</li>
+          <li>filtrovanie cez <code>q</code> alebo <code>limit</code>.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Add <code>test_api.py</code> using <code>TestClient</code>.</p>
+        <p>Write at least tests for:</p>
+        <ul>
+          <li><code>GET /</code>;</li>
+          <li>creating a note;</li>
+          <li>listing notes;</li>
+          <li>detail of an existing note;</li>
+          <li>detail of a non-existing note;</li>
+          <li>invalid request body;</li>
+          <li>updating a note;</li>
+          <li>deleting a note;</li>
+          <li>duplicate title;</li>
+          <li>filtering with <code>q</code> or <code>limit</code>.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`python -m pytest`}</code></pre>
+      <pre class="expected-output"><code>{`10 passed`}</code></pre>
+      <p data-lang="sk">Testy majú overovať správanie API, nie iba to, že endpoint vôbec vrátil nejakú odpoveď.</p>
+      <p data-lang="en" hidden>Tests should verify API behavior, not only that an endpoint returned some response.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 10 — Finálne Notes API" en="Task 10 — Final Notes API" /></h2>
+      <div data-lang="sk">
+        <p>Dokončite projekt tak, aby bol spustiteľný aj pre niekoho iného.</p>
+        <p>Finálny stav má obsahovať:</p>
+        <ul>
+          <li>CRUD endpointy pre poznámky;</li>
+          <li>Pydantic modely pre request a response;</li>
+          <li>SQLite/SQLAlchemy persistenciu;</li>
+          <li>query parametre pre list endpoint;</li>
+          <li>správne status kódy a chybové správy;</li>
+          <li>testy spustiteľné cez <code>python -m pytest</code>;</li>
+          <li>konfiguráciu databázy cez <code>DATABASE_URL</code>;</li>
+          <li>README s inštaláciou, spustením, testami a ukážkami requestov.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Finish the project so it can be run by someone else as well.</p>
+        <p>The final state should include:</p>
+        <ul>
+          <li>CRUD endpoints for notes;</li>
+          <li>Pydantic models for request and response;</li>
+          <li>SQLite/SQLAlchemy persistence;</li>
+          <li>query parameters for the list endpoint;</li>
+          <li>correct status codes and error messages;</li>
+          <li>tests runnable with <code>python -m pytest</code>;</li>
+          <li>database configuration through <code>DATABASE_URL</code>;</li>
+          <li>README with installation, running, tests and request examples.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`README checklist
+- installation
+- run server
+- API docs URL
+- run tests
+- example POST /items
+- example GET /items?q=api
+- database configuration`}</code></pre>
+      <p data-lang="sk">Nevytvárajte frontend. Cieľom je čisté malé backend API s dobrým kontraktom.</p>
+      <p data-lang="en" hidden>Do not create a frontend. The goal is a clean small backend API with a good contract.</p>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>
+        <li><a href="https://fastapi.tiangolo.com/" target="_blank" rel="noreferrer">FastAPI documentation</a></li>
+        <li><a href="https://docs.pydantic.dev/" target="_blank" rel="noreferrer">Pydantic documentation</a></li>
+        <li><a href="https://docs.sqlalchemy.org/en/20/" target="_blank" rel="noreferrer">SQLAlchemy 2.0 documentation</a></li>
+        <li><a href="https://fastapi.tiangolo.com/tutorial/testing/" target="_blank" rel="noreferrer">FastAPI testing</a></li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

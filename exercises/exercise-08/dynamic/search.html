@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="utf-8" />
+    <title>Search demo</title>
+  </head>
+  <body>
+    <main>
+      <h1>Search demo</h1>
+      <label>
+        Search
+        <input id="search" type="text" />
+      </label>
+      <button id="button">Search</button>
+      <p id="result"></p>
+    </main>
+    <script>
+      const input = document.querySelector("#search");
+      const result = document.querySelector("#result");
+      document.querySelector("#button").addEventListener("click", () => {
+        result.textContent = `Výsledok pre: ${input.value}`;
+      });
+    </script>
+  </body>
+</html>

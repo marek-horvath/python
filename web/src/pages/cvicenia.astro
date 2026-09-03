@@ -1,0 +1,65 @@
+---
+import { getExerciseSummary } from "@shared/exercises";
+import { isWeekReleased } from "@shared/publication";
+import LocalizedText from "../components/LocalizedText.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const items = getExerciseSummary();
+---
+
+<BaseLayout title="Cvičenia" titleEn="Exercises">
+  <main class="page text-page">
+    <h1 data-i18n-key="nav.exercises">Cvičenia</h1>
+
+    <section class="simple-list" aria-label="Zoznam cvičení">
+      {
+        items.map(({ week, exercise }) => {
+          const released = isWeekReleased(week.number);
+          const exerciseId = exercise ? String(exercise.number).padStart(2, "0") : "";
+          const taskTotal = exercise?.taskCount ?? 10;
+
+          if (exercise) {
+            const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+
+            return (
+              <a
+                class={`simple-row${released ? "" : " is-locked"}`}
+                href={exercise.href}
+                aria-disabled={released ? undefined : "true"}
+                tabindex={released ? undefined : "-1"}
+                data-preview-link={released ? undefined : ""}
+              >
+                <span class="number">{exerciseId}</span>
+                <span>
+                  <strong><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></strong><br />
+                  {!released && <small class="availability" data-preview-hidden data-i18n-key="ui.unavailable">zatiaľ nedostupné</small>}
+                  {!released && <small class="availability" data-preview-visible data-i18n-key="ui.teacherPreview" hidden>náhľad vyučujúceho</small>}
+                  {released && (
+                    <small
+                      class="exercise-list-progress"
+                      data-exercise-list-progress
+                      data-exercise-id={exerciseId}
+                      data-task-total={taskTotal}
+                    >
+                      0 / {taskTotal}
+                    </small>
+                  )}
+                </span>
+              </a>
+            );
+          }
+
+          return (
+            <div class="simple-row" aria-disabled="true">
+              <span class="number">{String(week.number).padStart(2, "0")}</span>
+              <span>
+                <strong>{week.shortTitle}</strong><br />
+                <small class="availability" data-i18n-key="ui.unavailable">zatiaľ nedostupné</small>
+              </span>
+            </div>
+          );
+        })
+      }
+    </section>
+  </main>
+</BaseLayout>

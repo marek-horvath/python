@@ -1,0 +1,166 @@
+---
+import CopyCodeBlock from "../components/CopyCodeBlock.astro";
+import LocalizedText from "../components/LocalizedText.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const sections = [
+  ["windows", { sk: "Windows", en: "Windows" }],
+  ["macos", { sk: "macOS", en: "macOS" }],
+  ["linux", { sk: "Linux", en: "Linux" }],
+  ["editor", { sk: "Editor", en: "Editor" }],
+  ["venv", { sk: "Virtuálne prostredie", en: "Virtual Environment" }],
+  ["pip", { sk: "pip", en: "pip" }],
+  ["hello", { sk: "Prvý program", en: "First Program" }],
+  ["troubleshooting", { sk: "Keď niečo nefunguje", en: "When Something Does Not Work" }]
+] as const;
+---
+
+<BaseLayout title="Návody" titleEn="Guides">
+  <main class="page guide-page">
+    <header class="guide-header">
+      <h1><LocalizedText sk="Návody" en="Guides" /></h1>
+      <p>
+        <LocalizedText
+          sk="Stručný postup, ako si pripraviť Python prostredie na prácu počas semestra."
+          en="A concise guide for setting up a Python environment for work during the semester."
+        />
+      </p>
+    </header>
+
+    <div class="guide-layout">
+      <nav class="guide-toc" aria-label="Obsah návodov">
+        {sections.map(([id, label]) => <a href={`#${id}`}><LocalizedText sk={label.sk} en={label.en} /></a>)}
+      </nav>
+
+      <div class="guide-content">
+        <section id="windows" class="guide-section">
+          <h2>Windows</h2>
+          <p>
+            <LocalizedText
+              sk="Použite oficiálny inštalátor aktuálneho Pythonu 3 z python.org. Po inštalácii otvorte nový terminál a overte, že príkazy smerujú na rovnakú inštaláciu Pythonu."
+              en="Use the official installer for the current Python 3 release from python.org. After installation, open a new terminal and verify that the commands point to the same Python installation."
+            />
+          </p>
+          <CopyCodeBlock language="bash" code={`python --version
+python -m pip --version`} />
+          <p>
+            <LocalizedText
+              sk="Ak používate novší Windows workflow cez Python Install Manager, cieľ je rovnaký: príkaz `python` má spustiť očakávaný Python 3 a `python -m pip` má používať rovnaký interpreter."
+              en="If you use the newer Windows workflow through Python Install Manager, the goal is the same: `python` should run the expected Python 3 installation and `python -m pip` should use the same interpreter."
+            />
+          </p>
+        </section>
+
+        <section id="macos" class="guide-section">
+          <h2>macOS</h2>
+          <p><LocalizedText sk="Najprv overte, či už máte dostupný Python 3 a pip." en="First check whether Python 3 and pip are already available." /></p>
+          <CopyCodeBlock language="bash" code={`python3 --version
+python3 -m pip --version`} />
+          <p>
+            <LocalizedText
+              sk="Homebrew môže byť pohodlná možnosť inštalácie, ale nie je povinný. Dôležité je vedieť, ktorý interpreter používa editor a terminál."
+              en="Homebrew can be a convenient installation option, but it is not required. The important part is knowing which interpreter is used by the editor and the terminal."
+            />
+          </p>
+        </section>
+
+        <section id="linux" class="guide-section">
+          <h2>Linux</h2>
+          <p>
+            <LocalizedText
+              sk="Na Linuxe býva Python často súčasťou systému. Nemeňte ani nemažte systémový Python."
+              en="On Linux, Python is often part of the system. Do not replace or remove the system Python."
+            />
+          </p>
+          <CopyCodeBlock language="bash" code={`# Ubuntu/Debian
+python3 --version
+python3 -m pip --version
+
+# Fedora
+python3 --version
+python3 -m pip --version`} />
+          <p>
+            <LocalizedText
+              sk="Ak balík chýba, použite balíčkovací systém distribúcie, napríklad `apt` alebo `dnf`."
+              en="If a package is missing, use your distribution's package manager, such as `apt` or `dnf`."
+            />
+          </p>
+        </section>
+
+        <section id="editor" class="guide-section">
+          <h2>Editor</h2>
+          <p>
+            <LocalizedText
+              sk="Môžete použiť Visual Studio Code, PyCharm alebo iný editor. Podstatné je, aby ste vedeli vytvoriť súbor `.py`, spustiť Python a pracovať s terminálom."
+              en="You may use Visual Studio Code, PyCharm or another editor. What matters is that you can create a `.py` file, run Python and work with the terminal."
+            />
+          </p>
+        </section>
+
+        <section id="venv" class="guide-section">
+          <h2><LocalizedText sk="Virtuálne prostredie" en="Virtual Environment" /></h2>
+          <p>
+            <LocalizedText
+              sk="Virtuálne prostredie drží knižnice projektu oddelene od systémovej inštalácie Pythonu."
+              en="A virtual environment keeps project libraries separate from the system Python installation."
+            />
+          </p>
+          <CopyCodeBlock language="bash" code={`python -m venv .venv`} />
+          <p><LocalizedText sk="Aktivácia vo Windows PowerShell:" en="Activation in Windows PowerShell:" /></p>
+          <CopyCodeBlock language="bash" code={String.raw`.venv\Scripts\Activate.ps1`} />
+          <p><LocalizedText sk="Aktivácia v macOS/Linux shelli:" en="Activation in a macOS/Linux shell:" /></p>
+          <CopyCodeBlock language="bash" code={`source .venv/bin/activate`} />
+        </section>
+
+        <section id="pip" class="guide-section">
+          <h2>pip</h2>
+          <p>
+            <LocalizedText
+              sk="Preferujte tvar `python -m pip`, aby bolo jasné, ku ktorému interpreteru knižnicu inštalujete."
+              en="Prefer the `python -m pip` form so it is clear which interpreter receives the installed package."
+            />
+          </p>
+          <CopyCodeBlock language="bash" code={`python -m pip install requests
+python -m pip list
+python -m pip uninstall requests`} />
+        </section>
+
+        <section id="hello" class="guide-section">
+          <h2><LocalizedText sk="Prvý program" en="First Program" /></h2>
+          <p><LocalizedText sk="Vytvorte súbor `hello.py`:" en="Create a file named `hello.py`:" /></p>
+          <CopyCodeBlock code={`print("Hello, world!")`} />
+          <p><LocalizedText sk="Spustenie:" en="Run it:" /></p>
+          <CopyCodeBlock language="bash" code={`python hello.py`} />
+          <p>
+            <LocalizedText
+              sk="Na macOS a Linuxe môže byť príkaz podľa inštalácie `python3 hello.py`."
+              en="On macOS and Linux, depending on the installation, the command may be `python3 hello.py`."
+            />
+          </p>
+        </section>
+
+        <section id="troubleshooting" class="guide-section">
+          <h2><LocalizedText sk="Keď niečo nefunguje" en="When Something Does Not Work" /></h2>
+          <ul>
+            <li>
+              <strong>command not found:</strong>{" "}
+              <LocalizedText sk="terminál nevie nájsť Python. Skontrolujte inštaláciu a PATH." en="the terminal cannot find Python. Check the installation and PATH." />
+            </li>
+            <li>
+              <strong><LocalizedText sk="pip používa iný interpreter:" en="pip uses a different interpreter:" /></strong>{" "}
+              <LocalizedText sk="použite `python -m pip` namiesto samotného `pip`." en="use `python -m pip` instead of plain `pip`." />
+            </li>
+            <li>
+              <strong><LocalizedText sk="virtuálne prostredie nie je aktivované:" en="the virtual environment is not activated:" /></strong>{" "}
+              <LocalizedText sk="v termináli by mal byť viditeľný prefix `(.venv)`." en="the terminal should show the `(.venv)` prefix." />
+            </li>
+            <li>
+              <strong><LocalizedText sk="IDE používa nesprávny interpreter:" en="the IDE uses the wrong interpreter:" /></strong>{" "}
+              <LocalizedText sk="v nastaveniach projektu vyberte interpreter z priečinka `.venv`." en="select the interpreter from the `.venv` directory in project settings." />
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

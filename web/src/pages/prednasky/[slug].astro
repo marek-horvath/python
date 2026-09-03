@@ -1,0 +1,97 @@
+---
+import { courseConfig } from "@shared/course.config";
+import { localizedCourse } from "@shared/i18n";
+import { lectures } from "@shared/lectures";
+import { isMaterialReleased } from "@shared/publication";
+import type { Lecture } from "@shared/slide.types";
+import I18nController from "../../components/I18nController.astro";
+import LanguageBoot from "../../components/LanguageBoot.astro";
+import LectureViewer from "../../components/LectureViewer.astro";
+import PreviewIndicator from "../../components/PreviewIndicator.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import "../../styles/global.css";
+
+export function getStaticPaths() {
+  return lectures.map((lecture) => ({
+    params: { slug: lecture.slug },
+    props: { lecture }
+  }));
+}
+
+type Props = {
+  lecture: Lecture;
+};
+
+const { lecture } = Astro.props;
+const released = isMaterialReleased(lecture.weekNumber);
+const orderedLectures = [...lectures].sort((a, b) => a.weekNumber - b.weekNumber);
+const lectureIndex = orderedLectures.findIndex((item) => item.weekNumber === lecture.weekNumber);
+const previousLecture = lectureIndex > 0 ? orderedLectures[lectureIndex - 1] : undefined;
+const nextLecture = lectureIndex >= 0 && lectureIndex < orderedLectures.length - 1 ? orderedLectures[lectureIndex + 1] : undefined;
+const lectureEn = lecture.translations?.en;
+const previous = previousLecture
+  ? {
+      number: previousLecture.weekNumber,
+      labelKey: "lecture.previousLabel",
+      title: previousLecture.title,
+      titleEn: previousLecture.translations?.en?.title,
+      href: `/prednasky/${previousLecture.slug}/`
+    }
+  : undefined;
+const next = nextLecture
+  ? {
+      number: nextLecture.weekNumber,
+      labelKey: "lecture.nextLabel",
+      title: nextLecture.title,
+      titleEn: nextLecture.translations?.en?.title,
+      href: `/prednasky/${nextLecture.slug}/`
+    }
+  : undefined;
+---
+
+<!doctype html>
+<html
+  lang="sk"
+  class={released ? "viewer-html" : undefined}
+  data-title-sk={`${lecture.title} | ${localizedCourse.title.sk}`}
+  data-title-en={`${lectureEn?.title ?? lecture.title} | ${localizedCourse.title.en}`}
+  data-description-sk={lecture.description}
+  data-description-en={lectureEn?.description ?? lecture.description}
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={lecture.description} />
+    <title>{lecture.title} | {localizedCourse.title.sk}</title>
+    <LanguageBoot />
+  </head>
+  <body>
+    {
+      released ? (
+        <LectureViewer lecture={lecture} previous={previous} next={next} />
+      ) : (
+        <>
+          <div class="site-shell" data-preview-locked>
+            <SiteHeader />
+            <main class="page text-page locked-material">
+              <h1 data-i18n-key="lecture.lockedTitle">Materiál zatiaľ nie je zverejnený.</h1>
+              <p><a href="/prednasky/" data-i18n-key="ui.backLectures">← Späť na prednášky</a></p>
+            </main>
+            <footer class="site-footer">
+              <p>
+                <strong data-i18n-key="course.title">{localizedCourse.title.sk}</strong><br />
+                {courseConfig.lecturer.name} · <a href={`mailto:${courseConfig.lecturer.email}`}>{courseConfig.lecturer.email}</a><br />
+                <span data-i18n-key="course.university">{localizedCourse.university.sk}</span>
+              </p>
+            </footer>
+          </div>
+          <div data-preview-material hidden>
+            <LectureViewer lecture={lecture} previous={previous} next={next} />
+          </div>
+        </>
+      )
+    }
+    <PreviewIndicator />
+    <I18nController />
+  </body>
+</html>

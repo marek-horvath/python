@@ -1,0 +1,23 @@
+---
+import type { CodeBlock } from "@shared/slide.types";
+import { highlightedCode } from "../lib/highlight";
+import LocalizedText from "./LocalizedText.astro";
+
+type Props = {
+  block: CodeBlock;
+  labelEn?: string;
+};
+
+const { block, labelEn } = Astro.props;
+const label = block.label;
+const visibleLabel = label ?? labelEn;
+---
+
+<figure class="code-block" data-language={block.language} data-variant={block.variant ?? "default"}>
+  {visibleLabel && (
+    <figcaption class="code-label">
+      <LocalizedText sk={label ?? visibleLabel} en={labelEn ?? visibleLabel} />
+    </figcaption>
+  )}
+  <pre aria-label={visibleLabel ?? block.language}><code set:html={highlightedCode(block)} /></pre>
+</figure>

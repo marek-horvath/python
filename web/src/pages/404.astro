@@ -1,0 +1,12 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Stránka sa nenašla" titleEn="Page not found">
+  <main class="page text-page not-found-page">
+    <p class="section-kicker">404</p>
+    <h1 data-i18n-key="notFound.title">Stránka sa nenašla.</h1>
+    <p data-i18n-key="notFound.description">Požadovaná adresa neexistuje alebo bola presunutá.</p>
+    <p><a href="/" data-i18n-key="ui.backHome">← Späť na úvod</a></p>
+  </main>
+</BaseLayout>

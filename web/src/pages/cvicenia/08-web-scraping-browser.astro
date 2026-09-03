@@ -1,0 +1,420 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import LocalizedText from "../../components/LocalizedText.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const exercise = getExerciseBySlug("08-web-scraping-browser");
+if (!exercise) throw new Error("Cvičenie 08 nie je zaregistrované.");
+
+const titleEn = exercise.translations?.en?.title ?? exercise.title;
+const subtitleEn = exercise.translations?.en?.subtitle ?? exercise.subtitle;
+const descriptionEn = exercise.translations?.en?.description ?? exercise.description;
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${titleEn}: ${subtitleEn}`}
+  description={exercise.description}
+  descriptionEn={descriptionEn}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={titleEn} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={subtitleEn} /></p>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <div data-lang="sk">
+        <p>
+          Hlavná časť cvičenia používa lokálne HTML súbory. Scraper tak nebude závisieť od cudzej stránky a môžete si
+          pokojne skúšať selektory, parsovanie, pagination aj chybové stavy.
+        </p>
+        <pre class="expected-output"><code>{`Starter súbory: ${exercise.starterPath}
+Lokálne stránky: catalog/page1.html, page2.html, page3.html
+Dynamická stránka: dynamic/search.html
+Výstup: product scraper + export + krátka Playwright interakcia`}</code></pre>
+        <p>
+          Starter súbory sú dostupné aj ako <a href="/downloads/exercise-08-starter.zip">ZIP archív</a>.
+        </p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>
+          The main part of the exercise uses local HTML files. The scraper will not depend on someone else's website,
+          so you can safely practice selectors, parsing, pagination and error states.
+        </p>
+        <pre class="expected-output"><code>{`Starter files: ${exercise.starterPath}
+Local pages: catalog/page1.html, page2.html, page3.html
+Dynamic page: dynamic/search.html
+Output: product scraper + export + short Playwright interaction`}</code></pre>
+        <p>
+          Starter files are also available as a <a href="/downloads/exercise-08-starter.zip">ZIP archive</a>.
+        </p>
+      </div>
+      <pre class="worksheet-code"><code>{`python -m pip install httpx beautifulsoup4 playwright
+python -m playwright install chromium`}</code></pre>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul data-lang="sk">
+        <li>čítať HTML štruktúru a navrhnúť vhodné CSS selektory;</li>
+        <li>extrahovať dáta cez BeautifulSoup do Python objektov;</li>
+        <li>spracovať pagination, duplicity a chýbajúce elementy;</li>
+        <li>rozlíšiť statický scraping od browser automation cez Playwright.</li>
+      </ul>
+      <ul data-lang="en" hidden>
+        <li>read HTML structure and design suitable CSS selectors;</li>
+        <li>extract data with BeautifulSoup into Python objects;</li>
+        <li>handle pagination, duplicates and missing elements;</li>
+        <li>distinguish static scraping from browser automation with Playwright.</li>
+      </ul>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 1 — HTML inspection" en="Task 1 — HTML Inspection" /></h2>
+      <div data-lang="sk">
+        <p>Otvorte <code>catalog/page1.html</code> v editore a nájdite štruktúru jedného produktu.</p>
+        <p>Zapíšte si:</p>
+        <ul>
+          <li>tag a class elementu, ktorý obaľuje jeden produkt;</li>
+          <li>selector pre názov produktu;</li>
+          <li>selector pre cenu;</li>
+          <li>selector pre rating;</li>
+          <li>selector pre detail link;</li>
+          <li>atribút, ktorý vie poslúžiť ako stabilný identifikátor produktu.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Produkt: article.product
+Názov: .name
+Cena: .price
+Rating: .rating
+Detail: a.detail
+ID: data-id`}</code></pre>
+        <p>Nepíšte ešte parser. Cieľom je najprv pochopiť HTML, ktoré budete spracovávať.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Open <code>catalog/page1.html</code> in an editor and find the structure of one product.</p>
+        <p>Write down:</p>
+        <ul>
+          <li>the tag and class of the element wrapping one product;</li>
+          <li>selector for the product name;</li>
+          <li>selector for the price;</li>
+          <li>selector for the rating;</li>
+          <li>selector for the detail link;</li>
+          <li>the attribute that can serve as a stable product identifier.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Product: article.product
+Name: .name
+Price: .price
+Rating: .rating
+Detail: a.detail
+ID: data-id`}</code></pre>
+        <p>Do not write the parser yet. The goal is to understand the HTML you will process first.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 2 — Parsovanie jednej stránky" en="Task 2 — Parsing One Page" /></h2>
+      <div data-lang="sk">
+        <p>Načítajte <code>catalog/page1.html</code>, vytvorte <code>BeautifulSoup</code> objekt a vypíšte produkty z prvej stránky.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Load <code>catalog/page1.html</code>, create a <code>BeautifulSoup</code> object and print products from the first page.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`from pathlib import Path
+
+from bs4 import BeautifulSoup
+
+html = Path("catalog/page1.html").read_text(encoding="utf-8")
+soup = BeautifulSoup(html, "html.parser")`}</code></pre>
+      <p data-lang="sk">Vypíšte názov, cenu a rating. Chýbajúci rating zobrazte ako <code>bez hodnotenia</code>.</p>
+      <p data-lang="en" hidden>Print name, price and rating. Display a missing rating as <code>no rating</code>.</p>
+      <div data-lang="sk">
+        <pre class="expected-output"><code>{`Mechanical Keyboard — 79.90 EUR — 4.7
+Wireless Mouse — 29.90 EUR — 4.4
+USB-C Dock — 119.00 EUR — bez hodnotenia`}</code></pre>
+      </div>
+      <div data-lang="en" hidden>
+        <pre class="expected-output"><code>{`Mechanical Keyboard — 79.90 EUR — 4.7
+Wireless Mouse — 29.90 EUR — 4.4
+USB-C Dock — 119.00 EUR — no rating`}</code></pre>
+      </div>
+      <p data-lang="sk">Nepoužívajte ručné parsovanie HTML cez <code>split()</code> alebo <code>replace()</code>.</p>
+      <p data-lang="en" hidden>Do not parse HTML manually with <code>split()</code> or <code>replace()</code>.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Product dataclass" en="Task 3 — Product Dataclass" /></h2>
+      <div data-lang="sk">
+        <p>Vytvorte dátový model, ktorý bude reprezentovať jeden produkt.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a data model that represents one product.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`from dataclasses import dataclass
+
+@dataclass
+class Product:
+    product_id: str
+    name: str
+    price: float
+    url: str
+    rating: float | None = None`}</code></pre>
+      <div data-lang="sk">
+        <p>Implementujte funkcie:</p>
+        <ul>
+          <li><code>parse_price(text: str) -&gt; float</code>;</li>
+          <li><code>parse_rating(text: str | None) -&gt; float | None</code>;</li>
+          <li><code>parse_product(element, base_url: str) -&gt; Product | None</code>.</li>
+        </ul>
+        <p>Relatívny link z <code>href</code> skonvertujte na absolútnu URL cez <code>urljoin()</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Implement these functions:</p>
+        <ul>
+          <li><code>parse_price(text: str) -&gt; float</code>;</li>
+          <li><code>parse_rating(text: str | None) -&gt; float | None</code>;</li>
+          <li><code>parse_product(element, base_url: str) -&gt; Product | None</code>.</li>
+        </ul>
+        <p>Convert the relative link from <code>href</code> into an absolute URL with <code>urljoin()</code>.</p>
+      </div>
+      <pre class="expected-output"><code>{`Product(product_id='p-001', name='Mechanical Keyboard', price=79.9, url='https://example.com/product/1', rating=4.7)`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Robustný parser" en="Task 4 — Robust Parser" /></h2>
+      <div data-lang="sk">
+        <p>Stránky obsahujú aj neúplné alebo nevalidné produkty. Parser nesmie spadnúť na prvej chybe.</p>
+        <p>Použite pravidlá:</p>
+        <ul>
+          <li>produkt bez ratingu nechajte, rating bude <code>None</code>;</li>
+          <li>produkt bez detail linku preskočte;</li>
+          <li>produkt s nevalidnou cenou preskočte;</li>
+          <li>ak chýba názov alebo ID, produkt preskočte;</li>
+          <li>preskočené produkty zapíšte do jednoduchého zoznamu upozornení.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The pages also contain incomplete or invalid products. The parser must not crash on the first error.</p>
+        <p>Use these rules:</p>
+        <ul>
+          <li>keep a product without rating; rating will be <code>None</code>;</li>
+          <li>skip a product without a detail link;</li>
+          <li>skip a product with an invalid price;</li>
+          <li>skip a product if name or ID is missing;</li>
+          <li>write skipped products into a simple list of warnings.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Parsed products: 5
+Warnings:
+- p-006 skipped: invalid price
+- p-007 skipped: missing detail link`}</code></pre>
+      <p class="hint" data-lang="sk"><strong>Pomôcka:</strong> Funkcia <code>parse_product()</code> môže pri nevalidnom produkte vrátiť <code>None</code>.</p>
+      <p class="hint" data-lang="en" hidden><strong>Hint:</strong> <code>parse_product()</code> can return <code>None</code> for an invalid product.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — Pagination cez lokálne súbory" en="Task 5 — Pagination Through Local Files" /></h2>
+      <div data-lang="sk">
+        <p>Spracujte <code>page1.html</code>, <code>page2.html</code> a <code>page3.html</code> podľa odkazu <code>a.next</code>.</p>
+        <p>Implementujte funkciu:</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Process <code>page1.html</code>, <code>page2.html</code> and <code>page3.html</code> by following the <code>a.next</code> link.</p>
+        <p>Implement this function:</p>
+      </div>
+      <pre class="worksheet-code"><code>{`def scrape_catalog(start_page: Path) -> list[Product]:
+    ...`}</code></pre>
+      <div data-lang="sk">
+        <p>Program má:</p>
+        <ul>
+          <li>načítať produkty z aktuálnej stránky;</li>
+          <li>nájsť link na ďalšiu stránku;</li>
+          <li>prejsť na ďalší lokálny HTML súbor;</li>
+          <li>skončiť, keď <code>a.next</code> neexistuje;</li>
+          <li>nečítať súbory mimo adresára <code>catalog/</code>.</li>
+        </ul>
+        <p>Výsledkom má byť zoznam produktov z celého lokálneho katalógu.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The program should:</p>
+        <ul>
+          <li>load products from the current page;</li>
+          <li>find the link to the next page;</li>
+          <li>move to the next local HTML file;</li>
+          <li>stop when <code>a.next</code> does not exist;</li>
+          <li>not read files outside the <code>catalog/</code> directory.</li>
+        </ul>
+        <p>The result should be a list of products from the whole local catalog.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — Duplicity a triedenie" en="Task 6 — Duplicates and Sorting" /></h2>
+      <div data-lang="sk">
+        <p>V katalógu sa jeden produkt opakuje na viacerých stránkach. Odstráňte duplicity podľa <code>product_id</code>.</p>
+        <p>Potom pripravte výbery:</p>
+        <ul>
+          <li>produkty zoradené od najlacnejšieho po najdrahší;</li>
+          <li>produkty drahšie ako zadaný limit;</li>
+          <li>produkty s ratingom aspoň 4.5;</li>
+          <li>priemernú cenu validných produktov.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>One product appears on multiple catalog pages. Remove duplicates by <code>product_id</code>.</p>
+        <p>Then prepare selections:</p>
+        <ul>
+          <li>products sorted from cheapest to most expensive;</li>
+          <li>products more expensive than a given limit;</li>
+          <li>products with rating at least 4.5;</li>
+          <li>average price of valid products.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Products after deduplication: 5
+Cheapest: Wireless Mouse — 29.90 EUR
+Most expensive: Noise Cancelling Headphones — 149.90 EUR`}</code></pre>
+      <p data-lang="sk">Na sledovanie už videných ID použite <code>set</code>.</p>
+      <p data-lang="en" hidden>Use a <code>set</code> to track IDs you have already seen.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Export do CSV a JSON" en="Task 7 — Export to CSV and JSON" /></h2>
+      <div data-lang="sk">
+        <p>Exportujte validné produkty do dvoch formátov.</p>
+        <p>Vytvorte:</p>
+        <ul>
+          <li><code>products.csv</code> so stĺpcami <code>product_id</code>, <code>name</code>, <code>price</code>, <code>url</code>, <code>rating</code>;</li>
+          <li><code>products.json</code> ako zoznam objektov;</li>
+          <li>výpis počtu exportovaných produktov.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Export valid products into two formats.</p>
+        <p>Create:</p>
+        <ul>
+          <li><code>products.csv</code> with columns <code>product_id</code>, <code>name</code>, <code>price</code>, <code>url</code>, <code>rating</code>;</li>
+          <li><code>products.json</code> as a list of objects;</li>
+          <li>output with the number of exported products.</li>
+        </ul>
+      </div>
+      <pre class="worksheet-code"><code>{`import csv
+import json
+from dataclasses import asdict`}</code></pre>
+      <pre class="expected-output"><code>{`CSV written: products.csv
+JSON written: products.json
+Exported products: 5`}</code></pre>
+      <p data-lang="sk">Súbory ukladajte s <code>encoding="utf-8"</code>.</p>
+      <p data-lang="en" hidden>Save files with <code>encoding="utf-8"</code>.</p>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — HTTPX request" en="Task 8 — HTTPX Request" /></h2>
+      <div data-lang="sk">
+        <p>Pridajte krátku funkciu, ktorá vie načítať HTML stránku cez HTTP. Hlavný scraper stále testujte nad lokálnymi súbormi.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Add a short function that can load an HTML page over HTTP. Keep testing the main scraper on local files.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`import httpx
+
+def fetch_page(url: str) -> str:
+    headers = {"User-Agent": "python-course-scraper/1.0"}
+    response = httpx.get(url, headers=headers, timeout=5.0)
+    response.raise_for_status()
+    return response.text`}</code></pre>
+      <p data-lang="sk">Vyskúšajte ju napríklad na <code>https://example.com</code> a cez BeautifulSoup vypíšte <code>title</code> alebo <code>h1</code>.</p>
+      <p data-lang="en" hidden>Try it on <code>https://example.com</code> and print <code>title</code> or <code>h1</code> through BeautifulSoup.</p>
+      <p data-lang="sk">Ošetrite aspoň jednu HTTP chybu cez <code>httpx.HTTPError</code>.</p>
+      <p data-lang="en" hidden>Handle at least one HTTP error with <code>httpx.HTTPError</code>.</p>
+      <pre class="expected-output"><code>{`Status: OK
+Title: Example Domain`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — Playwright interakcia" en="Task 9 — Playwright Interaction" /></h2>
+      <div data-lang="sk">
+        <p>Otvorte lokálny súbor <code>dynamic/search.html</code> cez Playwright a vykonajte jednoduchú interakciu v browseri.</p>
+        <p>Program má:</p>
+        <ul>
+          <li>otvoriť stránku cez <code>page.goto()</code>;</li>
+          <li>nájsť input <code>#search</code>;</li>
+          <li>vyplniť hodnotu <code>Python</code>;</li>
+          <li>kliknúť na tlačidlo <code>#button</code>;</li>
+          <li>prečítať text z <code>#result</code>.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Výsledok pre: Python`}</code></pre>
+        <p>Nepoužívajte <code>time.sleep()</code>. Ak treba čakať na zmenu DOM, použite Playwright locator alebo vhodné čakanie z API.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Open the local file <code>dynamic/search.html</code> with Playwright and perform a simple browser interaction.</p>
+        <p>The program should:</p>
+        <ul>
+          <li>open the page with <code>page.goto()</code>;</li>
+          <li>find input <code>#search</code>;</li>
+          <li>fill in <code>Python</code>;</li>
+          <li>click button <code>#button</code>;</li>
+          <li>read text from <code>#result</code>.</li>
+        </ul>
+        <pre class="expected-output"><code>{`Result for: Python`}</code></pre>
+        <p>Do not use <code>time.sleep()</code>. If you need to wait for a DOM change, use a Playwright locator or appropriate waiting API.</p>
+      </div>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 10 — Integračný scraper" en="Task 10 — Integrated Scraper" /></h2>
+      <div data-lang="sk">
+        <p>Spojte predchádzajúce časti do jedného použiteľného skriptu <code>product_scraper.py</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Combine the previous parts into one usable script <code>product_scraper.py</code>.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python product_scraper.py catalog/page1.html --min-price 50 --format json
+python product_scraper.py catalog/page1.html --format csv
+python product_scraper.py catalog/page1.html --show-warnings`}</code></pre>
+      <div data-lang="sk">
+        <p>Skript má:</p>
+        <ul>
+          <li>prijať cestu na prvú HTML stránku cez CLI argument;</li>
+          <li>prejsť všetky stránky cez pagination;</li>
+          <li>parsovať validné produkty do <code>Product</code> objektov;</li>
+          <li>odstrániť duplicity;</li>
+          <li>umožniť filter podľa minimálnej ceny;</li>
+          <li>exportovať CSV alebo JSON podľa argumentu;</li>
+          <li>voliteľne vypísať upozornenia k preskočeným produktom;</li>
+          <li>nepoužívať <code>shell=True</code>, <code>eval()</code> ani ručné parsovanie HTML cez string operácie.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The script should:</p>
+        <ul>
+          <li>accept the path to the first HTML page as a CLI argument;</li>
+          <li>follow all pages through pagination;</li>
+          <li>parse valid products into <code>Product</code> objects;</li>
+          <li>remove duplicates;</li>
+          <li>allow filtering by minimum price;</li>
+          <li>export CSV or JSON based on an argument;</li>
+          <li>optionally print warnings for skipped products;</li>
+          <li>not use <code>shell=True</code>, <code>eval()</code> or manual HTML parsing through string operations.</li>
+        </ul>
+      </div>
+      <pre class="expected-output"><code>{`Input: catalog/page1.html
+Valid products: 5
+After filter: 3
+Output: products.json
+Warnings: 2`}</code></pre>
+    </section>
+
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>
+        <li><a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/" target="_blank" rel="noreferrer">BeautifulSoup documentation</a></li>
+        <li><a href="https://www.python-httpx.org/" target="_blank" rel="noreferrer">HTTPX documentation</a></li>
+        <li><a href="https://playwright.dev/python/" target="_blank" rel="noreferrer">Playwright for Python</a></li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

@@ -1,0 +1,23 @@
+---
+import { defaultLanguage, languageStorageKey } from "@shared/i18n";
+
+const script = `
+(() => {
+  const storageKey = ${JSON.stringify(languageStorageKey)};
+  const defaultLanguage = ${JSON.stringify(defaultLanguage)};
+  let language = defaultLanguage;
+
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (stored === "sk" || stored === "en") language = stored;
+  } catch {
+    language = defaultLanguage;
+  }
+
+  document.documentElement.lang = language;
+  document.documentElement.dataset.language = language;
+})();
+`;
+---
+
+<script is:inline set:html={script}></script>
