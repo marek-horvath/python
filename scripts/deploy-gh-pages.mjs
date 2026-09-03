@@ -23,6 +23,10 @@ function run(command, args, options = {}) {
     ...options
   });
 
+  if (result.error) {
+    console.error(result.error.message);
+  }
+
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
