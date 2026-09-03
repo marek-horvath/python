@@ -8,11 +8,18 @@ const outputDir = path.join(root, "dist", "web");
 const tempRoot = path.join(root, ".tmp");
 const worktreeDir = path.join(tempRoot, "gh-pages");
 
+function commandForPlatform(command) {
+  if (process.platform === "win32" && command === "npm") {
+    return "npm.cmd";
+  }
+
+  return command;
+}
+
 function run(command, args, options = {}) {
-  const result = spawnSync(command, args, {
+  const result = spawnSync(commandForPlatform(command), args, {
     cwd: root,
     stdio: "inherit",
-    shell: process.platform === "win32",
     ...options
   });
 
@@ -22,10 +29,9 @@ function run(command, args, options = {}) {
 }
 
 function check(command, args) {
-  return spawnSync(command, args, {
+  return spawnSync(commandForPlatform(command), args, {
     cwd: root,
-    stdio: "ignore",
-    shell: process.platform === "win32"
+    stdio: "ignore"
   }).status === 0;
 }
 

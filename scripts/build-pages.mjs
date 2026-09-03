@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 
+const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const env = {
   ...process.env,
   GITHUB_PAGES: "true",
@@ -7,10 +8,9 @@ const env = {
   PUBLIC_SITE_URL: process.env.PUBLIC_SITE_URL ?? "https://marek-horvath.github.io"
 };
 
-const result = spawnSync("npm", ["run", "build"], {
+const result = spawnSync(npmCommand, ["run", "build"], {
   env,
-  stdio: "inherit",
-  shell: process.platform === "win32"
+  stdio: "inherit"
 });
 
 process.exit(result.status ?? 1);
