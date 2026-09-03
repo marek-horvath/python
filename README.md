@@ -29,6 +29,8 @@ npm run dev:stop
 npm run validate
 npm run typecheck
 npm run build
+npm run build:pages
+npm run deploy:pages
 npm run export:pptx -- 1
 ```
 
@@ -38,9 +40,33 @@ npm run export:pptx -- 1
 
 ## GitHub Pages
 
-Repozitár obsahuje workflow `.github/workflows/deploy-pages.yml`. Po pushnutí do `main` GitHub Actions spustí `npm ci`, `npm run build` a nasadí obsah `dist/web/` cez GitHub Pages.
+Repozitár používa model **Deploy from branch**:
+
+- `main` obsahuje zdrojový kód predmetu;
+- `gh-pages` obsahuje vygenerovaný statický web;
+- `dist/` sa necommitne do `main`.
+
+Build pre GitHub Pages:
+
+```bash
+npm run build:pages
+```
+
+Build a push do vetvy `gh-pages`:
+
+```bash
+npm run deploy:pages
+```
 
 Pre projektovú GitHub Pages URL sa build spúšťa s `PUBLIC_BASE_PATH=/python`, takže výsledný web je pripravený pre adresu `https://marek-horvath.github.io/python/`.
+
+V GitHub nastaveniach použite:
+
+```text
+Settings -> Pages -> Build and deployment -> Source: Deploy from a branch
+Branch: gh-pages
+Folder: / (root)
+```
 
 ## Jazyk webu
 
