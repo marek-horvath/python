@@ -289,8 +289,53 @@ const lecture06 = {
   ]
 };
 
+const lecture01Revised = {
+  slug: "01-uvod-ku-pythonu",
+  title: text("Úvod ku Pythonu", "Introduction to Python"),
+  deck: [
+    { kind: "title", title: text("Úvod ku Pythonu", "Introduction to Python"), subtitle: text("Ako sa Python správa v rukách programátora", "How Python behaves in a programmer's hands") },
+    { kind: "statement", title: text("Python je dynamický jazyk. Nie je to jazyk bez typov.", "Python is dynamically typed. It is not untyped."), body: text("Typ patrí objektu; meno iba odkazuje na objekt, ktorý môže neskôr nahradiť iný.", "A type belongs to an object; a name merely refers to an object and can later refer to another one.") },
+    { kind: "diagram", title: text("Jeden jazyk, rôzne druhy práce", "One language, different kinds of work"), body: text("Rovnaké základy použijeme pri skriptoch, dátach, API aj desktopových nástrojoch.", "The same foundations are used for scripts, data, APIs and desktop tools."), items: [text("automatizácia", "automation"), text("dáta", "data"), text("web a API", "web and APIs"), text("nástroje", "tools")] },
+    { kind: "diagram", title: text("Meno odkazuje na objekt", "A name refers to an object"), body: text("Priradenie viaže meno na hodnotu. Nevytvára automaticky jej kópiu.", "Assignment binds a name to a value. It does not automatically create a copy."), items: [text("score", "score"), text("92\nint", "92\nint"), text("score", "score"), text("\"excellent\"\nstr", "\"excellent\"\nstr")] },
+    { kind: "code", title: text("Priradenie a aliasing", "Assignment and aliasing"), label: "python", code: "results = [72, 91]\nalias = results\n\nalias.append(45)\n\nprint(results)  # [72, 91, 45]\nprint(alias)    # [72, 91, 45]", note: text("Obe mená ukazujú na ten istý list objekt. Zmena sa nevykonala na mene, ale na objekte.", "Both names refer to the same list object. The change happened to the object, not to a name.") },
+    { kind: "question", title: text("Kde vznikne nový objekt?", "Where is a new object created?"), prompt: text("Porovnajte priradenie, plytkú kópiu a vnorený list.", "Compare assignment, a shallow copy and a nested list."), label: "python", code: "original = {\"scores\": [80, 90]}\ncopy = original.copy()\ncopy[\"scores\"].append(100)\n\nprint(original[\"scores\"])" },
+    { kind: "statement", title: text("Mutabilita určuje, či vieme objekt zmeniť na mieste.", "Mutability determines whether an object can be changed in place."), body: text("list, dict a set sú mutable. str, tuple, int a float sú immutable.", "list, dict and set are mutable. str, tuple, int and float are immutable.") },
+    { kind: "compare", title: text("Zdieľať alebo kopírovať?", "Share or copy?"), columns: [
+      { title: text("Zdieľaný objekt", "A shared object"), items: [text("b = a", "b = a"), text("zmena cez b je viditeľná cez a", "a change through b is visible through a"), text("vhodné iba pri zámernom zdieľaní", "useful only for intentional sharing")] },
+      { title: text("Samostatná hodnota", "An independent value"), items: [text("b = a.copy()", "b = a.copy()"), text("nový vonkajší objekt", "a new outer object"), text("vnorené mutable objekty môžu zostať zdieľané", "nested mutable objects can remain shared")] }
+    ] },
+    { kind: "splitCode", title: text("Plytká a hlboká kópia", "Shallow and deep copy"), items: [text("dict.copy() kopíruje iba vonkajší slovník", "dict.copy() copies only the outer dictionary"), text("deepcopy vytvorí nezávislú kópiu celého objektového grafu", "deepcopy creates an independent copy of the whole object graph"), text("deepcopy používajte iba vtedy, keď ho naozaj potrebujete", "use deepcopy only when it is genuinely needed")], label: "python", code: "from copy import deepcopy\n\noriginal = {\"scores\": [80, 90]}\nshallow = original.copy()\ndeep = deepcopy(original)\n\nshallow[\"scores\"].append(100)" },
+    { kind: "table", title: text("Kolekciu vyberáme podľa operácie", "Choose a collection by operation"), headers: [text("Štruktúra", "Structure"), text("Keď potrebujeme", "When we need"), text("Príklad", "Example")], rows: [
+      [text("list", "list"), text("poradie a opakovania", "order and duplicates"), text("spracované súbory", "processed files")],
+      [text("tuple", "tuple"), text("pevný záznam", "a fixed record"), text("(x, y) súradnice", "(x, y) coordinates")],
+      [text("set", "set"), text("unikátne hodnoty alebo rýchly membership", "unique values or fast membership"), text("oprávnenia", "permissions")],
+      [text("dict", "dict"), text("hodnotu pod kľúčom", "a value by key"), text("id → používateľ", "id → user")]
+    ] },
+    { kind: "splitCode", title: text("Iterujte cez hodnoty, nie cez indexy", "Iterate over values, not indexes"), items: [text("index má význam iba vtedy, keď ho program naozaj používa", "an index matters only when the program truly uses it"), text(".items() pomenúva kľúč aj hodnotu", ".items() names both key and value"), text("enumerate pridá poradové číslo bez range(len(...))", "enumerate adds an ordinal without range(len(...))")], label: "python", code: "scores = {\"Anna\": 92, \"Peter\": 67}\n\nfor name, score in scores.items():\n    print(name, score)\n\nfor index, name in enumerate(scores, start=1):\n    print(index, name)" },
+    { kind: "code", title: text("zip spája súvisiace sekvencie", "zip connects related sequences"), label: "python", code: "names = [\"Anna\", \"Peter\", \"Lucia\"]\npoints = [92, 67, 81]\n\nfor name, score in zip(names, points):\n    print(f\"{name}: {score}\")", note: text("Ak majú hodnoty vlastnú identitu a pribúdajú ďalšie atribúty, zvyčajne je lepší dataclass než viac paralelných listov.", "If values have their own identity and more attributes are added, a dataclass is usually better than multiple parallel lists.") },
+    { kind: "codeFull", title: text("Slicing a unpacking vyjadrujú štruktúru", "Slicing and unpacking express structure"), label: "python", code: "values = [10, 20, 30, 40, 50, 60]\n\nfirst_three = values[:3]\nevery_second = values[::2]\nreversed_copy = values[::-1]\n\nfirst, *middle, last = values\nprint(first, middle, last)", note: text("Slicing vytvára novú sekvenciu. Unpacking je vhodný, keď majú časti záznamu jasný význam.", "Slicing creates a new sequence. Unpacking is useful when parts of a record have a clear meaning.") },
+    { kind: "statement", title: text("Comprehension skracuje jednu jasnú transformáciu. Nie celý algoritmus.", "A comprehension shortens one clear transformation. Not an entire algorithm."), body: text("Najprv musí byť čitateľný postup. Až potom zvažujeme kratší zápis.", "The procedure must be readable first. Only then consider a shorter form.") },
+    { kind: "splitCode", title: text("Od cyklu ku comprehension", "From a loop to a comprehension"), items: [text("vstup: všetky výsledky", "input: all results"), text("výber: iba úspešné", "selection: passing only"), text("transformácia: druhá mocnina", "transformation: square")], label: "python", code: "scores = [72, 91, 45, 88]\n\npassed = []\nfor score in scores:\n    if score >= 51:\n        passed.append(score ** 2)\n\n# [score ** 2 for score in scores if score >= 51]" },
+    { kind: "codeFull", title: text("Kratší zápis nemusí byť lepší", "A shorter form is not always better"), label: "python", code: "# Čitateľ musí naraz sledovať tri vnorené kroky.\nreport = {\n    course: sorted({result.student for result in results\n                    if result.course == course and result.points >= 51})\n    for course in {result.course for result in results}\n}\n\n# Pri zložitejšom pravidle radšej použite pomenované medzivýsledky a cyklus.", note: text("Comprehension nie je meradlo kvality Python kódu. Čitateľnosť má prednosť pred kompaktnosťou.", "A comprehension is not a measure of Python code quality. Readability takes priority over compactness.") },
+    { kind: "diagram", title: text("Funkcia je zmluva", "A function is a contract"), body: text("Dobrý podpis napovie, aké dáta funkcia prijíma, čo vracia a kedy môže zlyhať.", "A good signature shows what data a function accepts, what it returns and when it can fail."), items: [text("parametre", "parameters"), text("spracovanie", "processing"), text("return value", "return value"), text("výnimka pri neplatnom vstupe", "exception for invalid input")] },
+    { kind: "code", title: text("Type hints dopĺňajú kontrakt", "Type hints complement the contract"), label: "python", code: "def average(values: list[float]) -> float:\n    if not values:\n        raise ValueError(\"values must not be empty\")\n    return sum(values) / len(values)", note: text("Type hints pomáhajú čitateľovi, IDE a statickej kontrole. Samy osebe za behu nevynucujú typy.", "Type hints help the reader, IDE and static checking. They do not enforce types at runtime by themselves.") },
+    { kind: "splitCode", title: text("Mutable default argument je zdieľaný stav", "A mutable default argument is shared state"), items: [text("default hodnota vznikne pri definícii funkcie", "a default value is created when the function is defined"), text("list alebo dict sa potom zdieľa medzi volaniami", "a list or dict is then shared between calls"), text("None vytvorí nový objekt až vo vnútri funkcie", "None creates a new object only inside the function")], label: "python", code: "def add_student(\n    name: str, students: list[str] | None = None\n) -> list[str]:\n    if students is None:\n        students = []\n    students.append(name)\n    return students" },
+    { kind: "compare", title: text("Záznam bez mena alebo dátový model?", "An anonymous record or a data model?"), columns: [
+      { title: text("Tuple / dict", "Tuple / dict"), items: [text("(\"Anna\", \"Python\", 92)", "(\"Anna\", \"Python\", 92)"), text("význam pozícií si musíme pamätať", "we must remember the meaning of positions"), text("dáva zmysel pre malý lokálny záznam", "reasonable for a small local record")] },
+      { title: text("dataclass", "dataclass"), items: [text("Result(student, course, points)", "Result(student, course, points)"), text("atribúty opisujú dáta", "attributes describe data"), text("lepšie rozhranie vlastného programu", "a better interface for your program")] }
+    ] },
+    { kind: "code", title: text("dataclass pomenúva doménový objekt", "dataclass names a domain object"), label: "python", code: "from dataclasses import dataclass\n\n@dataclass\nclass Result:\n    student: str\n    course: str\n    points: int\n\n    def passed(self) -> bool:\n        return self.points >= 51", note: text("Dataclass nie je povinný všade. Je užitočný tam, kde spolu hodnoty opisujú jednu vec.", "A dataclass is not mandatory everywhere. It is useful where values describe one thing together.") },
+    { kind: "statement", title: text("Operácia môže zlyhať. Výnimka má pomenovať konkrétny problém.", "An operation can fail. An exception should name the specific problem."), body: text("Zachytávame iba chybu, pri ktorej vieme používateľovi alebo volajúcemu kódu rozumne pomôcť.", "Catch only an error for which we can reasonably help the user or calling code.") },
+    { kind: "splitCode", title: text("Konkrétna výnimka, konkrétna reakcia", "A specific exception, a specific response"), items: [text("int() môže zlyhať na nečíselnom vstupe", "int() can fail on non-numeric input"), text("ValueError je súčasťou kontraktu tejto operácie", "ValueError is part of this operation's contract"), text("except: pass iba ukryje problém", "except: pass only hides a problem")], label: "python", code: "def read_score(raw: str) -> int:\n    try:\n        return int(raw)\n    except ValueError as error:\n        raise ValueError(\n            \"score must be an integer\"\n        ) from error" },
+    { kind: "splitCode", title: text("Modul je rozhranie kódu", "A module is a code interface"), items: [text("importujeme iba verejnú funkcionalitu", "import only public functionality"), text("main() oddeľuje spustenie programu od importu", "main() separates program execution from import"), text("funkcie sa potom dajú testovať bez terminálu", "functions can then be tested without a terminal")], label: "python", code: "from report import build_summary\n\ndef main() -> None:\n    summary = build_summary(\"results.csv\")\n    print(summary)\n\nif __name__ == \"__main__\":\n    main()" },
+    { kind: "codeFull", title: text("Projekt potrebuje vlastné prostredie", "A project needs its own environment"), label: "terminal / pyproject.toml", code: "python -m venv .venv\n# Windows\n.venv\\Scripts\\activate\n\npython -m pip install httpx\n\n# pyproject.toml\n[project]\nname = \"course-report\"\ndependencies = [\"httpx>=0.27\"]", note: text("Virtuálne prostredie izoluje dependencies. pyproject.toml popisuje, čo potrebuje projekt na inom počítači.", "A virtual environment isolates dependencies. pyproject.toml describes what the project needs on another computer.") },
+    { kind: "codeFull", title: text("Malý program skladá známe časti", "A small program composes familiar parts"), label: "python", code: "def passed_by_course(results: list[Result]) -> dict[str, list[str]]:\n    grouped: dict[str, list[str]] = {}\n    for result in results:\n        if result.passed():\n            grouped.setdefault(result.course, []).append(result.student)\n    return grouped\n\n# kolekcia + funkcia + dataclass + type hints\nprint(passed_by_course(results))", note: text("Pythonic kód nevzniká jedným trikom. Vzniká z presných názvov, vhodných štruktúr a malých overiteľných častí.", "Pythonic code does not come from one trick. It comes from precise names, suitable structures and small verifiable parts.") },
+    { kind: "statement", title: text("Dobrý Python kód ukazuje zámer skôr než šikovnosť autora.", "Good Python code shows intent before the author's cleverness."), body: text("Tieto základy sa v ďalších týždňoch objavia pri súboroch, GUI, HTTP, databázach aj testovaní.", "These foundations will reappear in files, GUI, HTTP, databases and testing in the following weeks.") }
+  ]
+};
+
 const lectureId = process.argv[2] ?? "01";
-const lecture = { "01": lecture01, "02": lecture02, "03": lecture03, "04": lecture04, "05": lecture05, "06": lecture06 }[lectureId];
+const lecture = { "01": lecture01Revised, "02": lecture02, "03": lecture03, "04": lecture04, "05": lecture05, "06": lecture06 }[lectureId];
 
 if (!lecture) {
   throw new Error(`Neznáma prednáška: ${lectureId}`);
@@ -375,6 +420,13 @@ function renderSlide(pptx, item, index, language) {
     return;
   }
 
+  if (item.kind === "statement") {
+    addText(slide, title, 0.82, 1.7, 11.4, 1.65, { fontSize: 34, bold: true, color: colors.navy, valign: "top" });
+    slide.addShape("rect", { x: 0.84, y: 3.78, w: 1.55, h: 0.12, fill: { color: colors.accent }, line: { color: colors.accent } });
+    addText(slide, value(item.body, language), 0.84, 4.28, 9.7, 0.8, { fontSize: 22, color: colors.muted, valign: "top" });
+    return;
+  }
+
   addHeading(slide, title);
   if (item.kind === "agenda" || item.kind === "theory" || item.kind === "recap" || item.kind === "demo") {
     if (item.body) addText(slide, value(item.body, language), 0.75, 1.88, 10.9, 0.52, { fontSize: 18, color: colors.muted, valign: "top" });
@@ -383,6 +435,20 @@ function renderSlide(pptx, item, index, language) {
   }
   if (item.kind === "code") {
     addCode(slide, item.label, item.code, value(item.note, language));
+    return;
+  }
+  if (item.kind === "codeFull") {
+    slide.addShape("rect", { x: 0.72, y: 1.95, w: 11.92, h: 4.45, fill: { color: colors.code }, line: { color: colors.code } });
+    addText(slide, item.label, 0.98, 2.17, 10.9, 0.2, { fontFace: "Consolas", fontSize: 8.5, color: "8FD3FF", bold: true, charSpacing: 0.7 });
+    addText(slide, item.code, 0.98, 2.62, 10.82, 3.35, { fontFace: "Consolas", fontSize: 17.5, color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
+    addText(slide, value(item.note, language), 0.84, 6.62, 10.85, 0.26, { fontSize: 15.5, color: colors.muted, valign: "top" });
+    return;
+  }
+  if (item.kind === "splitCode") {
+    addBullets(slide, item.items, language, 0.82, 2.1, 4.55, 17);
+    slide.addShape("rect", { x: 5.9, y: 1.96, w: 6.5, h: 4.55, fill: { color: colors.code }, line: { color: colors.code } });
+    addText(slide, item.label, 6.17, 2.18, 5.9, 0.2, { fontFace: "Consolas", fontSize: 8.5, color: "8FD3FF", bold: true, charSpacing: 0.7 });
+    addText(slide, item.code, 6.17, 2.62, 5.83, 3.42, { fontFace: "Consolas", fontSize: 15.6, color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
     return;
   }
   if (item.kind === "question") {
@@ -439,7 +505,8 @@ async function build(language) {
   pptx.lang = language === "sk" ? "sk-SK" : "en-US";
   pptx.theme = { headFontFace: "Aptos Display", bodyFontFace: "Aptos", lang: pptx.lang };
   deck.forEach((item, index) => renderSlide(pptx, item, index + 1, language));
-  const output = path.join(outputDirectory, `${lecture.slug}.${language}.pptx`);
+  const suffix = process.argv.includes("--work") ? ".work" : "";
+  const output = path.join(outputDirectory, `${lecture.slug}.${language}${suffix}.pptx`);
   await pptx.writeFile({ fileName: output });
   console.log(`Vytvorený PPTX: ${output}`);
 }
