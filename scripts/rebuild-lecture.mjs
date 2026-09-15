@@ -19,6 +19,20 @@ const colors = {
 
 const text = (sk, en) => ({ sk, en });
 
+const fonts = {
+  display: "Aptos Display",
+  body: "Aptos",
+  mono: "Consolas"
+};
+
+const page = {
+  width: 13.333,
+  height: 7.5,
+  left: 0.72,
+  right: 12.62,
+  contentWidth: 11.9
+};
+
 const lecture01 = {
   slug: "01-uvod-ku-pythonu",
   title: text("Úvod ku Pythonu", "Introduction to Python"),
@@ -768,7 +782,7 @@ function value(item, language) {
 function addText(slide, content, x, y, w, h, options = {}) {
   slide.addText(content, {
     x, y, w, h,
-    fontFace: options.fontFace ?? "Aptos",
+    fontFace: options.fontFace ?? fonts.body,
     fontSize: options.fontSize ?? 18,
     color: options.color ?? colors.ink,
     bold: options.bold ?? false,
@@ -781,34 +795,44 @@ function addText(slide, content, x, y, w, h, options = {}) {
   });
 }
 
+function codeFontSize(code, preferred = 16.2) {
+  const lines = code.split("\n");
+  const longest = Math.max(...lines.map((line) => line.length), 0);
+  if (lines.length > 14 || longest > 92) return 12.7;
+  if (lines.length > 11 || longest > 78) return 13.8;
+  if (lines.length > 8 || longest > 64) return 15.0;
+  return preferred;
+}
+
 function addHeader(slide, index, language) {
-  slide.addShape("rect", { x: 0, y: 0, w: 13.333, h: 0.17, fill: { color: colors.blue }, line: { color: colors.blue } });
-  addText(slide, language === "sk" ? "PROGRAMOVANIE V PYTHONE" : "PROGRAMMING IN PYTHON", 0.62, 0.35, 5.1, 0.2, { fontSize: 9, bold: true, color: colors.blue, charSpacing: 0.8 });
+  slide.addShape("rect", { x: 0, y: 0, w: page.width, h: 0.12, fill: { color: colors.blue }, line: { color: colors.blue } });
+  addText(slide, language === "sk" ? "PROGRAMOVANIE V PYTHONE" : "PROGRAMMING IN PYTHON", 0.62, 0.34, 5.1, 0.2, { fontSize: 8.8, bold: true, color: colors.blue, charSpacing: 0.5 });
   const number = String(lectureId).padStart(2, "0");
-  addText(slide, language === "sk" ? `PREDNÁŠKA ${number}` : `LECTURE ${number}`, 10.75, 0.35, 1.95, 0.2, { fontSize: 9, bold: true, color: colors.muted, align: "right", fontFace: "Consolas" });
+  addText(slide, language === "sk" ? `PREDNÁŠKA ${number}` : `LECTURE ${number}`, 10.75, 0.34, 1.95, 0.2, { fontSize: 8.8, bold: true, color: colors.muted, align: "right", fontFace: fonts.mono });
   slide.addShape("line", { x: 0.62, y: 0.72, w: 12.08, h: 0, line: { color: colors.line, pt: 0.7 } });
 }
 
 function addFooter(slide, index) {
   slide.addShape("line", { x: 0.62, y: 7.02, w: 12.08, h: 0, line: { color: colors.line, pt: 0.7 } });
-  addText(slide, String(index).padStart(2, "0"), 12.15, 7.11, 0.5, 0.16, { fontSize: 8, color: colors.muted, align: "right", fontFace: "Consolas" });
+  addText(slide, `${String(index).padStart(2, "0")} / ${String(deck.length).padStart(2, "0")}`, 11.78, 7.11, 0.88, 0.16, { fontSize: 7.8, color: colors.muted, align: "right", fontFace: fonts.mono });
 }
 
 function addHeading(slide, title) {
-  addText(slide, title, 0.72, 1.02, 11.8, 0.78, { fontSize: 29, bold: true, color: colors.navy, valign: "top" });
+  addText(slide, title, page.left, 1.0, page.contentWidth, 0.78, { fontFace: fonts.display, fontSize: 28.5, bold: true, color: colors.navy, valign: "top" });
 }
 
 function addBullets(slide, items, language, x = 0.95, y = 2.18, w = 11.25, fontSize = 18) {
   const runs = items.map((item) => ({ text: value(item, language), options: { bullet: { indent: 18 }, hanging: 4, breakLine: true } }));
-  slide.addText(runs, { x, y, w, h: 4.25, fontFace: "Aptos", fontSize, color: colors.ink, breakLine: false, paraSpaceAfterPt: 13, margin: 0.04, valign: "top", fit: "shrink" });
+  slide.addText(runs, { x, y, w, h: 4.25, fontFace: fonts.body, fontSize, color: colors.ink, breakLine: false, paraSpaceAfterPt: 12, margin: 0.04, valign: "top", fit: "shrink" });
 }
 
 function addCode(slide, label, code, note) {
-  slide.addShape("roundRect", { x: 0.72, y: 2.0, w: 7.45, h: 4.45, rectRadius: 0.06, fill: { color: colors.code }, line: { color: colors.code } });
-  addText(slide, label, 0.95, 2.22, 6.9, 0.2, { fontFace: "Consolas", fontSize: 8.5, color: "8FD3FF", bold: true, charSpacing: 0.7 });
-  addText(slide, code, 0.96, 2.62, 6.92, 3.55, { fontFace: "Consolas", fontSize: 16.5, color: colors.codeText, valign: "top", breakLine: false, margin: 0, fit: "shrink" });
-  slide.addShape("line", { x: 8.65, y: 2.08, w: 0, h: 3.9, line: { color: colors.blue, pt: 1.5 } });
-  addText(slide, note, 9.0, 2.33, 3.0, 2.7, { fontSize: 18, color: colors.muted, valign: "top", fit: "shrink" });
+  slide.addShape("rect", { x: 0.72, y: 2.0, w: 7.55, h: 4.45, fill: { color: colors.code }, line: { color: "243242", pt: 0.6 } });
+  slide.addShape("rect", { x: 0.72, y: 2.0, w: 7.55, h: 0.38, fill: { color: "223044" }, line: { color: "223044", pt: 0 } });
+  addText(slide, label, 0.95, 2.13, 6.9, 0.16, { fontFace: fonts.mono, fontSize: 8.2, color: "8FD3FF", bold: true, charSpacing: 0.35 });
+  addText(slide, code, 0.96, 2.58, 6.98, 3.55, { fontFace: fonts.mono, fontSize: codeFontSize(code, 16.0), color: colors.codeText, valign: "top", breakLine: false, margin: 0, fit: "shrink" });
+  slide.addShape("line", { x: 8.68, y: 2.06, w: 0, h: 3.98, line: { color: colors.blue, pt: 1.1 } });
+  addText(slide, note, 9.0, 2.28, 3.08, 2.75, { fontSize: 17.2, color: colors.muted, valign: "top", fit: "shrink" });
 }
 
 function renderSlide(pptx, item, index, language) {
@@ -817,13 +841,15 @@ function renderSlide(pptx, item, index, language) {
   const title = value(item.title, language);
 
   if (item.kind === "title") {
-    slide.addShape("rect", { x: 0, y: 0, w: 0.26, h: 7.5, fill: { color: colors.blue }, line: { color: colors.blue } });
-    addText(slide, language === "sk" ? "PROGRAMOVANIE V PYTHONE" : "PROGRAMMING IN PYTHON", 0.82, 0.75, 5.4, 0.25, { fontSize: 10, color: colors.blue, bold: true, charSpacing: 1.1 });
-    addText(slide, title, 0.82, 2.35, 10.7, 1.0, { fontSize: 42, color: colors.navy, bold: true, valign: "top" });
-    if (item.subtitle) addText(slide, value(item.subtitle, language), 0.86, 3.62, 9.1, 0.42, { fontSize: 20, color: colors.muted, valign: "top" });
-    slide.addShape("rect", { x: 0.82, y: 5.68, w: 2.8, h: 0.13, fill: { color: colors.accent }, line: { color: colors.accent } });
-    addText(slide, "TUKE FEI", 0.82, 6.02, 2.0, 0.2, { fontSize: 10, color: colors.muted, bold: true });
-    addText(slide, String(index).padStart(2, "0"), 11.95, 6.84, 0.62, 0.2, { fontSize: 9, color: colors.muted, fontFace: "Consolas", align: "right" });
+    const number = String(lectureId).padStart(2, "0");
+    slide.addShape("rect", { x: 0, y: 0, w: 0.22, h: page.height, fill: { color: colors.blue }, line: { color: colors.blue } });
+    addText(slide, language === "sk" ? "PROGRAMOVANIE V PYTHONE" : "PROGRAMMING IN PYTHON", 0.82, 0.75, 5.4, 0.25, { fontSize: 9.5, color: colors.blue, bold: true, charSpacing: 0.8 });
+    addText(slide, language === "sk" ? `PREDNÁŠKA ${number}` : `LECTURE ${number}`, 10.75, 0.75, 1.85, 0.24, { fontSize: 9.2, color: colors.muted, bold: true, fontFace: fonts.mono, align: "right" });
+    addText(slide, title, 0.82, 2.26, 10.85, 1.06, { fontFace: fonts.display, fontSize: 42, color: colors.navy, bold: true, valign: "top" });
+    if (item.subtitle) addText(slide, value(item.subtitle, language), 0.86, 3.58, 9.3, 0.46, { fontSize: 19.5, color: colors.muted, valign: "top" });
+    slide.addShape("rect", { x: 0.82, y: 5.7, w: 2.45, h: 0.1, fill: { color: colors.accent }, line: { color: colors.accent } });
+    addText(slide, "TUKE FEI", 0.82, 6.02, 2.0, 0.2, { fontSize: 9.5, color: colors.muted, bold: true });
+    addText(slide, `${String(index).padStart(2, "0")} / ${String(deck.length).padStart(2, "0")}`, 11.68, 6.84, 0.9, 0.2, { fontSize: 8, color: colors.muted, fontFace: fonts.mono, align: "right" });
     return;
   }
 
@@ -831,17 +857,17 @@ function renderSlide(pptx, item, index, language) {
   addFooter(slide, index);
 
   if (item.kind === "section") {
-    addText(slide, item.number, 0.78, 1.48, 1.4, 0.6, { fontSize: 18, color: colors.blue, bold: true, fontFace: "Consolas" });
-    addText(slide, title, 0.78, 2.2, 10.8, 0.9, { fontSize: 37, bold: true, color: colors.navy, valign: "top" });
-    addText(slide, value(item.subtitle, language), 0.82, 3.35, 8.6, 0.45, { fontSize: 20, color: colors.muted, valign: "top" });
-    slide.addShape("rect", { x: 0.8, y: 4.35, w: 3.1, h: 0.14, fill: { color: colors.blue }, line: { color: colors.blue } });
+    addText(slide, String(item.number).padStart(2, "0"), 0.74, 1.42, 1.7, 0.64, { fontSize: 19, color: colors.blue, bold: true, fontFace: fonts.mono });
+    slide.addShape("line", { x: 0.82, y: 2.08, w: 2.35, h: 0, line: { color: colors.blue, pt: 1.5 } });
+    addText(slide, title, 0.78, 2.34, 10.8, 0.9, { fontFace: fonts.display, fontSize: 36, bold: true, color: colors.navy, valign: "top" });
+    addText(slide, value(item.subtitle, language), 0.82, 3.5, 8.9, 0.45, { fontSize: 19.2, color: colors.muted, valign: "top" });
     return;
   }
 
   if (item.kind === "statement") {
-    addText(slide, title, 0.82, 1.7, 11.4, 1.65, { fontSize: 34, bold: true, color: colors.navy, valign: "top" });
-    slide.addShape("rect", { x: 0.84, y: 3.78, w: 1.55, h: 0.12, fill: { color: colors.accent }, line: { color: colors.accent } });
-    addText(slide, value(item.body, language), 0.84, 4.28, 9.7, 0.8, { fontSize: 22, color: colors.muted, valign: "top" });
+    addText(slide, title, 0.82, 1.62, 11.25, 1.7, { fontFace: fonts.display, fontSize: 33, bold: true, color: colors.navy, valign: "top" });
+    slide.addShape("rect", { x: 0.84, y: 3.76, w: 1.4, h: 0.1, fill: { color: colors.accent }, line: { color: colors.accent } });
+    addText(slide, value(item.body, language), 0.84, 4.22, 9.85, 0.88, { fontSize: 21, color: colors.muted, valign: "top" });
     return;
   }
 
@@ -856,25 +882,28 @@ function renderSlide(pptx, item, index, language) {
     return;
   }
   if (item.kind === "codeFull") {
-    slide.addShape("rect", { x: 0.72, y: 1.95, w: 11.92, h: 4.45, fill: { color: colors.code }, line: { color: colors.code } });
-    addText(slide, item.label, 0.98, 2.17, 10.9, 0.2, { fontFace: "Consolas", fontSize: 8.5, color: "8FD3FF", bold: true, charSpacing: 0.7 });
-    addText(slide, item.code, 0.98, 2.62, 10.82, 3.35, { fontFace: "Consolas", fontSize: 17.5, color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
-    addText(slide, value(item.note, language), 0.84, 6.62, 10.85, 0.26, { fontSize: 15.5, color: colors.muted, valign: "top" });
+    slide.addShape("rect", { x: 0.72, y: 1.92, w: 11.92, h: 4.48, fill: { color: colors.code }, line: { color: "243242", pt: 0.6 } });
+    slide.addShape("rect", { x: 0.72, y: 1.92, w: 11.92, h: 0.38, fill: { color: "223044" }, line: { color: "223044", pt: 0 } });
+    addText(slide, item.label, 0.98, 2.05, 10.9, 0.16, { fontFace: fonts.mono, fontSize: 8.2, color: "8FD3FF", bold: true, charSpacing: 0.35 });
+    addText(slide, item.code, 0.98, 2.52, 10.85, 3.42, { fontFace: fonts.mono, fontSize: codeFontSize(item.code, 17.0), color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
+    addText(slide, value(item.note, language), 0.84, 6.62, 10.85, 0.28, { fontSize: 15.2, color: colors.muted, valign: "top" });
     return;
   }
   if (item.kind === "splitCode") {
-    addBullets(slide, item.items, language, 0.82, 2.1, 4.55, 17);
-    slide.addShape("rect", { x: 5.9, y: 1.96, w: 6.5, h: 4.55, fill: { color: colors.code }, line: { color: colors.code } });
-    addText(slide, item.label, 6.17, 2.18, 5.9, 0.2, { fontFace: "Consolas", fontSize: 8.5, color: "8FD3FF", bold: true, charSpacing: 0.7 });
-    addText(slide, item.code, 6.17, 2.62, 5.83, 3.42, { fontFace: "Consolas", fontSize: 15.6, color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
+    addBullets(slide, item.items, language, 0.82, 2.1, 4.55, 16.5);
+    slide.addShape("rect", { x: 5.92, y: 1.96, w: 6.48, h: 4.55, fill: { color: colors.code }, line: { color: "243242", pt: 0.6 } });
+    slide.addShape("rect", { x: 5.92, y: 1.96, w: 6.48, h: 0.36, fill: { color: "223044" }, line: { color: "223044", pt: 0 } });
+    addText(slide, item.label, 6.17, 2.08, 5.9, 0.16, { fontFace: fonts.mono, fontSize: 8.1, color: "8FD3FF", bold: true, charSpacing: 0.35 });
+    addText(slide, item.code, 6.17, 2.55, 5.84, 3.48, { fontFace: fonts.mono, fontSize: codeFontSize(item.code, 15.2), color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
     return;
   }
   if (item.kind === "question") {
     addText(slide, value(item.prompt, language), 0.76, 1.87, 10.1, 0.5, { fontSize: 20, color: colors.muted, valign: "top" });
-    slide.addShape("roundRect", { x: 0.72, y: 2.65, w: 8.6, h: 3.45, rectRadius: 0.06, fill: { color: colors.panel }, line: { color: colors.line, pt: 0.8 } });
-    addText(slide, item.label, 0.98, 2.9, 7.8, 0.2, { fontFace: "Consolas", fontSize: 8.5, color: colors.blue, bold: true });
-    addText(slide, item.code, 0.98, 3.27, 7.8, 2.35, { fontFace: "Consolas", fontSize: 18, color: colors.ink, valign: "top", margin: 0 });
-    addText(slide, language === "sk" ? "Najprv si odpoveď zdôvodnite. Potom kód spustite." : "Justify your answer first. Then run the code.", 9.75, 3.15, 2.2, 1.35, { fontSize: 17, color: colors.muted, valign: "top" });
+    slide.addShape("rect", { x: 0.72, y: 2.65, w: 8.6, h: 3.45, fill: { color: colors.panel }, line: { color: colors.line, pt: 0.75 } });
+    slide.addShape("rect", { x: 0.72, y: 2.65, w: 8.6, h: 0.38, fill: { color: "E7EEF4" }, line: { color: "E7EEF4", pt: 0 } });
+    addText(slide, item.label, 0.98, 2.78, 7.8, 0.16, { fontFace: fonts.mono, fontSize: 8.2, color: colors.blue, bold: true });
+    addText(slide, item.code, 0.98, 3.25, 7.8, 2.35, { fontFace: fonts.mono, fontSize: codeFontSize(item.code, 17.0), color: colors.ink, valign: "top", margin: 0, fit: "shrink" });
+    addText(slide, language === "sk" ? "Najprv si odpoveď zdôvodnite. Potom kód spustite." : "Justify your answer first. Then run the code.", 9.75, 3.1, 2.2, 1.42, { fontSize: 16.5, color: colors.muted, valign: "top" });
     return;
   }
   if (item.kind === "diagram") {
@@ -887,7 +916,7 @@ function renderSlide(pptx, item, index, language) {
     item.items.forEach((entry, position) => {
       const x = startX + position * (width + gap);
       if (position > 0) slide.addShape("chevron", { x: x - 0.3, y: y + 0.41, w: 0.2, h: 0.32, fill: { color: colors.blue }, line: { color: colors.blue } });
-      slide.addShape("roundRect", { x, y, w: width, h: 1.14, rectRadius: 0.05, fill: { color: position % 2 ? "EAF3F7" : colors.panel }, line: { color: position % 2 ? "9DCCDD" : colors.line, pt: 0.8 } });
+      slide.addShape("rect", { x, y, w: width, h: 1.14, fill: { color: position % 2 ? "EAF3F7" : colors.panel }, line: { color: position % 2 ? "9DCCDD" : colors.line, pt: 0.75 } });
       addText(slide, value(entry, language), x + 0.12, y + 0.25, width - 0.24, 0.6, { fontSize, color: colors.navy, bold: true, align: "center", valign: "mid" });
     });
     return;
@@ -896,24 +925,20 @@ function renderSlide(pptx, item, index, language) {
     const width = 5.48;
     item.columns.forEach((column, position) => {
       const x = position === 0 ? 0.78 : 6.97;
-      slide.addShape("rect", { x, y: 2.05, w: width, h: 0.12, fill: { color: position === 0 ? colors.teal : colors.accent }, line: { color: position === 0 ? colors.teal : colors.accent } });
-      addText(slide, value(column.title, language), x, 2.42, width, 0.4, { fontSize: 20, bold: true, color: colors.navy });
-      addBullets(slide, column.items, language, x + 0.06, 3.05, width - 0.1, 16.5);
+      slide.addShape("line", { x, y: 2.06, w: width, h: 0, line: { color: position === 0 ? colors.teal : colors.accent, pt: 1.4 } });
+      addText(slide, value(column.title, language), x, 2.34, width, 0.4, { fontSize: 19.5, bold: true, color: colors.navy });
+      addBullets(slide, column.items, language, x + 0.04, 2.94, width - 0.1, 16.2);
     });
     return;
   }
   if (item.kind === "table") {
     const rows = [[...item.headers.map((header) => value(header, language))], ...item.rows.map((row) => row.map((cell) => value(cell, language)))];
-    slide.addTable(rows, { x: 0.72, y: 2.02, w: 11.92, h: 3.85, border: { type: "solid", color: colors.line, pt: 0.6 }, fill: colors.paper, fontFace: "Aptos", fontSize: 15.5, color: colors.ink, bold: false, margin: 0.09, rowH: 0.6, autoFit: false, colW: [2.0, 5.3, 4.62],
-      bold: false,
-      fill: colors.paper,
-      color: colors.ink,
-      // PptxGenJS applies these options to the header when supplied as an array.
+    slide.addTable(rows, { x: 0.72, y: 2.0, w: 11.92, h: 3.9, border: { type: "solid", color: colors.line, pt: 0.45 }, fill: colors.paper, fontFace: fonts.body, fontSize: 15.0, color: colors.ink, bold: false, margin: 0.1, rowH: 0.62, autoFit: false, colW: [2.0, 5.3, 4.62],
       autoPage: false,
       valign: "mid"
     });
-    slide.addShape("rect", { x: 0.72, y: 2.02, w: 11.92, h: 0.6, fill: { color: colors.navy }, line: { color: colors.navy } });
-    item.headers.forEach((header, column) => addText(slide, value(header, language), [0.86, 2.86, 8.16][column], 2.18, [1.7, 5.05, 4.2][column], 0.22, { fontSize: 14, bold: true, color: colors.paper }));
+    slide.addShape("rect", { x: 0.72, y: 2.0, w: 11.92, h: 0.58, fill: { color: colors.navy }, line: { color: colors.navy, pt: 0 } });
+    item.headers.forEach((header, column) => addText(slide, value(header, language), [0.86, 2.86, 8.16][column], 2.15, [1.7, 5.05, 4.2][column], 0.22, { fontSize: 13.5, bold: true, color: colors.paper }));
   }
 }
 
