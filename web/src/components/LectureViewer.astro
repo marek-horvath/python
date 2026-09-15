@@ -22,8 +22,9 @@ type Props = {
 const { presentation, render, previous, next } = Astro.props;
 const englishSlides = render.en?.slides ?? render.sk.slides;
 const slides = render.sk.slides.map((sk, index) => ({ sk, en: englishSlides[index] ?? sk }));
-const assetUrl = (source: string) => `${import.meta.env.BASE_URL}${source}`;
-const internalUrl = (href: string) => `${import.meta.env.BASE_URL}${href.replace(/^\//, "")}`;
+const withBasePath = (value: string) => `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}${value.replace(/^\//, "")}`;
+const assetUrl = (source: string) => withBasePath(source);
+const internalUrl = (href: string) => withBasePath(href);
 ---
 
 <main class="viewer" data-viewer data-total={slides.length}>
