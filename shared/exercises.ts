@@ -29,20 +29,20 @@ export const exercises: Exercise[] = [
   {
     number: 1,
     weekNumber: 1,
-    slug: "01-moderny-python-v-praxi",
+    slug: "01-uvod-ku-pythonu-v-praxi",
     title: "Cvičenie 01",
-    subtitle: "Moderný Python",
+    subtitle: "Úvod ku Pythonu v praxi",
     description: "Lab k dátovým štruktúram, transformácii dát, funkciám, type hints a dataclass.",
     duration: "približne 90 minút",
     status: "published",
-    href: "/cvicenia/01-moderny-python-v-praxi/",
+    href: "/cvicenia/01-uvod-ku-pythonu-v-praxi/",
     taskCount: 10,
     starterPath: "exercises/exercise-01/",
     solutionPath: "solutions/exercise-01/",
     translations: {
       en: {
         title: "Exercise 01",
-        subtitle: "Modern Python",
+        subtitle: "Introduction to Python in Practice",
         description: "A lab on data structures, data transformation, functions, type hints and dataclass.",
         duration: "approximately 90 min"
       }

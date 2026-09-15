@@ -103,7 +103,7 @@ Existujúce URL sa nemenia. Prepnutie jazyka zachová aktuálnu stránku, hash a
 - `/prednasky/02-skriptovanie-automatizacia/` - webová prezentácia prednášky 02;
 - `/prednasky/03-gui-event-driven/` - webová prezentácia prednášky 03;
 - `/cvicenia/` - zoznam cvičení;
-- `/cvicenia/01-moderny-python-v-praxi/` - pracovný list cvičenia 01;
+- `/cvicenia/01-uvod-ku-pythonu-v-praxi/` - pracovný list cvičenia 01;
 - `/projekt/` - semestrálny projekt;
 - `/navody/` - praktické návody;
 - `/cheatsheet/` - Python cheatsheet.

@@ -20,7 +20,7 @@ const config = {
     },
     {
       label: "Cvičenie 01",
-      href: "/cvicenia/01-moderny-python-v-praxi/",
+      href: "/cvicenia/01-uvod-ku-pythonu-v-praxi/",
       type: "exercise",
       public: true
     }
