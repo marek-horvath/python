@@ -139,8 +139,9 @@ function validateExercises() {
 
     if (exercise.solutionPath) {
       const solutionPath = path.resolve(process.cwd(), exercise.solutionPath);
-      if (!fs.existsSync(solutionPath)) errors.push(`Cvičenie ${exercise.number} nemá referenčné riešenia: ${exercise.solutionPath}`);
-      if (solutionPath.startsWith(path.resolve(staticRoot))) {
+      if (!fs.existsSync(solutionPath)) {
+        warnings.push(`Cvičenie ${exercise.number} nemá lokálne referenčné riešenia: ${exercise.solutionPath}`);
+      } else if (solutionPath.startsWith(path.resolve(staticRoot))) {
         errors.push(`Referenčné riešenia cvičenia ${exercise.number} sú vo verejnom static adresári`);
       }
     }
