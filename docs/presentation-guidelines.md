@@ -2,9 +2,7 @@
 
 ## Zdroj a formát
 
-Primárnym zdrojom prezentácie je TypeScript súbor `lecture.ts` v adresári konkrétneho týždňa. Slajdy sa renderujú priamo na webe cez Astro komponenty.
-
-PPTX export je sekundárny. Používa rovnaký slide model, ale nemá určovať dizajn ani workflow prednášky.
+Primárnym zdrojom prezentácie je editovateľný PowerPoint súbor v priečinku `presentations/`. Každá prednáška má slovenskú `.sk.pptx` a anglickú `.en.pptx` verziu. Build vytvorí z PPTX obrázky slajdov, ktoré zobrazí existujúci webový viewer.
 
 ## Pedagogický princíp
 

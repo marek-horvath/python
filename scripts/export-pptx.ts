@@ -2,11 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import pptxgen from "pptxgenjs";
 import { lectures } from "../shared/lectures";
-import type { CodeBlock, Lecture, LectureSlide } from "../shared/slide.types";
+import type { CodeBlock, Lecture, LectureSlide, LectureSlideTranslation } from "../shared/slide.types";
 
-const outputDir = path.join(process.cwd(), "dist", "presentations");
+const outputDir = path.resolve(process.env.PPTX_OUTPUT_DIR ?? path.join(process.cwd(), "dist", "presentations"));
 const requested = process.argv[2] ?? "1";
 const selectedLectures = selectLectures(requested);
+const locales = parseLocales(process.env.PPTX_LOCALES);
 
 if (selectedLectures.length === 0) {
   console.error(`Prednáška "${requested}" neexistuje.`);
@@ -16,10 +17,13 @@ if (selectedLectures.length === 0) {
 fs.mkdirSync(outputDir, { recursive: true });
 
 for (const lecture of selectedLectures) {
-  const fileName = `${String(lecture.weekNumber).padStart(2, "0")}-${lecture.slug.replace(/^\d{2}-/, "")}.pptx`;
-  const filePath = path.join(outputDir, fileName);
-  await exportLecture(lecture, filePath);
-  console.log(`PPTX export: ${path.relative(process.cwd(), filePath)}`);
+  for (const locale of locales) {
+    const localizedLecture = localizeLecture(lecture, locale);
+    const fileName = `${String(lecture.weekNumber).padStart(2, "0")}-${lecture.slug.replace(/^\d{2}-/, "")}.${locale}.pptx`;
+    const filePath = path.join(outputDir, fileName);
+    await exportLecture(localizedLecture, filePath, locale);
+    console.log(`PPTX export: ${path.relative(process.cwd(), filePath)}`);
+  }
 }
 
 function selectLectures(value: string) {
@@ -29,7 +33,68 @@ function selectLectures(value: string) {
   return lectures.filter((lecture) => lecture.weekNumber === asNumber || lecture.slug === value);
 }
 
-async function exportLecture(lecture: Lecture, filePath: string) {
+function parseLocales(value: string | undefined): Array<"sk" | "en"> {
+  const requestedLocales = (value ?? "sk")
+    .split(",")
+    .map((locale) => locale.trim())
+    .filter((locale): locale is "sk" | "en" => locale === "sk" || locale === "en");
+
+  return requestedLocales.length > 0 ? requestedLocales : ["sk"];
+}
+
+function localizeLecture(lecture: Lecture, locale: "sk" | "en"): Lecture {
+  if (locale === "sk") return lecture;
+
+  const translation = lecture.translations?.en;
+  const localizedSlides = lecture.slides.map((slide) => localizeSlide(slide, translation?.slides?.[slide.id]));
+
+  return {
+    ...lecture,
+    title: translation?.title ?? lecture.title,
+    description: translation?.description ?? lecture.description,
+    duration: translation?.duration ?? lecture.duration,
+    slides: localizedSlides
+  };
+}
+
+function localizeSlide(slide: LectureSlide, translation: LectureSlideTranslation | undefined): LectureSlide {
+  if (!translation) return slide;
+
+  return {
+    ...slide,
+    section: translation.section ?? slide.section,
+    title: translation.title ?? slide.title,
+    subtitle: translation.subtitle ?? slide.subtitle,
+    body: translation.body ?? slide.body,
+    points: translation.points ?? slide.points,
+    prompt: translation.prompt ?? slide.prompt,
+    code: slide.code
+      ? {
+          ...slide.code,
+          label: translation.code?.label ?? slide.code.label,
+          code: translation.code?.code ?? slide.code.code
+        }
+      : undefined,
+    codeBlocks: slide.codeBlocks?.map((block, index) => ({
+      ...block,
+      label: translation.codeBlocks?.[index]?.label ?? block.label,
+      code: translation.codeBlocks?.[index]?.code ?? block.code
+    })),
+    columns: slide.columns?.map((column, index) => ({
+      title: translation.columns?.[index]?.title ?? column.title,
+      items: translation.columns?.[index]?.items ?? column.items
+    })),
+    table: slide.table
+      ? {
+          headers: translation.table?.headers ?? slide.table.headers,
+          rows: translation.table?.rows ?? slide.table.rows
+        }
+      : undefined,
+    diagramItems: translation.diagramItems ?? slide.diagramItems
+  };
+}
+
+async function exportLecture(lecture: Lecture, filePath: string, locale: "sk" | "en") {
   const pptx = new pptxgen();
   pptx.layout = "LAYOUT_WIDE";
   pptx.author = "TUKE FEI";
@@ -44,7 +109,7 @@ async function exportLecture(lecture: Lecture, filePath: string) {
   lecture.slides.forEach((lectureSlide, index) => {
     const slide = pptx.addSlide();
     slide.background = { color: "FFFFFF" };
-    renderSlide(pptx, slide, lecture, lectureSlide, index);
+    renderSlide(pptx, slide, lecture, lectureSlide, index, locale);
   });
 
   await pptx.writeFile({ fileName: filePath });
@@ -55,10 +120,12 @@ function renderSlide(
   slide: pptxgen.Slide,
   lecture: Lecture,
   lectureSlide: LectureSlide,
-  index: number
+  index: number,
+  locale: "sk" | "en"
 ) {
-  const lectureLabel = `Prednáška ${String(lecture.weekNumber).padStart(2, "0")}`;
-  const section = lectureSlide.section ? `Časť ${lectureSlide.section}` : lectureLabel;
+  const lectureLabel = `${locale === "en" ? "Lecture" : "Prednáška"} ${String(lecture.weekNumber).padStart(2, "0")}`;
+  const sectionLabel = locale === "en" ? "Part" : "Časť";
+  const section = lectureSlide.section ? `${sectionLabel} ${lectureSlide.section}` : lectureLabel;
   const slideNumber = `${String(index + 1).padStart(2, "0")} / ${String(lecture.slides.length).padStart(2, "0")}`;
 
   addFooter(slide, slideNumber);

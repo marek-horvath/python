@@ -6,7 +6,7 @@
 npm run dev
 ```
 
-Astro web číta metadata zo `shared/` a `weeks/`. Prednášky registrované v `shared/lectures.ts` sa renderujú ako webové slajdy.
+Astro web číta metadata zo `shared/` a `weeks/`. Prednášky registrované v `shared/presentations.ts` sa renderujú z PPTX súborov v `presentations/`.
 
 ## Validácia
 
@@ -20,10 +20,7 @@ Validácia kontroluje:
 - počet a štruktúru týždňov;
 - duplicity čísel a slugov;
 - existenciu pracovných súborov;
-- konzistenciu publikovaných prednášok;
-- počet slajdov;
-- dĺžku nadpisov, textov, odrážok a code blockov;
-- spustiteľné Python ukážky v slajdoch;
+- existenciu oboch jazykových PPTX zdrojov publikovaných prednášok;
 - `py_compile` pre `.py` súbory v `weeks/`.
 
 ## Build webu
@@ -32,16 +29,15 @@ Validácia kontroluje:
 npm run build
 ```
 
-Príkaz spustí validáciu a statický Astro build do `dist/web/`.
+Príkaz najprv vyrenderuje PPTX prezentácie, potom spustí validáciu a statický Astro build do `dist/web/`.
 
-## Voliteľný PPTX export
+## Renderovanie prezentácií
 
 ```bash
-npm run export:pptx -- 1
-npm run export:pptx -- all
+npm run presentations:render
 ```
 
-PPTX export sa ukladá do `dist/presentations/`. Je určený na sekundárne použitie, napríklad keď treba poslať PowerPoint súbor. Primárnym študentským formátom zostáva webová prezentácia.
+Upravujte iba `.pptx` súbory v `presentations/`. Render vytvorí zmenené náhľady slajdov a web ich zobrazí v rovnakom vieweri. Prezentácie sa následne publikujú spolu s bežným statickým buildom.
 
 ## Rozpracovanie ďalšej prednášky
 
@@ -51,7 +47,7 @@ PPTX export sa ukladá do `dist/presentations/`. Je určený na sekundárne pou�
 4. Rozdeľ prednášku na 3-5 častí.
 5. Odhadni počet slajdov.
 6. Identifikuj kódové príklady, diagramy, otázky a live demo checkpointy.
-7. Vytvor alebo rozšír `lecture.ts`.
-8. Zaregistruj prednášku v `shared/lectures.ts`.
+7. Vytvor alebo rozšír `XX-slug.sk.pptx` a `XX-slug.en.pptx` v `presentations/`.
+8. Zaregistruj prednášku v `shared/presentations.ts`.
 9. Spusti validáciu, typecheck a build.
 10. Otvor web, preklikaj prednášku a oprav vizuálne problémy.

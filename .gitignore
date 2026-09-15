@@ -3,6 +3,7 @@ dist/
 solutions/
 web/dist/
 web/public/generated/
+web/static/generated/
 weeks/*/output/*
 !weeks/*/output/.gitkeep
 .astro/

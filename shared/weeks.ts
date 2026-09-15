@@ -1,6 +1,6 @@
 import type { WeekConfig } from "./week.types";
 import { courseConfig } from "./course.config";
-import week01 from "../weeks/week-01-modern-python/week.config";
+import week01 from "../weeks/week-01-uvod-ku-pythonu/week.config";
 import week02 from "../weeks/week-02-scripting-automation/week.config";
 import week03 from "../weeks/week-03-gui-event-driven/week.config";
 import week04 from "../weeks/week-04-testing-debugging-quality/week.config";

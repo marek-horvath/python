@@ -41,8 +41,8 @@ export const courseConfig = {
   weeks: [
     {
       number: 1,
-      title: "Moderný Python pre programátora",
-      slug: "01-moderny-python",
+      title: "Úvod ku Pythonu",
+      slug: "01-uvod-ku-pythonu",
       lectureAt: "2026-09-21T13:30:00+02:00"
     },
     {
@@ -134,7 +134,7 @@ export const courseConfig = {
   ],
   repository: {
     sourceLanguage: "TypeScript",
-    presentationEngine: "web-native Astro slides",
+    presentationEngine: "PowerPoint source with Astro slide viewer",
     webEngine: "Astro"
   }
 } as const;

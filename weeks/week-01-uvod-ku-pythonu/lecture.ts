@@ -2,15 +2,15 @@ import type { Lecture } from "../../shared/slide.types";
 
 export const lecture01 = {
   weekNumber: 1,
-  slug: "01-moderny-python",
-  title: "Moderný Python pre programátora",
+  slug: "01-uvod-ku-pythonu",
+  title: "Úvod ku Pythonu",
   description: "Python pre študentov, ktorí už programovať vedia a potrebujú písať čitateľný, idiomatický kód.",
   duration: "50-60 minút",
   slides: [
     {
       id: "01-title",
       type: "title",
-      title: "Moderný Python pre programátora"
+      title: "Úvod ku Pythonu"
     },
     {
       id: "02-python-for-programmers",
@@ -703,12 +703,12 @@ python -m pip list`
   ],
   translations: {
     en: {
-      title: "Modern Python for Programmers",
+      title: "Introduction to Python",
       description: "Python for students who already know how to program and need to write readable, idiomatic code.",
       duration: "50-60 min",
       slides: {
         "01-title": {
-          title: "Modern Python for Programmers"
+          title: "Introduction to Python"
         },
         "02-python-for-programmers": {
           title: "Not an Introduction to Programming",

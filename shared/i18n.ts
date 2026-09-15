@@ -111,7 +111,7 @@ export const uiTranslations = {
 } satisfies I18nDictionary;
 
 export const weekTitleTranslations = {
-  1: { sk: "Moderný Python pre programátora", en: "Modern Python for Programmers" },
+  1: { sk: "Úvod ku Pythonu", en: "Introduction to Python" },
   2: { sk: "Skriptovanie a automatizácia", en: "Scripting and Automation" },
   3: { sk: "GUI a event-driven programovanie", en: "GUI and Event-Driven Programming" },
   4: { sk: "Testovanie, debugging a kvalita kódu", en: "Testing, Debugging and Code Quality" },

@@ -1788,6 +1788,17 @@ html.viewer-html body {
   display: block;
 }
 
+.pptx-slide {
+  padding: 0;
+}
+
+.pptx-slide__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .slide-section {
   color: var(--accent);
   font-family: Consolas, monospace;

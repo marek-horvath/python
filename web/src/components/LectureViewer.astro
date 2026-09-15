@@ -1,8 +1,8 @@
 ---
-import type { Lecture } from "@shared/slide.types";
+import type { Presentation } from "@shared/presentations";
 import LanguageSwitcher from "./LanguageSwitcher.astro";
 import LocalizedText from "./LocalizedText.astro";
-import SlideRenderer from "./SlideRenderer.astro";
+import type { PresentationRender } from "../lib/presentation-manifest";
 
 type LectureNeighbor = {
   number: number;
@@ -13,41 +13,51 @@ type LectureNeighbor = {
 };
 
 type Props = {
-  lecture: Lecture;
+  presentation: Presentation;
+  render: PresentationRender;
   previous?: LectureNeighbor;
   next?: LectureNeighbor;
 };
 
-const { lecture, previous, next } = Astro.props;
-const englishSlides = lecture.translations?.en?.slides ?? {};
+const { presentation, render, previous, next } = Astro.props;
+const englishSlides = render.en?.slides ?? render.sk.slides;
+const slides = render.sk.slides.map((sk, index) => ({ sk, en: englishSlides[index] ?? sk }));
+const assetUrl = (source: string) => `${import.meta.env.BASE_URL}${source}`;
+const internalUrl = (href: string) => `${import.meta.env.BASE_URL}${href.replace(/^\//, "")}`;
 ---
 
-<main class="viewer" data-viewer data-total={lecture.slides.length}>
-  <a class="viewer-control back-link" href="/prednasky/" data-i18n-key="lecture.back">← Prednášky</a>
+<main class="viewer" data-viewer data-total={slides.length}>
+  <a class="viewer-control back-link" href={internalUrl("/prednasky/")} data-i18n-key="lecture.back">← Prednášky</a>
   <div class="viewer-control viewer-language">
     <LanguageSwitcher />
   </div>
   <button class="viewer-control fullscreen-button" type="button" data-fullscreen data-i18n-key="lecture.fullscreen">Celá obrazovka</button>
-  <div class="slide-frame" data-frame tabindex="0" aria-label={lecture.title}>
+  <div class="slide-frame" data-frame tabindex="0" aria-label={presentation.title}>
     <div class="slide-stage" data-stage>
       {
-        lecture.slides.map((slide, index) => (
-          <SlideRenderer
-            slide={slide}
-            translation={englishSlides[slide.id]}
-            index={index}
-            total={lecture.slides.length}
-            lectureNumber={lecture.weekNumber}
-          />
+        slides.map((slide, index) => (
+          <section class={`slide pptx-slide${index === 0 ? " is-active" : ""}`} data-slide aria-hidden={index === 0 ? "false" : "true"}>
+            <img
+              class="pptx-slide__image"
+              src={assetUrl(slide.sk)}
+              alt={`${presentation.title} - ${index + 1}`}
+              loading={index === 0 ? "eager" : "lazy"}
+              data-slide-image
+              data-src-sk={assetUrl(slide.sk)}
+              data-src-en={assetUrl(slide.en)}
+              data-alt-sk={`${presentation.title} - ${index + 1}`}
+              data-alt-en={`${presentation.titleEn} - ${index + 1}`}
+            />
+          </section>
         ))
       }
     </div>
   </div>
-  <div class="viewer-control progress" data-progress-text>01 / {String(lecture.slides.length).padStart(2, "0")}</div>
+  <div class="viewer-control progress" data-progress-text>01 / {String(slides.length).padStart(2, "0")}</div>
   {(previous || next) && (
     <nav class="viewer-control viewer-neighbors" aria-label="Susedné prednášky" data-i18n-aria-label="lecture.neighbors">
       {previous ? (
-        <a class="viewer-neighbor viewer-neighbor--previous" href={previous.href}>
+        <a class="viewer-neighbor viewer-neighbor--previous" href={internalUrl(previous.href)}>
           <span data-i18n-key={previous.labelKey} data-i18n-values={JSON.stringify({ number: String(previous.number).padStart(2, "0") })}>
             ← Prednáška {String(previous.number).padStart(2, "0")}
           </span>
@@ -55,7 +65,7 @@ const englishSlides = lecture.translations?.en?.slides ?? {};
         </a>
       ) : <span></span>}
       {next ? (
-        <a class="viewer-neighbor viewer-neighbor--next" href={next.href}>
+        <a class="viewer-neighbor viewer-neighbor--next" href={internalUrl(next.href)}>
           <span data-i18n-key={next.labelKey} data-i18n-values={JSON.stringify({ number: String(next.number).padStart(2, "0") })}>
             Prednáška {String(next.number).padStart(2, "0")} →
           </span>
@@ -75,6 +85,7 @@ const englishSlides = lecture.translations?.en?.slides ?? {};
   const progressText = document.querySelector<HTMLElement>("[data-progress-text]");
   const progressBar = document.querySelector<HTMLElement>("[data-progress-bar]");
   const fullscreen = document.querySelector<HTMLButtonElement>("[data-fullscreen]");
+  const slideImages = Array.from(document.querySelectorAll<HTMLImageElement>("[data-slide-image]"));
   let index = 0;
   let idleTimer = 0;
 
@@ -113,6 +124,15 @@ const englishSlides = lecture.translations?.en?.slides ?? {};
     idleTimer = window.setTimeout(() => viewer.classList.remove("is-active-ui"), 1400);
   }
 
+  function updateSlideLanguage(language: "sk" | "en") {
+    slideImages.forEach((image) => {
+      const source = image.dataset[`src${language[0].toUpperCase()}${language.slice(1)}`] ?? image.dataset.srcSk;
+      const alt = image.dataset[`alt${language[0].toUpperCase()}${language.slice(1)}`] ?? image.dataset.altSk;
+      if (source) image.src = source;
+      if (alt) image.alt = alt;
+    });
+  }
+
   frame?.addEventListener("click", (event) => {
     const target = event.target as HTMLElement;
     if (target.closest("a, button")) return;
@@ -135,8 +155,13 @@ const englishSlides = lecture.translations?.en?.slides ?? {};
   fullscreen?.addEventListener("click", () => viewer?.requestFullscreen?.());
   window.addEventListener("resize", fitStage);
   document.addEventListener("fullscreenchange", fitStage);
+  window.addEventListener("python-course-language-applied", (event) => {
+    const language = (event as CustomEvent<{ language?: string }>).detail?.language;
+    updateSlideLanguage(language === "en" ? "en" : "sk");
+  });
 
   fitStage();
+  updateSlideLanguage(window.localStorage.getItem("python-course.language") === "en" ? "en" : "sk");
   const start = Number(window.location.hash.replace("#", ""));
   show(Number.isFinite(start) && start > 0 ? start - 1 : 0);
   frame?.focus();

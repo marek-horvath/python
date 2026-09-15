@@ -2,10 +2,10 @@ import type { WeekConfig } from "../../shared/week.types";
 
 const config = {
   number: 1,
-  slug: "01-moderny-python",
-  folder: "weeks/week-01-modern-python",
-  title: "Moderný Python pre programátora",
-  shortTitle: "Moderný Python",
+  slug: "01-uvod-ku-pythonu",
+  folder: "weeks/week-01-uvod-ku-pythonu",
+  title: "Úvod ku Pythonu",
+  shortTitle: "Úvod ku Pythonu",
   description:
     "Pracovný úvod do predmetu a do moderného Pythonu pre študentov, ktorí už poznajú základy programovania.",
   status: "published",
@@ -14,7 +14,7 @@ const config = {
   materials: [
     {
       label: "Prezerať prezentáciu",
-      href: "/prednasky/01-moderny-python/",
+      href: "/prednasky/01-uvod-ku-pythonu/",
       type: "viewer",
       public: true
     },

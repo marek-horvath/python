@@ -1,50 +1,52 @@
 ---
 import { courseConfig } from "@shared/course.config";
 import { localizedCourse } from "@shared/i18n";
-import { lectures } from "@shared/lectures";
+import { presentations } from "@shared/presentations";
 import { isMaterialReleased } from "@shared/publication";
-import type { Lecture } from "@shared/slide.types";
+import type { Presentation } from "@shared/presentations";
 import I18nController from "../../components/I18nController.astro";
 import LanguageBoot from "../../components/LanguageBoot.astro";
 import LectureViewer from "../../components/LectureViewer.astro";
 import PreviewIndicator from "../../components/PreviewIndicator.astro";
 import SiteHeader from "../../components/SiteHeader.astro";
+import { getPresentationRender } from "../../lib/presentation-manifest";
 import "../../styles/global.css";
 
 export function getStaticPaths() {
-  return lectures.map((lecture) => ({
-    params: { slug: lecture.slug },
-    props: { lecture }
+  return presentations.map((presentation) => ({
+    params: { slug: presentation.slug },
+    props: { presentation }
   }));
 }
 
 type Props = {
-  lecture: Lecture;
+  presentation: Presentation;
 };
 
-const { lecture } = Astro.props;
-const released = isMaterialReleased(lecture.weekNumber);
-const orderedLectures = [...lectures].sort((a, b) => a.weekNumber - b.weekNumber);
-const lectureIndex = orderedLectures.findIndex((item) => item.weekNumber === lecture.weekNumber);
-const previousLecture = lectureIndex > 0 ? orderedLectures[lectureIndex - 1] : undefined;
-const nextLecture = lectureIndex >= 0 && lectureIndex < orderedLectures.length - 1 ? orderedLectures[lectureIndex + 1] : undefined;
-const lectureEn = lecture.translations?.en;
-const previous = previousLecture
+const { presentation } = Astro.props;
+const render = getPresentationRender(presentation.slug);
+const internalUrl = (href: string) => `${import.meta.env.BASE_URL}${href.replace(/^\//, "")}`;
+const released = isMaterialReleased(presentation.weekNumber);
+const orderedPresentations = [...presentations].sort((a, b) => a.weekNumber - b.weekNumber);
+const presentationIndex = orderedPresentations.findIndex((item) => item.weekNumber === presentation.weekNumber);
+const previousPresentation = presentationIndex > 0 ? orderedPresentations[presentationIndex - 1] : undefined;
+const nextPresentation = presentationIndex >= 0 && presentationIndex < orderedPresentations.length - 1 ? orderedPresentations[presentationIndex + 1] : undefined;
+const previous = previousPresentation
   ? {
-      number: previousLecture.weekNumber,
+      number: previousPresentation.weekNumber,
       labelKey: "lecture.previousLabel",
-      title: previousLecture.title,
-      titleEn: previousLecture.translations?.en?.title,
-      href: `/prednasky/${previousLecture.slug}/`
+      title: previousPresentation.title,
+      titleEn: previousPresentation.titleEn,
+      href: `/prednasky/${previousPresentation.slug}/`
     }
   : undefined;
-const next = nextLecture
+const next = nextPresentation
   ? {
-      number: nextLecture.weekNumber,
+      number: nextPresentation.weekNumber,
       labelKey: "lecture.nextLabel",
-      title: nextLecture.title,
-      titleEn: nextLecture.translations?.en?.title,
-      href: `/prednasky/${nextLecture.slug}/`
+      title: nextPresentation.title,
+      titleEn: nextPresentation.titleEn,
+      href: `/prednasky/${nextPresentation.slug}/`
     }
   : undefined;
 ---
@@ -53,29 +55,29 @@ const next = nextLecture
 <html
   lang="sk"
   class={released ? "viewer-html" : undefined}
-  data-title-sk={`${lecture.title} | ${localizedCourse.title.sk}`}
-  data-title-en={`${lectureEn?.title ?? lecture.title} | ${localizedCourse.title.en}`}
-  data-description-sk={lecture.description}
-  data-description-en={lectureEn?.description ?? lecture.description}
+  data-title-sk={`${presentation.title} | ${localizedCourse.title.sk}`}
+  data-title-en={`${presentation.titleEn} | ${localizedCourse.title.en}`}
+  data-description-sk={presentation.description}
+  data-description-en={presentation.description}
 >
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={lecture.description} />
-    <title>{lecture.title} | {localizedCourse.title.sk}</title>
+    <meta name="description" content={presentation.description} />
+    <title>{presentation.title} | {localizedCourse.title.sk}</title>
     <LanguageBoot />
   </head>
   <body>
     {
       released ? (
-        <LectureViewer lecture={lecture} previous={previous} next={next} />
+        <LectureViewer presentation={presentation} render={render} previous={previous} next={next} />
       ) : (
         <>
           <div class="site-shell" data-preview-locked>
             <SiteHeader />
             <main class="page text-page locked-material">
               <h1 data-i18n-key="lecture.lockedTitle">Materiál zatiaľ nie je zverejnený.</h1>
-              <p><a href="/prednasky/" data-i18n-key="ui.backLectures">← Späť na prednášky</a></p>
+              <p><a href={internalUrl("/prednasky/")} data-i18n-key="ui.backLectures">← Späť na prednášky</a></p>
             </main>
             <footer class="site-footer">
               <p>
@@ -86,7 +88,7 @@ const next = nextLecture
             </footer>
           </div>
           <div data-preview-material hidden>
-            <LectureViewer lecture={lecture} previous={previous} next={next} />
+            <LectureViewer presentation={presentation} render={render} previous={previous} next={next} />
           </div>
         </>
       )

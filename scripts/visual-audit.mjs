@@ -18,13 +18,13 @@ const screenshots = [
   { name: "cvicenie-01-desktop-cdp", url: "/cvicenia/01-moderny-python-v-praxi/", width: 1440, height: 1400, mobile: false },
   { name: "cvicenie-01-mobile-cdp", url: "/cvicenia/01-moderny-python-v-praxi/", width: 390, height: 1400, mobile: true },
   { name: "projekt-mobile-cdp", url: "/projekt/", width: 390, height: 900, mobile: true },
-  { name: "slide-21-desktop-cdp", url: "/prednasky/01-moderny-python/#21", width: 1440, height: 900, mobile: false },
-  { name: "slide-21-mobile-cdp", url: "/prednasky/01-moderny-python/#21", width: 390, height: 900, mobile: true },
+  { name: "slide-21-desktop-cdp", url: "/prednasky/01-uvod-ku-pythonu/#21", width: 1440, height: 900, mobile: false },
+  { name: "slide-21-mobile-cdp", url: "/prednasky/01-uvod-ku-pythonu/#21", width: 390, height: 900, mobile: true },
   { name: "slide-27-lecture-02-desktop-cdp", url: "/prednasky/02-skriptovanie-automatizacia/#27", width: 1440, height: 900, mobile: false },
   { name: "slide-44-lecture-02-desktop-cdp", url: "/prednasky/02-skriptovanie-automatizacia/#44", width: 1440, height: 900, mobile: false },
   { name: "slide-44-lecture-02-mobile-cdp", url: "/prednasky/02-skriptovanie-automatizacia/#44", width: 390, height: 900, mobile: true }
 ];
-const lecturePaths = ["/prednasky/01-moderny-python/", "/prednasky/02-skriptovanie-automatizacia/"];
+const lecturePaths = ["/prednasky/01-uvod-ku-pythonu/", "/prednasky/02-skriptovanie-automatizacia/"];
 
 if (!fs.existsSync(chromePath)) {
   console.error(`Chrome sa nenašiel: ${chromePath}`);

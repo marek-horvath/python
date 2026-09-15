@@ -1,4 +1,4 @@
-# Prednáška 01 - Moderný Python pre programátora
+# Prednáška 01 - Úvod ku Pythonu
 
 ## Cieľ
 

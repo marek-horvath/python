@@ -9,6 +9,8 @@
     "npm": ">=9.6.5"
   },
   "scripts": {
+    "predev": "npm run presentations:render",
+    "prebuild": "npm run presentations:render",
     "dev": "node scripts/run-astro.mjs dev --host 127.0.0.1",
     "dev:stop": "node scripts/run-astro.mjs dev stop",
     "dev:status": "node scripts/run-astro.mjs dev status",
@@ -18,6 +20,8 @@
     "deploy:pages": "node scripts/deploy-gh-pages.mjs",
     "build:web": "node scripts/run-astro.mjs build",
     "export:pptx": "tsx scripts/export-pptx.ts",
+    "presentations:seed": "node scripts/seed-presentation-sources.mjs",
+    "presentations:render": "node scripts/render-presentations.mjs",
     "validate": "tsx scripts/validate.ts",
     "audit:visual": "node scripts/visual-audit.mjs",
     "typecheck": "tsc --noEmit"

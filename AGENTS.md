@@ -25,9 +25,9 @@ Tento súbor je persistentná inštrukcia pre budúcu prácu na predmete **Progr
 - Globálne metadata predmetu sú v `shared/course.config.ts`.
 - Metadata týždňa sú v `weeks/week-XX-*/week.config.ts`.
 - Zoznam týždňov skladá `shared/weeks.ts`.
-- Publikované prednášky registruje `shared/lectures.ts`.
+- Publikované prednášky registruje `shared/presentations.ts`.
 - Publikované cvičenia registruje `shared/exercises.ts`.
-- Obsah webovej prednášky je v `weeks/week-XX-*/lecture.ts`.
+- Editovateľný zdroj každej prednášky je v `presentations/` ako `.sk.pptx` a `.en.pptx`.
 - Základné i18n typy, shared UI preklady a centrálne anglické názvy týždňov sú v `shared/i18n.ts`.
 - Veľké obsahové stránky používajú jeden layout a prepínajú text cez `LocalizedText` alebo `data-i18n-*`, nie cez duplicitu samostatných SK/EN komponentov.
 - Web nesmie ručne duplikovať zoznam týždňov, názvy, slugs ani statusy.
@@ -41,7 +41,6 @@ weeks/week-XX-topic/
   week.config.ts
   outline.md
   resources.md
-  lecture.ts        # iba pri rozpracovanej alebo publikovanej prednáške
   examples/
   assets/
   output/
@@ -62,9 +61,10 @@ Nezasahuj do ostatných týždňov, pokiaľ to nevyžaduje zdieľaná infraštru
 
 ## Prezentácie
 
-- Primárnym zdrojom prezentácie je `lecture.ts`, nie ručne upravený `.pptx`.
-- Slajdy sa renderujú na webe cez Astro komponenty.
-- PPTX export cez `npm run export:pptx -- 1` je sekundárny artefakt.
+- Primárnym zdrojom prezentácie je editovateľný `.pptx` súbor v `presentations/`.
+- Každá prednáška má `XX-slug.sk.pptx` a `XX-slug.en.pptx`; web podľa zvoleného jazyka použije správnu verziu.
+- Build renderuje PPTX cez LibreOffice do PNG a existujúci Astro viewer ich preklikáva cez kliknutie, klávesy, fullscreen a hash v URL.
+- Po manuálnej úprave PPTX spusti `npm run presentations:render` alebo `npm run build`. Po pushi do `main` rovnaký krok vykoná GitHub Actions a aktualizuje `gh-pages`.
 - Slajdy drž minimalistické, typografické a čitateľné.
 - Jeden slide má komunikovať jednu hlavnú vec.
 - Reálne 50-60 min prednášky plánuj približne na 35-45 slajdov.
@@ -103,8 +103,8 @@ Keď príde požiadavka typu "Rozpracuj týždeň 2":
 6. Identifikuj kódové príklady.
 7. Identifikuj diagramy.
 8. Identifikuj otázky a live demo checkpointy.
-9. Až potom vytvor alebo rozšír `lecture.ts`.
-10. Zaregistruj prednášku v `shared/lectures.ts`.
+9. Až potom vytvor alebo rozšír oba PPTX súbory v `presentations/`.
+10. Zaregistruj prednášku v `shared/presentations.ts`.
 11. Spusti `npm run validate`, `npm run typecheck` a `npm run build`.
 12. Otvor web, preklikaj prednášku a oprav vizuálne problémy.
 
@@ -114,7 +114,7 @@ Keď príde požiadavka typu "Rozpracuj týždeň 2":
 - Použi `npm run validate` na kontrolu metadát, slajdov a Python ukážok.
 - Použi `npm run typecheck` na TypeScript kontrolu.
 - Použi `npm run build` na statický web.
-- Použi `npm run export:pptx -- 1` iba ak treba sekundárny PowerPoint.
+- Použi `npm run presentations:render` na prevod PPTX do webového vieweru.
 
 ## Stav týždňa
 

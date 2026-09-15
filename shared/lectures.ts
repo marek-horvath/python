@@ -1,6 +1,6 @@
 import { weeks } from "./weeks";
 import type { Lecture } from "./slide.types";
-import { lecture01 } from "../weeks/week-01-modern-python/lecture";
+import { lecture01 } from "../weeks/week-01-uvod-ku-pythonu/lecture";
 import { lecture02 } from "../weeks/week-02-scripting-automation/lecture";
 import { lecture03 } from "../weeks/week-03-gui-event-driven/lecture";
 import { lecture04 } from "../weeks/week-04-testing-debugging-quality/lecture";

@@ -11,7 +11,6 @@ weeks/week-XX-topic/
   week.config.ts
   outline.md
   resources.md
-  lecture.ts        # iba pri rozpracovanej alebo publikovanej prednáške
   examples/
   assets/
   output/
@@ -45,7 +44,7 @@ Adresár `solutions/` nie je verejný webový obsah.
 
 ## Aktuálne týždne
 
-1. Moderný Python pre programátora
+1. Úvod ku Pythonu
 2. Skriptovanie a automatizácia
 3. GUI a event-driven programovanie
 4. Testovanie, debugging a kvalita kódu
