@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync, writeFileSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const sourceDir = path.join(root, "presentations");
@@ -56,13 +56,16 @@ function renderPresentation(soffice, pdftoppm, fileName) {
   const workDir = path.join(temporaryRoot, slug, language);
   const outputDir = path.join(renderRoot, slug, language);
   const pdfPath = path.join(workDir, fileName.replace(/\.pptx$/, ".pdf"));
+  const libreOfficeProfile = path.join(workDir, "libreoffice-profile");
 
   rmSync(workDir, { recursive: true, force: true });
   rmSync(outputDir, { recursive: true, force: true });
   mkdirSync(workDir, { recursive: true });
   mkdirSync(outputDir, { recursive: true });
+  mkdirSync(libreOfficeProfile, { recursive: true });
 
-  run(soffice, ["--headless", "--convert-to", "pdf", "--outdir", workDir, inputPath], `Konverzia ${fileName} do PDF`);
+  // A separate profile prevents stale Windows LibreOffice locks between conversions.
+  run(soffice, [`-env:UserInstallation=${pathToFileURL(libreOfficeProfile).href}`, "--headless", "--convert-to", "pdf", "--outdir", workDir, inputPath], `Konverzia ${fileName} do PDF`);
 
   if (!existsSync(pdfPath)) {
     throw new Error(`LibreOffice nevytvoril PDF pre ${fileName}.`);
