@@ -310,10 +310,10 @@ const lecture01Revised = {
     { kind: "title", title: text("Úvod ku Pythonu", "Introduction to Python"), subtitle: text("Ako sa Python správa v rukách programátora", "How Python behaves in a programmer's hands") },
     { kind: "statement", title: text("Python je dynamický jazyk. Nie je to jazyk bez typov.", "Python is dynamically typed. It is not untyped."), body: text("Typ patrí objektu; meno iba odkazuje na objekt, ktorý môže neskôr nahradiť iný.", "A type belongs to an object; a name merely refers to an object and can later refer to another one.") },
     { kind: "diagram", title: text("Jeden jazyk, rôzne druhy práce", "One language, different kinds of work"), body: text("Rovnaké základy použijeme pri skriptoch, dátach, API aj desktopových nástrojoch.", "The same foundations are used for scripts, data, APIs and desktop tools."), items: [text("automatizácia", "automation"), text("dáta", "data"), text("web a API", "web and APIs"), text("nástroje", "tools")] },
-    { kind: "diagram", title: text("Meno odkazuje na objekt", "A name refers to an object"), body: text("Priradenie viaže meno na hodnotu. Nevytvára automaticky jej kópiu.", "Assignment binds a name to a value. It does not automatically create a copy."), items: [text("score", "score"), text("92\nint", "92\nint"), text("score", "score"), text("\"excellent\"\nstr", "\"excellent\"\nstr")] },
-    { kind: "code", title: text("Priradenie a aliasing", "Assignment and aliasing"), label: "python", code: "results = [72, 91]\nalias = results\n\nalias.append(45)\n\nprint(results)  # [72, 91, 45]\nprint(alias)    # [72, 91, 45]", note: text("Obe mená ukazujú na ten istý list objekt. Zmena sa nevykonala na mene, ale na objekte.", "Both names refer to the same list object. The change happened to the object, not to a name.") },
-    { kind: "question", title: text("Kde vznikne nový objekt?", "Where is a new object created?"), prompt: text("Porovnajte priradenie, plytkú kópiu a vnorený list.", "Compare assignment, a shallow copy and a nested list."), label: "python", code: "original = {\"scores\": [80, 90]}\ncopy = original.copy()\ncopy[\"scores\"].append(100)\n\nprint(original[\"scores\"])" },
-    { kind: "statement", title: text("Mutabilita určuje, či vieme objekt zmeniť na mieste.", "Mutability determines whether an object can be changed in place."), body: text("list, dict a set sú mutable. str, tuple, int a float sú immutable.", "list, dict and set are mutable. str, tuple, int and float are immutable.") },
+    { kind: "objectModel", title: text("Meno odkazuje na objekt", "A name refers to an object"), body: text("Typ patrí objektu. Opätovné priradenie zmení väzbu mena, nie pôvodný objekt.", "A type belongs to an object. Reassignment changes a name binding, not the original object."), name: text("score", "score"), firstObject: text("92\nint", "92\nint"), secondObject: text("\"excellent\"\nstr", "\"excellent\"\nstr") },
+    { kind: "code", title: text("Priradenie a aliasing", "Assignment and aliasing"), label: "python", code: "results = [72, 91]\nalias = results\n\nalias.append(45)\n\nprint(results)\nprint(alias)", output: text("[72, 91, 45]\n[72, 91, 45]", "[72, 91, 45]\n[72, 91, 45]"), note: text("Obe mená ukazujú na ten istý list objekt. Zmena sa nevykonala na mene, ale na objekte.", "Both names refer to the same list object. The change happened to the object, not to a name.") },
+    { kind: "questionAnswer", title: text("Kde vznikne nový objekt?", "Where is a new object created?"), prompt: text("Porovnajte priradenie, plytkú kópiu a vnorený list.", "Compare assignment, a shallow copy and a nested list."), label: "python", code: "original = {\"scores\": [80, 90]}\ncopy = original.copy()\ncopy[\"scores\"].append(100)\n\nprint(original[\"scores\"])", output: text("[80, 90, 100]", "[80, 90, 100]") },
+    { kind: "mutabilityMap", title: text("Mutabilita mení objekt, nie väzbu mena", "Mutability changes an object, not a name binding"), body: text("Pri immutable hodnote vznikne nová hodnota. Pri mutable kolekcii môžeme zmeniť jej obsah na mieste.", "An immutable value produces a new value. A mutable collection can change its contents in place.") },
     { kind: "compare", title: text("Zdieľať alebo kopírovať?", "Share or copy?"), columns: [
       { title: text("Zdieľaný objekt", "A shared object"), items: [text("b = a", "b = a"), text("zmena cez b je viditeľná cez a", "a change through b is visible through a"), text("vhodné iba pri zámernom zdieľaní", "useful only for intentional sharing")] },
       { title: text("Samostatná hodnota", "An independent value"), items: [text("b = a.copy()", "b = a.copy()"), text("nový vonkajší objekt", "a new outer object"), text("vnorené mutable objekty môžu zostať zdieľané", "nested mutable objects can remain shared")] }
@@ -328,10 +328,9 @@ const lecture01Revised = {
     { kind: "splitCode", title: text("Iterujte cez hodnoty, nie cez indexy", "Iterate over values, not indexes"), items: [text("index má význam iba vtedy, keď ho program naozaj používa", "an index matters only when the program truly uses it"), text(".items() pomenúva kľúč aj hodnotu", ".items() names both key and value"), text("enumerate pridá poradové číslo bez range(len(...))", "enumerate adds an ordinal without range(len(...))")], label: "python", code: "scores = {\"Anna\": 92, \"Peter\": 67}\n\nfor name, score in scores.items():\n    print(name, score)\n\nfor index, name in enumerate(scores, start=1):\n    print(index, name)" },
     { kind: "code", title: text("zip spája súvisiace sekvencie", "zip connects related sequences"), label: "python", code: "names = [\"Anna\", \"Peter\", \"Lucia\"]\npoints = [92, 67, 81]\n\nfor name, score in zip(names, points):\n    print(f\"{name}: {score}\")", note: text("Ak majú hodnoty vlastnú identitu a pribúdajú ďalšie atribúty, zvyčajne je lepší dataclass než viac paralelných listov.", "If values have their own identity and more attributes are added, a dataclass is usually better than multiple parallel lists.") },
     { kind: "codeFull", title: text("Slicing a unpacking vyjadrujú štruktúru", "Slicing and unpacking express structure"), label: "python", code: "values = [10, 20, 30, 40, 50, 60]\n\nfirst_three = values[:3]\nevery_second = values[::2]\nreversed_copy = values[::-1]\n\nfirst, *middle, last = values\nprint(first, middle, last)", note: text("Slicing vytvára novú sekvenciu. Unpacking je vhodný, keď majú časti záznamu jasný význam.", "Slicing creates a new sequence. Unpacking is useful when parts of a record have a clear meaning.") },
-    { kind: "statement", title: text("Comprehension skracuje jednu jasnú transformáciu. Nie celý algoritmus.", "A comprehension shortens one clear transformation. Not an entire algorithm."), body: text("Najprv musí byť čitateľný postup. Až potom zvažujeme kratší zápis.", "The procedure must be readable first. Only then consider a shorter form.") },
-    { kind: "splitCode", title: text("Od cyklu ku comprehension", "From a loop to a comprehension"), items: [text("vstup: všetky výsledky", "input: all results"), text("výber: iba úspešné", "selection: passing only"), text("transformácia: druhá mocnina", "transformation: square")], label: "python", code: "scores = [72, 91, 45, 88]\n\npassed = []\nfor score in scores:\n    if score >= 51:\n        passed.append(score ** 2)\n\n# [score ** 2 for score in scores if score >= 51]" },
+    { kind: "beforeAfter", title: text("Comprehension skracuje jednu jasnú transformáciu", "A comprehension shortens one clear transformation"), leftLabel: text("ČITATEĽNÝ CYKLUS", "READABLE LOOP"), leftCode: "passed = []\nfor score in scores:\n    if score >= 51:\n        passed.append(score ** 2)", rightLabel: text("JASNÝ COMPREHENSION", "CLEAR COMPREHENSION"), rightCode: "passed = [\n    score ** 2\n    for score in scores\n    if score >= 51\n]", note: text("Ak už musíme súčasne sledovať viac vnorených pravidiel, zvoľte pomenované medzivýsledky a cyklus.", "If several nested rules must be followed at once, use named intermediate values and a loop.") },
     { kind: "codeFull", title: text("Kratší zápis nemusí byť lepší", "A shorter form is not always better"), label: "python", code: "# Čitateľ musí naraz sledovať tri vnorené kroky.\nreport = {\n    course: sorted({result.student for result in results\n                    if result.course == course and result.points >= 51})\n    for course in {result.course for result in results}\n}\n\n# Pri zložitejšom pravidle radšej použite pomenované medzivýsledky a cyklus.", note: text("Comprehension nie je meradlo kvality Python kódu. Čitateľnosť má prednosť pred kompaktnosťou.", "A comprehension is not a measure of Python code quality. Readability takes priority over compactness.") },
-    { kind: "diagram", title: text("Funkcia je zmluva", "A function is a contract"), body: text("Dobrý podpis napovie, aké dáta funkcia prijíma, čo vracia a kedy môže zlyhať.", "A good signature shows what data a function accepts, what it returns and when it can fail."), items: [text("parametre", "parameters"), text("spracovanie", "processing"), text("return value", "return value"), text("výnimka pri neplatnom vstupe", "exception for invalid input")] },
+    { kind: "functionContract", title: text("Funkcia je zmluva", "A function is a contract"), body: text("Dobrý podpis napovie, aké dáta funkcia prijíma, čo vracia a kedy môže zlyhať.", "A good signature shows what data a function accepts, what it returns and when it can fail.") },
     { kind: "code", title: text("Type hints dopĺňajú kontrakt", "Type hints complement the contract"), label: "python", code: "def average(values: list[float]) -> float:\n    if not values:\n        raise ValueError(\"values must not be empty\")\n    return sum(values) / len(values)", note: text("Type hints pomáhajú čitateľovi, IDE a statickej kontrole. Samy osebe za behu nevynucujú typy.", "Type hints help the reader, IDE and static checking. They do not enforce types at runtime by themselves.") },
     { kind: "splitCode", title: text("Mutable default argument je zdieľaný stav", "A mutable default argument is shared state"), items: [text("default hodnota vznikne pri definícii funkcie", "a default value is created when the function is defined"), text("list alebo dict sa potom zdieľa medzi volaniami", "a list or dict is then shared between calls"), text("None vytvorí nový objekt až vo vnútri funkcie", "None creates a new object only inside the function")], label: "python", code: "def add_student(\n    name: str, students: list[str] | None = None\n) -> list[str]:\n    if students is None:\n        students = []\n    students.append(name)\n    return students" },
     { kind: "compare", title: text("Záznam bez mena alebo dátový model?", "An anonymous record or a data model?"), columns: [
@@ -339,10 +338,10 @@ const lecture01Revised = {
       { title: text("dataclass", "dataclass"), items: [text("Result(student, course, points)", "Result(student, course, points)"), text("atribúty opisujú dáta", "attributes describe data"), text("lepšie rozhranie vlastného programu", "a better interface for your program")] }
     ] },
     { kind: "code", title: text("dataclass pomenúva doménový objekt", "dataclass names a domain object"), label: "python", code: "from dataclasses import dataclass\n\n@dataclass\nclass Result:\n    student: str\n    course: str\n    points: int\n\n    def passed(self) -> bool:\n        return self.points >= 51", note: text("Dataclass nie je povinný všade. Je užitočný tam, kde spolu hodnoty opisujú jednu vec.", "A dataclass is not mandatory everywhere. It is useful where values describe one thing together.") },
-    { kind: "statement", title: text("Operácia môže zlyhať. Výnimka má pomenovať konkrétny problém.", "An operation can fail. An exception should name the specific problem."), body: text("Zachytávame iba chybu, pri ktorej vieme používateľovi alebo volajúcemu kódu rozumne pomôcť.", "Catch only an error for which we can reasonably help the user or calling code.") },
+    { kind: "failureFlow", title: text("Operácia môže zlyhať", "An operation can fail"), body: text("Zachytávame iba konkrétnu chybu, pri ktorej vieme volajúcemu kódu rozumne pomôcť.", "Catch only a specific error for which we can reasonably help the calling code.") },
     { kind: "splitCode", title: text("Konkrétna výnimka, konkrétna reakcia", "A specific exception, a specific response"), items: [text("int() môže zlyhať na nečíselnom vstupe", "int() can fail on non-numeric input"), text("ValueError je súčasťou kontraktu tejto operácie", "ValueError is part of this operation's contract"), text("except: pass iba ukryje problém", "except: pass only hides a problem")], label: "python", code: "def read_score(raw: str) -> int:\n    try:\n        return int(raw)\n    except ValueError as error:\n        raise ValueError(\n            \"score must be an integer\"\n        ) from error" },
     { kind: "splitCode", title: text("Modul je rozhranie kódu", "A module is a code interface"), items: [text("importujeme iba verejnú funkcionalitu", "import only public functionality"), text("main() oddeľuje spustenie programu od importu", "main() separates program execution from import"), text("funkcie sa potom dajú testovať bez terminálu", "functions can then be tested without a terminal")], label: "python", code: "from report import build_summary\n\ndef main() -> None:\n    summary = build_summary(\"results.csv\")\n    print(summary)\n\nif __name__ == \"__main__\":\n    main()" },
-    { kind: "codeFull", title: text("Projekt potrebuje vlastné prostredie", "A project needs its own environment"), label: "terminal / pyproject.toml", code: "python -m venv .venv\n# Windows\n.venv\\Scripts\\activate\n\npython -m pip install httpx\n\n# pyproject.toml\n[project]\nname = \"course-report\"\ndependencies = [\"httpx>=0.27\"]", note: text("Virtuálne prostredie izoluje dependencies. pyproject.toml popisuje, čo potrebuje projekt na inom počítači.", "A virtual environment isolates dependencies. pyproject.toml describes what the project needs on another computer.") },
+    { kind: "environment", title: text("Projekt potrebuje vlastné prostredie", "A project needs its own environment"), commands: "python -m venv .venv\n# Windows\n.venv\\Scripts\\activate\n\npython -m pip install httpx", projectFile: "[project]\nname = \"course-report\"\ndependencies = [\"httpx>=0.27\"]", note: text("Virtuálne prostredie izoluje dependencies. pyproject.toml popisuje, čo projekt potrebuje spustiť na inom počítači.", "A virtual environment isolates dependencies. pyproject.toml describes what a project needs to run on another computer.") },
     { kind: "codeFull", title: text("Malý program skladá známe časti", "A small program composes familiar parts"), label: "python", code: "def passed_by_course(results: list[Result]) -> dict[str, list[str]]:\n    grouped: dict[str, list[str]] = {}\n    for result in results:\n        if result.passed():\n            grouped.setdefault(result.course, []).append(result.student)\n    return grouped\n\n# kolekcia + funkcia + dataclass + type hints\nprint(passed_by_course(results))", note: text("Pythonic kód nevzniká jedným trikom. Vzniká z presných názvov, vhodných štruktúr a malých overiteľných častí.", "Pythonic code does not come from one trick. It comes from precise names, suitable structures and small verifiable parts.") },
     { kind: "statement", title: text("Dobrý Python kód ukazuje zámer skôr než šikovnosť autora.", "Good Python code shows intent before the author's cleverness."), body: text("Tieto základy sa v ďalších týždňoch objavia pri súboroch, GUI, HTTP, databázach aj testovaní.", "These foundations will reappear in files, GUI, HTTP, databases and testing in the following weeks.") }
   ]
@@ -826,13 +825,25 @@ function addBullets(slide, items, language, x = 0.95, y = 2.18, w = 11.25, fontS
   slide.addText(runs, { x, y, w, h: 4.25, fontFace: fonts.body, fontSize, color: colors.ink, breakLine: false, paraSpaceAfterPt: 12, margin: 0.04, valign: "top", fit: "shrink" });
 }
 
-function addCode(slide, label, code, note) {
+function addCode(slide, label, code, note, output) {
   slide.addShape("rect", { x: 0.72, y: 2.0, w: 7.55, h: 4.45, fill: { color: colors.code }, line: { color: "243242", pt: 0.6 } });
   slide.addShape("rect", { x: 0.72, y: 2.0, w: 7.55, h: 0.38, fill: { color: "223044" }, line: { color: "223044", pt: 0 } });
   addText(slide, label, 0.95, 2.13, 6.9, 0.16, { fontFace: fonts.mono, fontSize: 8.2, color: "8FD3FF", bold: true, charSpacing: 0.35 });
   addText(slide, code, 0.96, 2.58, 6.98, 3.55, { fontFace: fonts.mono, fontSize: codeFontSize(code, 16.0), color: colors.codeText, valign: "top", breakLine: false, margin: 0, fit: "shrink" });
   slide.addShape("line", { x: 8.68, y: 2.06, w: 0, h: 3.98, line: { color: colors.blue, pt: 1.1 } });
-  addText(slide, note, 9.0, 2.28, 3.08, 2.75, { fontSize: 17.2, color: colors.muted, valign: "top", fit: "shrink" });
+  if (output) {
+    addText(slide, "OUTPUT", 9.0, 2.28, 2.8, 0.18, { fontFace: fonts.mono, fontSize: 8.1, color: colors.blue, bold: true, charSpacing: 0.35 });
+    addText(slide, output, 9.0, 2.62, 3.08, 0.62, { fontFace: fonts.mono, fontSize: 15.2, color: colors.ink, valign: "top" });
+  }
+  addText(slide, note, 9.0, output ? 3.56 : 2.28, 3.08, output ? 1.72 : 2.75, { fontSize: 17.2, color: colors.muted, valign: "top", fit: "shrink" });
+}
+
+function addCodePanel(slide, x, y, w, h, label, code, fontSize = 16) {
+  const compact = h < 1.4;
+  slide.addShape("rect", { x, y, w, h, fill: { color: colors.code }, line: { color: "243242", pt: 0.6 } });
+  slide.addShape("rect", { x, y, w, h: 0.38, fill: { color: "223044" }, line: { color: "223044", pt: 0 } });
+  addText(slide, label, x + 0.24, y + 0.13, w - 0.48, 0.17, { fontFace: fonts.mono, fontSize: 8.1, color: "8FD3FF", bold: true, charSpacing: 0.3 });
+  addText(slide, code, x + 0.24, y + (compact ? 0.43 : 0.72), w - 0.52, h - (compact ? 0.48 : 1.02), { fontFace: fonts.mono, fontSize, color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
 }
 
 function renderSlide(pptx, item, index, language) {
@@ -872,13 +883,98 @@ function renderSlide(pptx, item, index, language) {
   }
 
   addHeading(slide, title);
+  if (item.kind === "objectModel") {
+    addText(slide, value(item.body, language), 0.76, 1.86, 10.7, 0.46, { fontSize: 18.5, color: colors.muted, valign: "top" });
+    const bindings = [
+      { x: 0.82, label: language === "sk" ? "PÔVODNÁ VÄZBA" : "ORIGINAL BINDING", object: value(item.firstObject, language) },
+      { x: 7.52, label: language === "sk" ? "OPÄTOVNÉ PRIRADENIE" : "REASSIGNMENT", object: value(item.secondObject, language) }
+    ];
+    bindings.forEach((binding) => {
+      addText(slide, binding.label, binding.x, 2.72, 2.9, 0.2, { fontSize: 9.2, color: colors.blue, bold: true, fontFace: fonts.mono });
+      slide.addShape("rect", { x: binding.x, y: 3.1, w: 2.15, h: 0.94, fill: { color: colors.panel }, line: { color: colors.line, pt: 0.75 } });
+      addText(slide, value(item.name, language), binding.x + 0.12, 3.4, 1.9, 0.28, { fontSize: 20, color: colors.navy, bold: true, align: "center" });
+      slide.addShape("chevron", { x: binding.x + 2.42, y: 3.4, w: 0.38, h: 0.3, fill: { color: colors.blue }, line: { color: colors.blue } });
+      slide.addShape("rect", { x: binding.x + 3.05, y: 3.02, w: 2.0, h: 1.12, fill: { color: "EAF3F7" }, line: { color: "9DCCDD", pt: 0.75 } });
+      addText(slide, binding.object, binding.x + 3.17, 3.28, 1.76, 0.58, { fontFace: fonts.mono, fontSize: 16.5, color: colors.navy, bold: true, align: "center", valign: "mid" });
+    });
+    addText(slide, language === "sk" ? "Objekt 92 ďalej existuje; zmenila sa iba väzba mena score." : "The object 92 still exists; only the score name binding changed.", 0.84, 5.08, 10.9, 0.4, { fontSize: 18.5, color: colors.muted });
+    return;
+  }
+  if (item.kind === "questionAnswer") {
+    addText(slide, value(item.prompt, language), 0.76, 1.86, 10.5, 0.45, { fontSize: 19.5, color: colors.muted, valign: "top" });
+    addCodePanel(slide, 0.72, 2.58, 6.48, 3.65, item.label, item.code, 15.8);
+    addText(slide, language === "sk" ? "VÝSLEDOK" : "RESULT", 7.85, 2.66, 3.5, 0.18, { fontFace: fonts.mono, fontSize: 8.4, color: colors.blue, bold: true });
+    addText(slide, value(item.output, language), 7.85, 3.05, 3.65, 0.34, { fontFace: fonts.mono, fontSize: 20, color: colors.navy, bold: true });
+    addBullets(slide, [text("assignment: nový objekt nevznikne", "assignment: no new object is created"), text("shallow copy: nový je iba vonkajší objekt", "shallow copy: only the outer object is new"), text("deep copy: nezávislé sú aj vnorené mutable objekty", "deep copy: nested mutable objects are independent too")], language, 7.82, 3.72, 4.35, 14.7);
+    return;
+  }
+  if (item.kind === "mutabilityMap") {
+    addText(slide, value(item.body, language), 0.76, 1.86, 10.75, 0.5, { fontSize: 18.5, color: colors.muted, valign: "top" });
+    const columns = [
+      { x: 0.82, title: "MUTABLE", code: "scores.append(100)", result: "[80, 90, 100]", note: language === "sk" ? "list, dict, set\nmeníme obsah objektu" : "list, dict, set\nchange object contents" },
+      { x: 6.98, title: "IMMUTABLE", code: "grade = grade + \"+\"", result: '"A+"', note: language === "sk" ? "str, tuple, int, float\nvznikne nový objekt" : "str, tuple, int, float\na new object is created" }
+    ];
+    columns.forEach((column, position) => {
+      slide.addShape("line", { x: column.x, y: 2.72, w: 5.25, h: 0, line: { color: position === 0 ? colors.teal : colors.accent, pt: 1.5 } });
+      addText(slide, column.title, column.x, 2.97, 5.15, 0.24, { fontFace: fonts.mono, fontSize: 10.5, color: colors.navy, bold: true });
+      addCodePanel(slide, column.x, 3.46, 5.15, 0.88, "python", column.code, 16.8);
+      addText(slide, column.result, column.x + 0.04, 4.76, 5.05, 0.3, { fontFace: fonts.mono, fontSize: 19, color: colors.navy, bold: true, align: "center" });
+      addText(slide, column.note, column.x + 0.05, 5.36, 5.0, 0.55, { fontSize: 16.5, color: colors.muted, align: "center", valign: "mid" });
+    });
+    return;
+  }
+  if (item.kind === "beforeAfter") {
+    addCodePanel(slide, 0.72, 2.0, 5.68, 3.56, value(item.leftLabel, language), item.leftCode, 16.2);
+    addCodePanel(slide, 6.93, 2.0, 5.68, 3.56, value(item.rightLabel, language), item.rightCode, 16.2);
+    addText(slide, value(item.note, language), 0.82, 6.0, 11.3, 0.45, { fontSize: 18, color: colors.muted, valign: "top" });
+    return;
+  }
+  if (item.kind === "functionContract") {
+    addText(slide, value(item.body, language), 0.76, 1.86, 10.7, 0.46, { fontSize: 18.5, color: colors.muted, valign: "top" });
+    const nodes = [
+      { x: 0.8, y: 3.3, w: 2.1, label: language === "sk" ? "input\nparametre" : "input\nparameters" },
+      { x: 3.55, y: 3.3, w: 2.1, label: language === "sk" ? "validácia" : "validation" },
+      { x: 6.3, y: 3.3, w: 2.1, label: language === "sk" ? "spracovanie" : "processing" },
+      { x: 9.15, y: 2.62, w: 2.65, label: "return value" },
+      { x: 9.15, y: 4.24, w: 2.65, label: language === "sk" ? "konkrétna výnimka" : "specific exception" }
+    ];
+    nodes.forEach((node, position) => {
+      if (position > 0 && position < 3) slide.addShape("chevron", { x: node.x - 0.35, y: 3.58, w: 0.2, h: 0.28, fill: { color: colors.blue }, line: { color: colors.blue } });
+      slide.addShape("rect", { x: node.x, y: node.y, w: node.w, h: 0.86, fill: { color: position > 2 ? "EAF3F7" : colors.panel }, line: { color: position > 2 ? "9DCCDD" : colors.line, pt: 0.75 } });
+      addText(slide, node.label, node.x + 0.12, node.y + 0.18, node.w - 0.24, 0.42, { fontSize: 15.5, color: colors.navy, bold: true, align: "center", valign: "mid" });
+    });
+    slide.addShape("chevron", { x: 8.68, y: 2.92, w: 0.22, h: 0.25, fill: { color: colors.blue }, line: { color: colors.blue } });
+    slide.addShape("chevron", { x: 8.68, y: 4.54, w: 0.22, h: 0.25, fill: { color: colors.blue }, line: { color: colors.blue } });
+    return;
+  }
+  if (item.kind === "failureFlow") {
+    addText(slide, value(item.body, language), 0.76, 1.86, 10.7, 0.46, { fontSize: 18.5, color: colors.muted, valign: "top" });
+    const nodes = [
+      { x: 0.85, label: language === "sk" ? "operácia\nint(raw)" : "operation\nint(raw)", color: colors.panel },
+      { x: 4.55, label: "ValueError", color: "EAF3F7" },
+      { x: 8.25, label: language === "sk" ? "volajúci dostane\nzmysluplnú chybu" : "the caller receives\na meaningful error", color: colors.panel }
+    ];
+    nodes.forEach((node, position) => {
+      if (position > 0) slide.addShape("chevron", { x: node.x - 0.48, y: 3.56, w: 0.25, h: 0.32, fill: { color: colors.blue }, line: { color: colors.blue } });
+      slide.addShape("rect", { x: node.x, y: 3.15, w: 2.85, h: 1.18, fill: { color: node.color }, line: { color: colors.line, pt: 0.75 } });
+      addText(slide, node.label, node.x + 0.18, 3.47, 2.48, 0.55, { fontFace: position === 1 ? fonts.mono : fonts.body, fontSize: 17, color: colors.navy, bold: true, align: "center", valign: "mid" });
+    });
+    addText(slide, language === "sk" ? "Nie: broad except ani except: pass. Chyba sa nemá potichu stratiť." : "Not broad except or except: pass. An error should not disappear silently.", 0.86, 5.28, 10.85, 0.38, { fontSize: 18, color: colors.muted });
+    return;
+  }
+  if (item.kind === "environment") {
+    addCodePanel(slide, 0.72, 2.0, 5.68, 3.44, language === "sk" ? "PRÍKAZY" : "COMMANDS", item.commands, 16.6);
+    addCodePanel(slide, 6.93, 2.0, 5.68, 3.44, "pyproject.toml", item.projectFile, 16.6);
+    addText(slide, value(item.note, language), 0.82, 5.95, 11.1, 0.44, { fontSize: 18.2, color: colors.muted, valign: "top" });
+    return;
+  }
   if (item.kind === "agenda" || item.kind === "theory" || item.kind === "recap" || item.kind === "demo") {
     if (item.body) addText(slide, value(item.body, language), 0.75, 1.88, 10.9, 0.52, { fontSize: 18, color: colors.muted, valign: "top" });
     addBullets(slide, item.items, language, 0.95, item.body ? 2.72 : 2.12, 10.85, item.kind === "recap" ? 19 : 18);
     return;
   }
   if (item.kind === "code") {
-    addCode(slide, item.label, item.code, value(item.note, language));
+    addCode(slide, item.label, item.code, value(item.note, language), item.output ? value(item.output, language) : undefined);
     return;
   }
   if (item.kind === "codeFull") {
@@ -933,7 +1029,7 @@ function renderSlide(pptx, item, index, language) {
   }
   if (item.kind === "table") {
     const rows = [[...item.headers.map((header) => value(header, language))], ...item.rows.map((row) => row.map((cell) => value(cell, language)))];
-    slide.addTable(rows, { x: 0.72, y: 2.0, w: 11.92, h: 3.9, border: { type: "solid", color: colors.line, pt: 0.45 }, fill: colors.paper, fontFace: fonts.body, fontSize: 15.0, color: colors.ink, bold: false, margin: 0.1, rowH: 0.62, autoFit: false, colW: [2.0, 5.3, 4.62],
+    slide.addTable(rows.slice(1), { x: 0.72, y: 2.58, w: 11.92, h: 3.3, border: { type: "solid", color: colors.line, pt: 0.45 }, fill: colors.paper, fontFace: fonts.body, fontSize: 16.2, color: colors.ink, bold: false, margin: 0.1, rowH: 0.74, autoFit: false, colW: [2.0, 5.3, 4.62],
       autoPage: false,
       valign: "mid"
     });

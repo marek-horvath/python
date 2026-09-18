@@ -57,25 +57,6 @@ export const uiTranslations = {
   "ui.continueProject": { sk: "Pokračovať na stránku Projekt", en: "Continue to Project" },
   "ui.continueCheatsheet": { sk: "Pokračovať na Cheatsheet", en: "Continue to Cheatsheet" },
   "ui.unavailable": { sk: "zatiaľ nedostupné", en: "not available yet" },
-  "ui.teacherPreview": { sk: "náhľad vyučujúceho", en: "teacher preview" },
-
-  "preview.indicator": { sk: "Náhľad vyučujúceho", en: "Teacher preview" },
-  "preview.exit": { sk: "Ukončiť", en: "Exit" },
-  "admin.title": { sk: "Náhľad vyučujúceho", en: "Teacher Preview" },
-  "admin.description": {
-    sk: "Toto je iba lokálny preview režim pre kontrolu existujúcich materiálov pred zverejnením.",
-    en: "This is only a local preview mode for checking existing materials before publication."
-  },
-  "admin.password": { sk: "Heslo", en: "Password" },
-  "admin.unlock": { sk: "Odomknúť všetky materiály", en: "Unlock all materials" },
-  "admin.active": {
-    sk: "Náhľad je aktívny pre túto browser session.",
-    en: "Preview is active for this browser session."
-  },
-  "admin.exitPreview": { sk: "Ukončiť náhľad", en: "Exit preview" },
-  "admin.activeShort": { sk: "Náhľad je aktívny.", en: "Preview is active." },
-  "admin.invalidPassword": { sk: "Nesprávne heslo.", en: "Incorrect password." },
-  "admin.closed": { sk: "Náhľad bol ukončený.", en: "Preview has been closed." },
 
   "notFound.title": { sk: "Stránka sa nenašla.", en: "Page not found." },
   "notFound.description": {

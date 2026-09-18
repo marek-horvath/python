@@ -25,13 +25,11 @@ const items = getPresentationSummary();
                 href={`/prednasky/${presentation.slug}/`}
                 aria-disabled={released ? undefined : "true"}
                 tabindex={released ? undefined : "-1"}
-                data-preview-link={released ? undefined : ""}
               >
                 <span class="number">{String(week.number).padStart(2, "0")}</span>
                 <span>
                   <strong><LocalizedText sk={week.title} en={titleEn} /></strong>
-                  {!released && <small class="availability" data-preview-hidden data-i18n-key="ui.unavailable">zatiaľ nedostupné</small>}
-                  {!released && <small class="availability" data-preview-visible data-i18n-key="ui.teacherPreview" hidden>náhľad vyučujúceho</small>}
+                  {!released && <small class="availability" data-i18n-key="ui.unavailable">zatiaľ nedostupné</small>}
                 </span>
               </a>
             );

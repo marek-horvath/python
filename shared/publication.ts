@@ -2,8 +2,6 @@ import { courseConfig } from "./course.config";
 import { formatLocalizedDate, type Language } from "./i18n";
 import type { CourseWeek } from "./weeks";
 
-export const previewStorageKey = "pythonCoursePreviewMode";
-
 export function isWeekReleased(weekNumber: number) {
   return courseConfig.unlockAll || weekNumber <= courseConfig.currentWeek;
 }

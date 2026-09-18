@@ -7,7 +7,6 @@ import type { Presentation } from "@shared/presentations";
 import I18nController from "../../components/I18nController.astro";
 import LanguageBoot from "../../components/LanguageBoot.astro";
 import LectureViewer from "../../components/LectureViewer.astro";
-import PreviewIndicator from "../../components/PreviewIndicator.astro";
 import SiteHeader from "../../components/SiteHeader.astro";
 import { getPresentationRender } from "../../lib/presentation-manifest";
 import "../../styles/global.css";
@@ -72,28 +71,22 @@ const next = nextPresentation
       released ? (
         <LectureViewer presentation={presentation} render={render} previous={previous} next={next} />
       ) : (
-        <>
-          <div class="site-shell" data-preview-locked>
-            <SiteHeader />
-            <main class="page text-page locked-material">
-              <h1 data-i18n-key="lecture.lockedTitle">Materiál zatiaľ nie je zverejnený.</h1>
-              <p><a href={internalUrl("/prednasky/")} data-i18n-key="ui.backLectures">← Späť na prednášky</a></p>
-            </main>
-            <footer class="site-footer">
-              <p>
-                <strong data-i18n-key="course.title">{localizedCourse.title.sk}</strong><br />
-                {courseConfig.lecturer.name} · <a href={`mailto:${courseConfig.lecturer.email}`}>{courseConfig.lecturer.email}</a><br />
-                <span data-i18n-key="course.university">{localizedCourse.university.sk}</span>
-              </p>
-            </footer>
-          </div>
-          <div data-preview-material hidden>
-            <LectureViewer presentation={presentation} render={render} previous={previous} next={next} />
-          </div>
-        </>
+        <div class="site-shell">
+          <SiteHeader />
+          <main class="page text-page locked-material">
+            <h1 data-i18n-key="lecture.lockedTitle">Materiál zatiaľ nie je zverejnený.</h1>
+            <p><a href={internalUrl("/prednasky/")} data-i18n-key="ui.backLectures">← Späť na prednášky</a></p>
+          </main>
+          <footer class="site-footer">
+            <p>
+              <strong data-i18n-key="course.title">{localizedCourse.title.sk}</strong><br />
+              {courseConfig.lecturer.name} · <a href={`mailto:${courseConfig.lecturer.email}`}>{courseConfig.lecturer.email}</a><br />
+              <span data-i18n-key="course.university">{localizedCourse.university.sk}</span>
+            </p>
+          </footer>
+        </div>
       )
     }
-    <PreviewIndicator />
     <I18nController />
   </body>
 </html>
