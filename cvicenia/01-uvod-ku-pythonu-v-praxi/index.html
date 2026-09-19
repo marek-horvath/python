@@ -1,0 +1,350 @@
+<!DOCTYPE html><html lang="sk" data-title-sk="Cvičenie 01: Úvod ku Pythonu v praxi | Programovanie v Pythone" data-title-en="Exercise 01: Introduction to Python in Practice | Programming in Python" data-description-sk="Lab k dátovým štruktúram, transformácii dát, funkciám, type hints a dataclass." data-description-en="A lab on data structures, data transformation, functions, type hints and dataclass."><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Lab k dátovým štruktúram, transformácii dát, funkciám, type hints a dataclass."><title>Cvičenie 01: Úvod ku Pythonu v praxi | Programovanie v Pythone</title><script>
+(() => {
+  const storageKey = "python-course.language";
+  const defaultLanguage = "sk";
+  let language = defaultLanguage;
+
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (stored === "sk" || stored === "en") language = stored;
+  } catch {
+    language = defaultLanguage;
+  }
+
+  document.documentElement.lang = language;
+  document.documentElement.dataset.language = language;
+})();
+</script><link rel="stylesheet" href="/python/_astro/global.YCJcWgXo.css"></head><body><div class="site-shell"><header class="site-header"><div class="site-header__inner"><a class="brand" href="/"><span data-i18n-key="course.title">Programovanie v Pythone</span></a><div class="site-header__tools"><nav class="top-nav" aria-label="Hlavná navigácia" data-i18n-aria-label="nav.aria"><a href="/" data-i18n-key="nav.home">Úvod</a><a href="/prednasky/" data-i18n-key="nav.lectures">Prednášky</a><a href="/cvicenia/" data-i18n-key="nav.exercises">Cvičenia</a><a href="/projekt/" data-i18n-key="nav.project">Projekt</a><a href="/navody/" data-i18n-key="nav.guides">Návody</a><a href="/cheatsheet/" data-i18n-key="nav.cheatsheet">Cheatsheet</a></nav><div class="language-switcher" role="group" aria-label="Jazyk" data-i18n-aria-label="language.label"><button type="button" class="language-switcher__option" data-language-option="sk" data-active aria-pressed="true" title="Slovenčina" data-i18n-title="language.sk">SK</button><button type="button" class="language-switcher__option" data-language-option="en" aria-pressed="false" title="Angličtina" data-i18n-title="language.en">EN</button></div></div></div></header><main class="page worksheet-page"><a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a><h1><span data-lang="sk">Cvičenie 01</span><span data-lang="en" hidden>Exercise 01</span></h1><p class="course-meta"><span data-lang="sk">Úvod ku Pythonu v praxi</span><span data-lang="en" hidden>Introduction to Python in Practice</span></p><section class="worksheet-section"><h2><span data-lang="sk">Príprava</span><span data-lang="en" hidden>Setup</span></h2><div data-lang="sk"><pre class="expected-output"><code>Python 3.x
+Odporúčané: virtuálne prostredie
+Externé knižnice: nie
+Odovzdávané súbory: vlastné .py súbory podľa úloh</code></pre></div><div data-lang="en" hidden><pre class="expected-output"><code>Python 3.x
+Recommended: virtual environment
+External libraries: no
+Submitted files: your own .py files for the tasks</code></pre></div></section><section class="worksheet-section"><h2><span data-lang="sk">Ciele</span><span data-lang="en" hidden>Goals</span></h2><ul data-lang="sk"><li>pracovať s Python collections nad reálnejšími dátami;</li><li>rozlišovať referencie, shallow copy a nezávislé kópie;</li><li>navrhovať menšie funkcie s type hints;</li><li>použiť <code>dataclass</code> na jednoduchý doménový model;</li><li>písať čitateľný Python namiesto mechanického prepisu z iných jazykov.</li></ul><ul data-lang="en" hidden><li>work with Python collections on more realistic data;</li><li>distinguish references, shallow copy and independent copies;</li><li>design smaller functions with type hints;</li><li>use <code>dataclass</code> for a simple domain model;</li><li>write readable Python instead of a mechanical rewrite from other languages.</li></ul></section><section class="worksheet-section"><h2><span data-lang="sk">Úlohy</span><span data-lang="en" hidden>Tasks</span></h2></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 1 — Referencie a kópie</span><span data-lang="en" hidden>Task 1 — References and Copies</span></h2><div data-lang="sk"><p>Bez spustenia programu najprv zapíšte, čo bude po vykonaní kódu obsahovať <code>courses</code> a <code>backup</code>.</p><pre class="worksheet-code"><code>courses = {
+    &quot;Python&quot;: [&quot;Anna&quot;, &quot;Peter&quot;],
+    &quot;Databázy&quot;: [&quot;Lucia&quot;],
+}
+
+backup = courses
+
+backup[&quot;Python&quot;].append(&quot;Martin&quot;)
+backup[&quot;Web&quot;] = [&quot;Eva&quot;]
+
+print(courses)
+print(backup)
+print(courses is backup)</code></pre><p>Potom program spustite a vysvetlite, prečo sa zmenil aj pôvodný slovník.</p><p>Doplňte krátke experimenty, ktoré ukážu rozdiel medzi:</p><ul><li>priradením mena k rovnakému objektu;</li><li>shallow copy slovníka;</li><li>skutočne nezávislou kópiou vnorených zoznamov.</li></ul><p>V poslednom kroku vytvorte kópiu, pri ktorej pridanie nového študenta do <code>backup["Python"]</code> nezmení <code>courses</code>.</p><pre class="expected-output"><code>courses is backup: False
+courses[&quot;Python&quot;]: [&quot;Anna&quot;, &quot;Peter&quot;]
+backup[&quot;Python&quot;]: [&quot;Anna&quot;, &quot;Peter&quot;, &quot;Martin&quot;]</code></pre><p class="hint"><strong>Pomôcka:</strong> Plytká kópia slovníka nestačí, ak hodnoty v slovníku sú mutabilné objekty.</p></div><div data-lang="en" hidden><p>Before running the program, write down what <code>courses</code> and <code>backup</code> will contain after the code executes.</p><pre class="worksheet-code"><code>courses = {
+    &quot;Python&quot;: [&quot;Anna&quot;, &quot;Peter&quot;],
+    &quot;Databases&quot;: [&quot;Lucia&quot;],
+}
+
+backup = courses
+
+backup[&quot;Python&quot;].append(&quot;Martin&quot;)
+backup[&quot;Web&quot;] = [&quot;Eva&quot;]
+
+print(courses)
+print(backup)
+print(courses is backup)</code></pre><p>Then run the program and explain why the original dictionary changed too.</p><p>Add short experiments that show the difference between:</p><ul><li>assigning a name to the same object;</li><li>a shallow copy of a dictionary;</li><li>a truly independent copy of nested lists.</li></ul><p>In the final step, create a copy where adding a new student to <code>backup["Python"]</code> does not change <code>courses</code>.</p><pre class="expected-output"><code>courses is backup: False
+courses[&quot;Python&quot;]: [&quot;Anna&quot;, &quot;Peter&quot;]
+backup[&quot;Python&quot;]: [&quot;Anna&quot;, &quot;Peter&quot;, &quot;Martin&quot;]</code></pre><p class="hint"><strong>Hint:</strong> A shallow dictionary copy is not enough when dictionary values are mutable objects.</p></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 2 — Inventár</span><span data-lang="en" hidden>Task 2 — Inventory</span></h2><div data-lang="sk"><p>Pracujte s dátami malého skladu. Nepoužívajte externé knižnice.</p><pre class="worksheet-code"><code>items = [
+    (&quot;keyboard&quot;, &quot;electronics&quot;, 79.90, 4),
+    (&quot;mouse&quot;, &quot;electronics&quot;, 29.90, 0),
+    (&quot;notebook&quot;, &quot;office&quot;, 4.50, 12),
+    (&quot;monitor&quot;, &quot;electronics&quot;, 219.00, 2),
+    (&quot;pen&quot;, &quot;office&quot;, 1.20, 35),
+    (&quot;chair&quot;, &quot;furniture&quot;, 149.00, 1),
+    (&quot;desk&quot;, &quot;furniture&quot;, 249.00, 0),
+]</code></pre><p>Vytvorte kód, ktorý:</p><ul><li>získa všetky unikátne kategórie;</li><li>vytvorí zoznam vypredaných produktov;</li><li>vypočíta celkovú hodnotu skladu ako <code>price * quantity</code>;</li><li>nájde najdrahší dostupný produkt;</li><li>vytvorí dictionary <code>category -> list produktov</code>;</li><li>zoradí kategórie podľa celkovej hodnoty skladu zostupne.</li></ul><p>Pri návrhu riešenia použite vhodne <code>set</code>, <code>dict</code>, iteráciu a sorting. Nemusíte všetko natlačiť do jednej comprehension.</p><pre class="expected-output"><code>Kategórie: electronics, furniture, office
+Vypredané: mouse, desk
+Hodnota skladu: 1015.10
+Najdrahší dostupný produkt: monitor
+
+Hodnota podľa kategórie:
+electronics: 757.60
+furniture: 149.00
+office: 96.00</code></pre></div><div data-lang="en" hidden><p>Work with data from a small warehouse. Do not use external libraries.</p><pre class="worksheet-code"><code>items = [
+    (&quot;keyboard&quot;, &quot;electronics&quot;, 79.90, 4),
+    (&quot;mouse&quot;, &quot;electronics&quot;, 29.90, 0),
+    (&quot;notebook&quot;, &quot;office&quot;, 4.50, 12),
+    (&quot;monitor&quot;, &quot;electronics&quot;, 219.00, 2),
+    (&quot;pen&quot;, &quot;office&quot;, 1.20, 35),
+    (&quot;chair&quot;, &quot;furniture&quot;, 149.00, 1),
+    (&quot;desk&quot;, &quot;furniture&quot;, 249.00, 0),
+]</code></pre><p>Create code that:</p><ul><li>gets all unique categories;</li><li>creates a list of sold-out products;</li><li>computes total inventory value as <code>price * quantity</code>;</li><li>finds the most expensive available product;</li><li>creates a dictionary <code>category -> list of products</code>;</li><li>sorts categories by total inventory value in descending order.</li></ul><p>Use <code>set</code>, <code>dict</code>, iteration and sorting where they fit. You do not need to force everything into one comprehension.</p><pre class="expected-output"><code>Categories: electronics, furniture, office
+Sold out: mouse, desk
+Inventory value: 1015.10
+Most expensive available product: monitor
+
+Value by category:
+electronics: 757.60
+furniture: 149.00
+office: 96.00</code></pre></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 3 — Log analyzer bez regexu</span><span data-lang="en" hidden>Task 3 — Log Analyzer Without Regex</span></h2><div data-lang="sk"><p>Analyzujte logy pomocou string operácií a kolekcií. V tejto úlohe nepoužívajte regex.</p><pre class="worksheet-code"><code>logs = [
+    &quot;2026-09-21 10:14 INFO user=anna action=login&quot;,
+    &quot;2026-09-21 10:16 ERROR user=peter action=upload&quot;,
+    &quot;2026-09-21 10:18 INFO user=anna action=download&quot;,
+    &quot;2026-09-21 10:21 WARNING user=lucia action=login&quot;,
+    &quot;2026-09-21 10:25 ERROR user=anna action=delete&quot;,
+    &quot;2026-09-22 09:03 INFO user=martin action=login&quot;,
+    &quot;2026-09-22 09:17 ERROR user=lucia action=upload&quot;,
+    &quot;2026-09-22 09:20 INFO user=anna action=logout&quot;,
+    &quot;2026-09-22 09:22 WARNING user=peter action=download&quot;,
+]</code></pre><p>Vypočítajte:</p><ul><li>počet záznamov pre každý level <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code>;</li><li>množinu všetkých používateľov;</li><li>počet udalostí pre každého používateľa;</li><li>najaktívnejšieho používateľa;</li><li>nový zoznam iba s <code>ERROR</code> záznamami;</li><li>používateľov zoradených podľa počtu udalostí zostupne.</li></ul><pre class="expected-output"><code>INFO: 4
+WARNING: 2
+ERROR: 3
+Používatelia: anna, lucia, martin, peter
+Najaktívnejší používateľ: anna
+ERROR záznamov: 3</code></pre><p class="hint"><strong>Pomôcka:</strong> Riadok má stabilný tvar. Rozdeľte ho cez <code>split()</code> a časti typu <code>user=anna</code> spracujte zvlášť.</p></div><div data-lang="en" hidden><p>Analyze logs using string operations and collections. Do not use regex in this task.</p><pre class="worksheet-code"><code>logs = [
+    &quot;2026-09-21 10:14 INFO user=anna action=login&quot;,
+    &quot;2026-09-21 10:16 ERROR user=peter action=upload&quot;,
+    &quot;2026-09-21 10:18 INFO user=anna action=download&quot;,
+    &quot;2026-09-21 10:21 WARNING user=lucia action=login&quot;,
+    &quot;2026-09-21 10:25 ERROR user=anna action=delete&quot;,
+    &quot;2026-09-22 09:03 INFO user=martin action=login&quot;,
+    &quot;2026-09-22 09:17 ERROR user=lucia action=upload&quot;,
+    &quot;2026-09-22 09:20 INFO user=anna action=logout&quot;,
+    &quot;2026-09-22 09:22 WARNING user=peter action=download&quot;,
+]</code></pre><p>Compute:</p><ul><li>the number of records for each level <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code>;</li><li>the set of all users;</li><li>the number of events per user;</li><li>the most active user;</li><li>a new list containing only <code>ERROR</code> records;</li><li>users sorted by event count in descending order.</li></ul><pre class="expected-output"><code>INFO: 4
+WARNING: 2
+ERROR: 3
+Users: anna, lucia, martin, peter
+Most active user: anna
+ERROR records: 3</code></pre><p class="hint"><strong>Hint:</strong> The line has a stable shape. Split it with <code>split()</code> and process parts such as <code>user=anna</code> separately.</p></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 4 — Pythonic refactoring</span><span data-lang="en" hidden>Task 4 — Pythonic Refactoring</span></h2><div data-lang="sk"><p>Nasledujúci kód funguje, ale je zbytočne ťažkopádny. Prepíšte ho do prirodzenejšieho Pythonu bez zmeny správania.</p></div><div data-lang="en" hidden><p>The following code works, but it is unnecessarily clumsy. Rewrite it into more natural Python without changing behavior.</p></div><pre class="worksheet-code"><code>names = [&quot;Anna&quot;, &quot;Peter&quot;, &quot;Lucia&quot;, &quot;Martin&quot;]
+points = [92, 67, 81, 45]
+active = [True, True, False, True]
+allowed_names = [&quot;Anna&quot;, &quot;Lucia&quot;, &quot;Eva&quot;]
+
+rows = []
+i = 0
+while i &lt; len(names):
+    found = False
+    for allowed in allowed_names:
+        if allowed == names[i]:
+            found = True
+
+    if active[i] == True:
+        status = &quot;active&quot;
+    else:
+        status = &quot;inactive&quot;
+
+    row = {
+        &quot;index&quot;: i,
+        &quot;name&quot;: names[i],
+        &quot;points&quot;: points[i],
+        &quot;allowed&quot;: found,
+        &quot;status&quot;: status,
+    }
+    rows.append(row)
+    i = i + 1
+
+passed = []
+for row in rows:
+    if row[&quot;points&quot;] &gt;= 51:
+        passed.append(row)
+
+passed = sorted(passed, key=lambda row: row[&quot;points&quot;])
+passed.reverse()</code></pre><div data-lang="sk"><p>Požiadavky:</p><ul><li>použite <code>enumerate</code> alebo <code>zip</code> tam, kde to zlepší čitateľnosť;</li><li>membership netestujte ručným cyklom;</li><li>nepoužívajte <code>if x == True</code>;</li><li>zvážte <code>set</code> pre povolené mená;</li><li>sorting vyriešte priamo cez vhodné argumenty funkcie <code>sorted</code>.</li></ul><p>Na konci krátko zapíšte aspoň tri konkrétne zlepšenia, ktoré ste urobili.</p></div><div data-lang="en" hidden><p>Requirements:</p><ul><li>use <code>enumerate</code> or <code>zip</code> where it improves readability;</li><li>do not test membership with a manual loop;</li><li>do not use <code>if x == True</code>;</li><li>consider <code>set</code> for allowed names;</li><li>handle sorting directly with appropriate arguments of <code>sorted</code>.</li></ul><p>At the end, briefly write down at least three concrete improvements you made.</p></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 5 — Transformácia používateľov</span><span data-lang="en" hidden>Task 5 — User Transformation</span></h2><div data-lang="sk"><p>Zo vstupných textových riadkov vytvorte štruktúrované dáta používateľov.</p></div><div data-lang="en" hidden><p>Create structured user data from input text lines.</p></div><pre class="worksheet-code"><code>raw_users = [
+    &quot;  Anna Horvath ; ANNA@example.com ; admin &quot;,
+    &quot;Peter Novak;peter@example.com;user&quot;,
+    &quot; lucia smith ; LUCIA@example.com ; user &quot;,
+    &quot;Invalid User;missing-email&quot;,
+    &quot;Eva Kralova; eva@example.com ; teacher&quot;,
+    &quot;Anna Horvath;anna@example.com;admin&quot;,
+    &quot;Martin Polak;martin@example.com;&quot;,
+]</code></pre><div data-lang="sk"><p>Výsledkom má byť zoznam slovníkov v tvare:</p></div><div data-lang="en" hidden><p>The result should be a list of dictionaries in this shape:</p></div><pre class="worksheet-code"><code>{
+    &quot;name&quot;: &quot;Anna Horvath&quot;,
+    &quot;email&quot;: &quot;anna@example.com&quot;,
+    &quot;role&quot;: &quot;admin&quot;,
+}</code></pre><div data-lang="sk"><p>Požiadavky:</p><ul><li>odstráňte nepotrebný whitespace;</li><li>email normalizujte na lowercase;</li><li>skontrolujte, že riadok má presne tri časti;</li><li>riadky s neplatným počtom častí alebo prázdnou hodnotou evidujte oddelene;</li><li>odstráňte duplicitné emaily;</li><li>výsledok zoraďte podľa priezviska alebo podľa emailu.</li></ul><pre class="expected-output"><code>Valid: 4
+Invalid: 2
+Duplicates: 1
+
+anna@example.com     Anna Horvath     admin
+eva@example.com      Eva Kralova      teacher
+lucia@example.com    Lucia Smith      user
+peter@example.com    Peter Novak      user</code></pre></div><div data-lang="en" hidden><p>Requirements:</p><ul><li>remove unnecessary whitespace;</li><li>normalize email to lowercase;</li><li>check that each row has exactly three parts;</li><li>keep rows with an invalid number of parts or an empty value separately;</li><li>remove duplicate emails;</li><li>sort the result by surname or by email.</li></ul><pre class="expected-output"><code>Valid: 4
+Invalid: 2
+Duplicates: 1
+
+anna@example.com     Anna Horvath     admin
+eva@example.com      Eva Kralova      teacher
+lucia@example.com    Lucia Smith      user
+peter@example.com    Peter Novak      user</code></pre></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 6 — Comprehensions s rozumom</span><span data-lang="en" hidden>Task 6 — Comprehensions with Judgment</span></h2><div data-lang="sk"><p>Pracujte s výsledkami študentov.</p></div><div data-lang="en" hidden><p>Work with student results.</p></div><pre class="worksheet-code"><code>results = {
+    &quot;Anna&quot;: [92, 85, 88],
+    &quot;Peter&quot;: [45, 67, 51],
+    &quot;Lucia&quot;: [100, 97, 94],
+    &quot;Martin&quot;: [35, 40, 42],
+    &quot;Eva&quot;: [72, 78, 80],
+}</code></pre><div data-lang="sk"><p>Vytvorte:</p><ul><li>dictionary <code>student -> priemer</code>;</li><li>set študentov s priemerom aspoň <code>90</code>;</li><li>list mien úspešných študentov s priemerom aspoň <code>51</code>;</li><li>ranking študentov podľa priemeru zostupne.</li></ul><p>Potom prepíšte tento príliš stlačený zápis na čitateľnejší viacriadkový kód:</p></div><div data-lang="en" hidden><p>Create:</p><ul><li>a dictionary <code>student -> average</code>;</li><li>a set of students with an average of at least <code>90</code>;</li><li>a list of names of passing students with an average of at least <code>51</code>;</li><li>a student ranking by average in descending order.</li></ul><p>Then rewrite this overly compressed expression into more readable multi-line code:</p></div><div data-lang="sk"><pre class="worksheet-code"><code>groups = [
+    [(&quot;Anna&quot;, &quot;Python&quot;, 92), (&quot;Peter&quot;, &quot;Python&quot;, 67)],
+    [(&quot;Anna&quot;, &quot;Databázy&quot;, 85), (&quot;Lucia&quot;, &quot;Databázy&quot;, 88)],
+]
+
+summary = {course: sorted({name for group in groups for name, item_course, points in group if item_course == course and points &gt;= 70}) for course in {item_course for group in groups for _, item_course, _ in group}}</code></pre><p><strong>Najkratší zápis nie je automaticky najlepší zápis.</strong></p><pre class="expected-output"><code>Výborní študenti: Lucia
+Úspešní študenti: Anna, Eva, Lucia, Peter
+
+Ranking:
+1. Lucia   97.0
+2. Anna    88.3
+3. Eva     76.7</code></pre></div><div data-lang="en" hidden><pre class="worksheet-code"><code>groups = [
+    [(&quot;Anna&quot;, &quot;Python&quot;, 92), (&quot;Peter&quot;, &quot;Python&quot;, 67)],
+    [(&quot;Anna&quot;, &quot;Databases&quot;, 85), (&quot;Lucia&quot;, &quot;Databases&quot;, 88)],
+]
+
+summary = {course: sorted({name for group in groups for name, item_course, points in group if item_course == course and points &gt;= 70}) for course in {item_course for group in groups for _, item_course, _ in group}}</code></pre><p><strong>Pythonic does not mean the shortest possible code.</strong></p><pre class="expected-output"><code>Excellent students: Lucia
+Passing students: Anna, Eva, Lucia, Peter
+
+Ranking:
+1. Lucia   97.0
+2. Anna    88.3
+3. Eva     76.7</code></pre></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 7 — Návrh funkčného API</span><span data-lang="en" hidden>Task 7 — Designing a Functional API</span></h2><div data-lang="sk"><p>Navrhnite malý modul na spracovanie objednávok. Signatúry funkcií navrhnite sami tak, aby sa dali rozumne používať.</p></div><div data-lang="en" hidden><p>Design a small module for processing orders. Design function signatures yourself so they are reasonable to use.</p></div><pre class="worksheet-code"><code>orders = [
+    (&quot;A100&quot;, &quot;Anna&quot;, 129.90, &quot;paid&quot;),
+    (&quot;A101&quot;, &quot;Peter&quot;, 59.00, &quot;pending&quot;),
+    (&quot;A102&quot;, &quot;Anna&quot;, 15.90, &quot;paid&quot;),
+    (&quot;A103&quot;, &quot;Lucia&quot;, 220.00, &quot;cancelled&quot;),
+    (&quot;A104&quot;, &quot;Peter&quot;, 35.50, &quot;paid&quot;),
+    (&quot;A105&quot;, &quot;Eva&quot;, 89.90, &quot;paid&quot;),
+    (&quot;A106&quot;, &quot;Anna&quot;, 42.00, &quot;pending&quot;),
+]</code></pre><div data-lang="sk"><p>Implementujte aspoň tieto schopnosti:</p><ul><li>vrátiť objednávky jedného zákazníka;</li><li>vypočítať tržbu iba zo zaplatených objednávok;</li><li>filtrovať objednávky podľa statusu a minimálnej sumy;</li><li>vytvoriť summary <code>status -> počet objednávok</code>;</li><li>nájsť zákazníka s najvyššou zaplatenou sumou.</li></ul><p>Požiadavky:</p><ul><li>použite type hints na vlastnom API;</li><li>aspoň jedna funkcia má mať rozumný default parameter;</li><li>v príklade použitia použite keyword argument;</li><li>nepoužívajte globálne premenné vo vnútri funkcií.</li></ul><pre class="expected-output"><code>Tržba: 271.20
+paid: 4
+pending: 2
+cancelled: 1
+Najlepší zákazník: Anna</code></pre></div><div data-lang="en" hidden><p>Implement at least these capabilities:</p><ul><li>return orders for one customer;</li><li>compute revenue only from paid orders;</li><li>filter orders by status and minimum amount;</li><li>create a summary <code>status -> order count</code>;</li><li>find the customer with the highest paid amount.</li></ul><p>Requirements:</p><ul><li>use type hints in your own API;</li><li>at least one function should have a reasonable default parameter;</li><li>use a keyword argument in an example call;</li><li>do not use global variables inside functions.</li></ul><pre class="expected-output"><code>Revenue: 271.20
+paid: 4
+pending: 2
+cancelled: 1
+Best customer: Anna</code></pre></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 8 — Mutable default argument a debugging</span><span data-lang="en" hidden>Task 8 — Mutable Default Argument and Debugging</span></h2><div data-lang="sk"><p>Tento kód pri prvom použití vyzerá správne, ale pri opakovaných volaniach produkuje chybný výsledok.</p></div><div data-lang="en" hidden><p>This code looks correct on first use, but repeated calls produce an incorrect result.</p></div><pre class="worksheet-code"><code>def add_report_event(
+    report_name: str,
+    event: str,
+    history: list[dict[str, str]] = [],
+) -&gt; list[dict[str, str]]:
+    history.append({&quot;report&quot;: report_name, &quot;event&quot;: event})
+    return history
+
+
+morning = add_report_event(&quot;attendance&quot;, &quot;created&quot;)
+morning = add_report_event(&quot;attendance&quot;, &quot;exported&quot;, morning)
+
+afternoon = add_report_event(&quot;grades&quot;, &quot;created&quot;)
+
+print(&quot;Morning:&quot;, morning)
+print(&quot;Afternoon:&quot;, afternoon)</code></pre><div data-lang="sk"><p>Postup:</p><ul><li>pred spustením predpovedzte, čo bude vo výstupe;</li><li>spustite kód a reprodukujte chybu;</li><li>vysvetlite, prečo sa história medzi reportmi zdieľa;</li><li>opravte implementáciu bez zdieľaného mutabilného defaultu;</li><li>vytvorte krátky testovací scenár, ktorý dokáže, že dve nezávislé histórie sa už nemiešajú.</li></ul><pre class="expected-output"><code>attendance: 2 udalosti
+grades: 1 udalosť
+Histórie sú nezávislé: True</code></pre></div><div data-lang="en" hidden><p>Procedure:</p><ul><li>predict the output before running the code;</li><li>run the code and reproduce the bug;</li><li>explain why history is shared between reports;</li><li>fix the implementation without a shared mutable default;</li><li>create a short test scenario proving that two independent histories no longer mix.</li></ul><pre class="expected-output"><code>attendance: 2 events
+grades: 1 event
+Histories are independent: True</code></pre></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 9 — Dataclass a doménový model</span><span data-lang="en" hidden>Task 9 — Dataclass and Domain Model</span></h2><div data-lang="sk"><p>Preveďte slovníkové dáta produktov na objektový dátový model.</p></div><div data-lang="en" hidden><p>Convert dictionary product data into an object-based data model.</p></div><pre class="worksheet-code"><code>products = [
+    {&quot;name&quot;: &quot;Keyboard&quot;, &quot;price&quot;: 79.90, &quot;stock&quot;: 4, &quot;category&quot;: &quot;electronics&quot;},
+    {&quot;name&quot;: &quot;Mouse&quot;, &quot;price&quot;: 29.90, &quot;stock&quot;: 0, &quot;category&quot;: &quot;electronics&quot;},
+    {&quot;name&quot;: &quot;Monitor&quot;, &quot;price&quot;: 219.00, &quot;stock&quot;: 2, &quot;category&quot;: &quot;electronics&quot;},
+    {&quot;name&quot;: &quot;Notebook&quot;, &quot;price&quot;: 4.50, &quot;stock&quot;: 12, &quot;category&quot;: &quot;office&quot;},
+    {&quot;name&quot;: &quot;Pen&quot;, &quot;price&quot;: 1.20, &quot;stock&quot;: 35, &quot;category&quot;: &quot;office&quot;},
+    {&quot;name&quot;: &quot;Chair&quot;, &quot;price&quot;: 149.00, &quot;stock&quot;: 1, &quot;category&quot;: &quot;furniture&quot;},
+]</code></pre><div data-lang="sk"><p>Požiadavky:</p><ul><li>vytvorte <code>@dataclass Product</code>;</li><li>konvertujte raw slovníky na <code>list[Product]</code>;</li><li>pridajte metódu alebo property na výpočet skladovej hodnoty produktu;</li><li>implementujte filtering dostupných produktov;</li><li>implementujte sorting podľa ceny alebo skladovej hodnoty;</li><li>vytvorte report podľa kategórie.</li></ul><p>Rozhodnite, čo patrí priamo do modelu a čo je lepšie ako samostatná funkcia.</p><pre class="expected-output"><code>electronics: 757.60
+office: 96.00
+furniture: 149.00
+
+Najvyššia skladová hodnota: Monitor</code></pre></div><div data-lang="en" hidden><p>Requirements:</p><ul><li>create <code>@dataclass Product</code>;</li><li>convert raw dictionaries to <code>list[Product]</code>;</li><li>add a method or property for calculating product inventory value;</li><li>implement filtering of available products;</li><li>implement sorting by price or inventory value;</li><li>create a report by category.</li></ul><p>Decide what belongs directly in the model and what is better as a separate function.</p><pre class="expected-output"><code>electronics: 757.60
+office: 96.00
+furniture: 149.00
+
+Highest inventory value: Monitor</code></pre></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 10 — Mini projekt: výsledky kurzu</span><span data-lang="en" hidden>Task 10 — Mini Project: Course Results</span></h2><div data-lang="sk"><p>Navrhnite malý analytický modul nad výsledkami z viacerých predmetov a praktických sád.</p></div><div data-lang="en" hidden><p>Design a small analytical module over results from multiple courses and practical sets.</p></div><div data-lang="sk"><pre class="worksheet-code"><code>records = [
+    (&quot;Anna&quot;, &quot;Python&quot;, &quot;PS1&quot;, 92),
+    (&quot;Peter&quot;, &quot;Python&quot;, &quot;PS1&quot;, 67),
+    (&quot;Lucia&quot;, &quot;Python&quot;, &quot;PS1&quot;, 81),
+    (&quot;Martin&quot;, &quot;Python&quot;, &quot;PS1&quot;, 45),
+    (&quot;Anna&quot;, &quot;Python&quot;, &quot;PS2&quot;, 85),
+    (&quot;Peter&quot;, &quot;Python&quot;, &quot;PS2&quot;, 71),
+    (&quot;Lucia&quot;, &quot;Python&quot;, &quot;PS2&quot;, 88),
+    (&quot;Martin&quot;, &quot;Python&quot;, &quot;PS2&quot;, 52),
+    (&quot;Anna&quot;, &quot;Databázy&quot;, &quot;PS1&quot;, 78),
+    (&quot;Peter&quot;, &quot;Databázy&quot;, &quot;PS1&quot;, 74),
+    (&quot;Lucia&quot;, &quot;Databázy&quot;, &quot;PS1&quot;, 91),
+    (&quot;Eva&quot;, &quot;Databázy&quot;, &quot;PS1&quot;, 83),
+    (&quot;Anna&quot;, &quot;Databázy&quot;, &quot;PS2&quot;, 82),
+    (&quot;Peter&quot;, &quot;Databázy&quot;, &quot;PS2&quot;, 69),
+    (&quot;Lucia&quot;, &quot;Databázy&quot;, &quot;PS2&quot;, 94),
+    (&quot;Eva&quot;, &quot;Databázy&quot;, &quot;PS2&quot;, 87),
+    (&quot;Nina&quot;, &quot;Web&quot;, &quot;PS1&quot;, 76),
+    (&quot;Nina&quot;, &quot;Web&quot;, &quot;PS2&quot;, 84),
+    (&quot;Peter&quot;, &quot;Web&quot;, &quot;PS1&quot;, 58),
+    (&quot;Peter&quot;, &quot;Web&quot;, &quot;PS2&quot;, 63),
+]</code></pre></div><div data-lang="en" hidden><pre class="worksheet-code"><code>records = [
+    (&quot;Anna&quot;, &quot;Python&quot;, &quot;PS1&quot;, 92),
+    (&quot;Peter&quot;, &quot;Python&quot;, &quot;PS1&quot;, 67),
+    (&quot;Lucia&quot;, &quot;Python&quot;, &quot;PS1&quot;, 81),
+    (&quot;Martin&quot;, &quot;Python&quot;, &quot;PS1&quot;, 45),
+    (&quot;Anna&quot;, &quot;Python&quot;, &quot;PS2&quot;, 85),
+    (&quot;Peter&quot;, &quot;Python&quot;, &quot;PS2&quot;, 71),
+    (&quot;Lucia&quot;, &quot;Python&quot;, &quot;PS2&quot;, 88),
+    (&quot;Martin&quot;, &quot;Python&quot;, &quot;PS2&quot;, 52),
+    (&quot;Anna&quot;, &quot;Databases&quot;, &quot;PS1&quot;, 78),
+    (&quot;Peter&quot;, &quot;Databases&quot;, &quot;PS1&quot;, 74),
+    (&quot;Lucia&quot;, &quot;Databases&quot;, &quot;PS1&quot;, 91),
+    (&quot;Eva&quot;, &quot;Databases&quot;, &quot;PS1&quot;, 83),
+    (&quot;Anna&quot;, &quot;Databases&quot;, &quot;PS2&quot;, 82),
+    (&quot;Peter&quot;, &quot;Databases&quot;, &quot;PS2&quot;, 69),
+    (&quot;Lucia&quot;, &quot;Databases&quot;, &quot;PS2&quot;, 94),
+    (&quot;Eva&quot;, &quot;Databases&quot;, &quot;PS2&quot;, 87),
+    (&quot;Nina&quot;, &quot;Web&quot;, &quot;PS1&quot;, 76),
+    (&quot;Nina&quot;, &quot;Web&quot;, &quot;PS2&quot;, 84),
+    (&quot;Peter&quot;, &quot;Web&quot;, &quot;PS1&quot;, 58),
+    (&quot;Peter&quot;, &quot;Web&quot;, &quot;PS2&quot;, 63),
+]</code></pre></div><div data-lang="sk"><p>Požadovaná funkcionalita:</p><ul><li>vytvoriť vhodný dátový model;</li><li>konvertovať raw records;</li><li>získať unikátne predmety;</li><li>vypočítať priemer podľa predmetu;</li><li>vypočítať priemer podľa študenta;</li><li>nájsť najlepší výsledok;</li><li>vytvoriť ranking študentov;</li><li>filtrovať výsledky podľa minimálnej hranice;</li><li>zistiť študentov, ktorí majú záznamy vo viacerých predmetoch;</li><li>vytvoriť formátovaný textový report.</li></ul><p>Výstup nemusí byť identický, ale má obsahovať podobné informácie:</p><pre class="expected-output"><code>PYTHON
+Priemer: 72.6
+Najlepší výsledok: Anna — 92
+Úspešnosť: 87.5 %
+
+TOP 3
+1. Lucia     88.5
+2. Eva       85.0
+3. Anna      84.3</code></pre><p class="hint"><strong>Pomôcka:</strong> Najprv si navrhnite 4-6 menších funkcií. Až potom riešte formátovanie reportu.</p></div><div data-lang="en" hidden><p>Required functionality:</p><ul><li>create a suitable data model;</li><li>convert raw records;</li><li>get unique courses;</li><li>compute averages by course;</li><li>compute averages by student;</li><li>find the best result;</li><li>create a student ranking;</li><li>filter results by a minimum threshold;</li><li>find students who have records in multiple courses;</li><li>create a formatted text report.</li></ul><p>The output does not have to be identical, but it should contain similar information:</p><pre class="expected-output"><code>PYTHON
+Average: 72.6
+Best result: Anna — 92
+Pass rate: 87.5 %
+
+TOP 3
+1. Lucia     88.5
+2. Eva       85.0
+3. Anna      84.3</code></pre><p class="hint"><strong>Hint:</strong> First design 4-6 smaller functions. Handle report formatting only after that.</p></div></section><section class="worksheet-section"><h2><span data-lang="sk">Dokumentácia</span><span data-lang="en" hidden>Documentation</span></h2><ul><li><a href="https://docs.python.org/3/library/stdtypes.html" target="_blank" rel="noreferrer">Built-in Types</a></li><li><a href="https://docs.python.org/3/library/dataclasses.html" target="_blank" rel="noreferrer">dataclasses</a></li><li><a href="https://docs.python.org/3/library/typing.html" target="_blank" rel="noreferrer">typing</a></li></ul></section></main><footer class="site-footer"><p><strong data-i18n-key="course.title">Programovanie v Pythone</strong><br>Ing. Marek Horváth, PhD. ·<a href="mailto:marek.horvath@tuke.sk">marek.horvath@tuke.sk</a><br><span data-i18n-key="course.university">Technická univerzita v Košiciach</span></p></footer></div><script type="application/json" data-i18n-translations>{"course.title":{"sk":"Programovanie v Pythone","en":"Programming in Python"},"course.description":{"sk":"Python ako praktický jazyk pre automatizáciu, aplikácie, dáta, webové služby, testovanie a ďalšie oblasti softvérového vývoja.","en":"Python as a practical language for automation, applications, data work, web services, testing and other areas of software development."},"course.university":{"sk":"Technická univerzita v Košiciach","en":"Technical University of Košice"},"course.faculty":{"sk":"Fakulta elektrotechniky a informatiky","en":"Faculty of Electrical Engineering and Informatics"},"nav.home":{"sk":"Úvod","en":"Home"},"nav.lectures":{"sk":"Prednášky","en":"Lectures"},"nav.exercises":{"sk":"Cvičenia","en":"Exercises"},"nav.project":{"sk":"Projekt","en":"Project"},"nav.guides":{"sk":"Návody","en":"Guides"},"nav.cheatsheet":{"sk":"Cheatsheet","en":"Cheatsheet"},"nav.aria":{"sk":"Hlavná navigácia","en":"Main navigation"},"language.label":{"sk":"Jazyk","en":"Language"},"language.sk":{"sk":"Slovenčina","en":"Slovak"},"language.en":{"sk":"Angličtina","en":"English"},"footer.separator":{"sk":"·","en":"·"},"ui.copy":{"sk":"Kopírovať","en":"Copy"},"ui.copied":{"sk":"Skopírované","en":"Copied"},"ui.backHome":{"sk":"← Späť na úvod","en":"← Back to home"},"ui.backLectures":{"sk":"← Späť na prednášky","en":"← Back to lectures"},"ui.continueProject":{"sk":"Pokračovať na stránku Projekt","en":"Continue to Project"},"ui.continueCheatsheet":{"sk":"Pokračovať na Cheatsheet","en":"Continue to Cheatsheet"},"ui.unavailable":{"sk":"zatiaľ nedostupné","en":"not available yet"},"notFound.title":{"sk":"Stránka sa nenašla.","en":"Page not found."},"notFound.description":{"sk":"Požadovaná adresa neexistuje alebo bola presunutá.","en":"The requested address does not exist or has been moved."},"lecture.back":{"sk":"← Prednášky","en":"← Lectures"},"lecture.fullscreen":{"sk":"Celá obrazovka","en":"Fullscreen"},"lecture.neighbors":{"sk":"Susedné prednášky","en":"Adjacent lectures"},"lecture.previousLabel":{"sk":"← Prednáška {number}","en":"← Lecture {number}"},"lecture.nextLabel":{"sk":"Prednáška {number} →","en":"Lecture {number} →"},"lecture.lockedTitle":{"sk":"Materiál zatiaľ nie je zverejnený.","en":"This material is not published yet."},"exercise.done":{"sk":"Hotovo","en":"Done"},"exercise.back":{"sk":"← Cvičenia","en":"← Exercises"},"exercise.markDone":{"sk":"Označiť ako hotové: {title}","en":"Mark as done: {title}"},"exercise.completedProgress":{"sk":"{done} / {total} hotových","en":"{done} of {total} tasks completed"},"exercise.markAll":{"sk":"Označiť všetko ako hotové","en":"Mark all as done"},"exercise.resetProgress":{"sk":"Resetovať označenie","en":"Reset progress"},"exercise.resetTitle":{"sk":"Resetovať označenie?","en":"Reset progress?"},"exercise.resetBody":{"sk":"V tomto cvičení sa zruší označenie všetkých úloh ako hotových.","en":"This will clear all completed task marks in this exercise."},"exercise.cancel":{"sk":"Zrušiť","en":"Cancel"},"exercise.resetConfirm":{"sk":"Resetovať","en":"Reset"},"exercise.neighbors":{"sk":"Susedné cvičenia","en":"Adjacent exercises"},"exercise.previousLabel":{"sk":"← Cvičenie {number}","en":"← Exercise {number}"},"exercise.nextLabel":{"sk":"Cvičenie {number} →","en":"Exercise {number} →"},"exercise.codeSample":{"sk":"ukážka kódu","en":"code sample"},"exercise.expectedOutput":{"sk":"očakávaný výstup","en":"expected output"}}</script><script type="application/json" data-i18n-config>{"storageKey":"python-course.language","defaultLanguage":"sk"}</script><script type="module">var e=document.querySelector(`[data-i18n-config]`),t=document.querySelector(`[data-i18n-translations]`),n=o(),r=n.storageKey,i=n.defaultLanguage,a=s();function o(){if(!e?.textContent)return{storageKey:`python-course.language`,defaultLanguage:`sk`};try{let t=JSON.parse(e.textContent);return{storageKey:t.storageKey??`python-course.language`,defaultLanguage:c(t.defaultLanguage)}}catch{return{storageKey:`python-course.language`,defaultLanguage:`sk`}}}function s(){if(!t?.textContent)return{};try{return JSON.parse(t.textContent)}catch{return{}}}function c(e){return e===`en`?`en`:`sk`}function l(){try{return c(window.localStorage.getItem(r))}catch{return i}}function u(e){try{window.localStorage.setItem(r,e)}catch{}}function d(e,t={}){return e.replace(/\{(\w+)\}/g,(e,n)=>String(t[n]??e))}function f(e){let t=e.getAttribute(`data-i18n-values`);if(!t)return{};try{return JSON.parse(t)}catch{return{}}}function p(e,t){let n=l(),r=a[e];return d(r?.[n]??r?.sk??e,t)}function m(e,t){let n=f(e),r=e.getAttribute(`data-i18n-key`);if(r){let i=a[r];e.textContent=d(i?.[t]??i?.sk??e.textContent??``,n)}let i=e.getAttribute(`data-i18n-html`);if(i){let r=a[i];e.innerHTML=d(r?.[t]??r?.sk??e.innerHTML,n)}let o=e.getAttribute(`data-i18n-aria-label`);if(o){let r=a[o];e.setAttribute(`aria-label`,d(r?.[t]??r?.sk??e.getAttribute(`aria-label`)??``,n))}let s=e.getAttribute(`data-i18n-title`);if(s){let r=a[s];e.setAttribute(`title`,d(r?.[t]??r?.sk??e.getAttribute(`title`)??``,n))}let c=e.getAttribute(`data-i18n-placeholder`);if(c){let r=a[c];e.setAttribute(`placeholder`,d(r?.[t]??r?.sk??e.getAttribute(`placeholder`)??``,n))}}function h(e){let t=document.documentElement.getAttribute(`data-title-${e}`),n=document.documentElement.getAttribute(`data-description-${e}`);t&&(document.title=t);let r=document.querySelector(`meta[name="description"]`);r&&n&&(r.content=n)}function g(e=l()){document.documentElement.lang=e,document.documentElement.dataset.language=e,document.querySelectorAll(`[data-i18n-key], [data-i18n-html], [data-i18n-aria-label], [data-i18n-title], [data-i18n-placeholder]`).forEach(t=>{m(t,e)}),document.querySelectorAll(`[data-lang]`).forEach(t=>{t.hidden=t.getAttribute(`data-lang`)!==e}),document.querySelectorAll(`[data-language-option]`).forEach(t=>{let n=t.dataset.languageOption===e;t.toggleAttribute(`data-active`,n),t.setAttribute(`aria-pressed`,String(n))}),h(e),window.dispatchEvent(new CustomEvent(`python-course-language-applied`,{detail:{language:e}}))}function _(e){u(e),g(e),window.dispatchEvent(new CustomEvent(`python-course-language-change`,{detail:{language:e}}))}window.pythonCourseI18n={get language(){return l()},t:p,setLanguage:_,applyLanguage:()=>g()},document.querySelectorAll(`[data-language-option]`).forEach(e=>{e.addEventListener(`click`,()=>{_(c(e.dataset.languageOption))})}),window.addEventListener(`storage`,e=>{e.key===r&&g(c(e.newValue))}),g(l());</script><script type="application/json" data-exercise-navigation>[{"number":1,"slug":"01-uvod-ku-pythonu-v-praxi","href":"/cvicenia/01-uvod-ku-pythonu-v-praxi/","title":"Cvičenie 01","titleEn":"Exercise 01","subtitle":"Úvod ku Pythonu v praxi","subtitleEn":"Introduction to Python in Practice","taskCount":10},{"number":2,"slug":"02-skriptovanie-automatizacia","href":"/cvicenia/02-skriptovanie-automatizacia/","title":"Cvičenie 02","titleEn":"Exercise 02","subtitle":"Skriptovanie a automatizácia","subtitleEn":"Scripting and Automation","taskCount":10},{"number":3,"slug":"03-gui-event-driven","href":"/cvicenia/03-gui-event-driven/","title":"Cvičenie 03","titleEn":"Exercise 03","subtitle":"GUI a event-driven programovanie","subtitleEn":"GUI and Event-Driven Programming","taskCount":10},{"number":4,"slug":"04-testovanie-debugging-kvalita","href":"/cvicenia/04-testovanie-debugging-kvalita/","title":"Cvičenie 04","titleEn":"Exercise 04","subtitle":"Testovanie, debugging a kvalita kódu","subtitleEn":"Testing, Debugging and Code Quality","taskCount":10},{"number":5,"slug":"05-http-api","href":"/cvicenia/05-http-api/","title":"Cvičenie 05","titleEn":"Exercise 05","subtitle":"Internet, HTTP a API","subtitleEn":"Internet, HTTP and APIs","taskCount":10},{"number":6,"slug":"06-databazy","href":"/cvicenia/06-databazy/","title":"Cvičenie 06","titleEn":"Exercise 06","subtitle":"Databázy v Pythone","subtitleEn":"Databases in Python","taskCount":10},{"number":7,"slug":"07-data-science","href":"/cvicenia/07-data-science/","title":"Cvičenie 07","titleEn":"Exercise 07","subtitle":"Data Science v Pythone","subtitleEn":"Data Science in Python","taskCount":10},{"number":8,"slug":"08-web-scraping-browser","href":"/cvicenia/08-web-scraping-browser/","title":"Cvičenie 08","titleEn":"Exercise 08","subtitle":"Web scraping a automatizácia prehliadača","subtitleEn":"Web Scraping and Browser Automation","taskCount":10},{"number":9,"slug":"09-bezpecne-programovanie","href":"/cvicenia/09-bezpecne-programovanie/","title":"Cvičenie 09","titleEn":"Exercise 09","subtitle":"Bezpečné programovanie v Pythone","subtitleEn":"Secure Programming in Python","taskCount":10},{"number":10,"slug":"10-web-backend","href":"/cvicenia/10-web-backend/","title":"Cvičenie 10","titleEn":"Exercise 10","subtitle":"Web backend v Pythone","subtitleEn":"Web Backends in Python","taskCount":10}]</script><script type="module" src="/python/_astro/ExerciseEnhancements.astro_astro_type_script_index_0_lang.DisVSUVN.js"></script><script>(function(){const basePath = "/python";
+
+  (() => {
+    const rawBasePath = typeof basePath === "string" ? basePath : "/";
+    const normalizedBasePath = rawBasePath === "/" ? "" : rawBasePath.replace(/\/$/, "");
+
+    function withBasePath(path) {
+      if (
+        !normalizedBasePath ||
+        typeof path !== "string" ||
+        !path.startsWith("/") ||
+        path.startsWith("//") ||
+        path === normalizedBasePath ||
+        path.startsWith(`${normalizedBasePath}/`)
+      ) {
+        return path;
+      }
+
+      return `${normalizedBasePath}${path}`;
+    }
+
+    function applyBasePath(root = document) {
+      if (!normalizedBasePath) {
+        return;
+      }
+
+      root.querySelectorAll("a[href]").forEach((link) => {
+        const href = link.getAttribute("href");
+
+        if (!href) {
+          return;
+        }
+
+        link.setAttribute("href", withBasePath(href));
+      });
+    }
+
+    window.pythonCourseWithBasePath = withBasePath;
+    window.pythonCourseApplyBasePath = applyBasePath;
+    applyBasePath();
+  })();
+})();</script></body></html>

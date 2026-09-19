@@ -1,0 +1,214 @@
+<!DOCTYPE html><html lang="sk" data-title-sk="Cvičenie 03: GUI a event-driven programovanie | Programovanie v Pythone" data-title-en="Exercise 03: GUI and Event-Driven Programming | Programming in Python" data-description-sk="Postupná tvorba Tkinter/ttk aplikácie Text Analyzer s callbackmi, stavom, súborovým dialógom a Canvas." data-description-en="Incremental development of a Tkinter/ttk Text Analyzer with callbacks, state, file dialog and Canvas."><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Postupná tvorba Tkinter/ttk aplikácie Text Analyzer s callbackmi, stavom, súborovým dialógom a Canvas."><title>Cvičenie 03: GUI a event-driven programovanie | Programovanie v Pythone</title><script>
+(() => {
+  const storageKey = "python-course.language";
+  const defaultLanguage = "sk";
+  let language = defaultLanguage;
+
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (stored === "sk" || stored === "en") language = stored;
+  } catch {
+    language = defaultLanguage;
+  }
+
+  document.documentElement.lang = language;
+  document.documentElement.dataset.language = language;
+})();
+</script><link rel="stylesheet" href="/python/_astro/global.YCJcWgXo.css"></head><body><div class="site-shell"><header class="site-header"><div class="site-header__inner"><a class="brand" href="/"><span data-i18n-key="course.title">Programovanie v Pythone</span></a><div class="site-header__tools"><nav class="top-nav" aria-label="Hlavná navigácia" data-i18n-aria-label="nav.aria"><a href="/" data-i18n-key="nav.home">Úvod</a><a href="/prednasky/" data-i18n-key="nav.lectures">Prednášky</a><a href="/cvicenia/" data-i18n-key="nav.exercises">Cvičenia</a><a href="/projekt/" data-i18n-key="nav.project">Projekt</a><a href="/navody/" data-i18n-key="nav.guides">Návody</a><a href="/cheatsheet/" data-i18n-key="nav.cheatsheet">Cheatsheet</a></nav><div class="language-switcher" role="group" aria-label="Jazyk" data-i18n-aria-label="language.label"><button type="button" class="language-switcher__option" data-language-option="sk" data-active aria-pressed="true" title="Slovenčina" data-i18n-title="language.sk">SK</button><button type="button" class="language-switcher__option" data-language-option="en" aria-pressed="false" title="Angličtina" data-i18n-title="language.en">EN</button></div></div></div></header><main class="page worksheet-page"><a class="back-inline" href="/cvicenia/" data-i18n-key="exercise.back">← Cvičenia</a><h1><span data-lang="sk">Cvičenie 03</span><span data-lang="en" hidden>Exercise 03</span></h1><p class="course-meta"><span data-lang="sk">GUI a event-driven programovanie</span><span data-lang="en" hidden>GUI and Event-Driven Programming</span></p><section class="worksheet-section"><h2><span data-lang="sk">Príprava</span><span data-lang="en" hidden>Setup</span></h2><div data-lang="sk"><pre class="expected-output"><code>Python 3.x s modulom tkinter
+Odporúčané: IDE, ktoré vie spustiť GUI aplikáciu
+Externé knižnice: nie
+Pracovné súbory: gui_form.py, converter.py, text_tools.py, file_dashboard.py</code></pre><p>Ak <code>import tkinter</code> zlyhá, doplňte Tkinter podľa operačného systému ešte pred riešením úloh.</p></div><div data-lang="en" hidden><pre class="expected-output"><code>Python 3.x with the tkinter module
+Recommended: an IDE that can run GUI applications
+External libraries: no
+Working files: gui_form.py, converter.py, text_tools.py, file_dashboard.py</code></pre><p>If <code>import tkinter</code> fails, install Tkinter for your operating system before working on the tasks.</p></div></section><section class="worksheet-section"><h2><span data-lang="sk">Ciele</span><span data-lang="en" hidden>Goals</span></h2><ul data-lang="sk"><li>navrhnúť GUI aplikáciu okolo event loopu, callbackov a stavu;</li><li>použiť <code>ttk</code> widgety, layout a vstupnú validáciu;</li><li>oddeliť UI callbacky od aplikačnej logiky;</li><li>pracovať s dialógmi, klávesnicou, Canvas a <code>after()</code>.</li></ul><ul data-lang="en" hidden><li>design a GUI application around an event loop, callbacks and state;</li><li>use <code>ttk</code> widgets, layout and input validation;</li><li>separate UI callbacks from application logic;</li><li>work with dialogs, keyboard events, Canvas and <code>after()</code>.</li></ul></section><section class="worksheet-section"><h2><span data-lang="sk">Úlohy</span><span data-lang="en" hidden>Tasks</span></h2></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 1 — Registračný formulár s validáciou</span><span data-lang="en" hidden>Task 1 — Registration Form with Validation</span></h2><div data-lang="sk"><p>Vytvorte aplikáciu <code>gui_form.py</code> s formulárom používateľa.</p><p>Formulár má obsahovať:</p><ul><li>pole <code>Meno</code>;</li><li>pole <code>Email</code>;</li><li>pole <code>Vek</code>;</li><li>tlačidlo <code>Odoslať</code>;</li><li>tlačidlo <code>Reset</code>;</li><li>label pre výsledok alebo chybovú správu.</li></ul><p>Požadovaná validácia:</p><ul><li>meno nesmie byť prázdne;</li><li>email musí obsahovať <code>@</code> a bodku za <code>@</code>;</li><li>vek musí byť celé číslo od 15 do 99;</li><li>pri chybe sa nezobrazí úspešná správa.</li></ul><pre class="expected-output"><code>Vstup:
+Meno: Anna Horváth
+Email: anna@example.com
+Vek: 21
+
+Výsledok v GUI:
+Používateľ Anna Horváth bol uložený.</code></pre><p class="hint"><strong>Pomôcka:</strong> Callback tlačidla má iba načítať hodnoty, validovať ich a aktualizovať UI. Nepíšte <code>command=submit()</code>.</p></div><div data-lang="en" hidden><p>Create an application <code>gui_form.py</code> with a user form.</p><p>The form should contain:</p><ul><li>a <code>Name</code> field;</li><li>an <code>Email</code> field;</li><li>an <code>Age</code> field;</li><li>a <code>Submit</code> button;</li><li>a <code>Reset</code> button;</li><li>a label for the result or error message.</li></ul><p>Required validation:</p><ul><li>name must not be empty;</li><li>email must contain <code>@</code> and a dot after <code>@</code>;</li><li>age must be an integer from 15 to 99;</li><li>when validation fails, do not show the success message.</li></ul><pre class="expected-output"><code>Input:
+Name: Anna Horváth
+Email: anna@example.com
+Age: 21
+
+Result in GUI:
+User Anna Horváth has been saved.</code></pre><p class="hint"><strong>Hint:</strong> The button callback should only read values, validate them and update the UI. Do not write <code>command=submit()</code>.</p></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 2 — Konvertor jednotiek</span><span data-lang="en" hidden>Task 2 — Unit Converter</span></h2><div data-lang="sk"><p>Vytvorte GUI konvertor, ktorý používa <code>Entry</code>, <code>ttk.Combobox</code>, <code>Button</code> a výstupný label.</p><p>Podporujte minimálne tieto prevody:</p><ul><li>metre → kilometre;</li><li>kilometre → metre;</li><li>Celsius → Fahrenheit;</li><li>Fahrenheit → Celsius;</li><li>EUR → USD s kurzom uloženým v premennej.</li></ul><p>Požiadavky:</p><ul><li>vstup musí byť číslo;</li><li>typ prevodu sa vyberá cez combobox;</li><li>výsledok zaokrúhlite na dve desatinné miesta;</li><li>pri neplatnom vstupe zobrazte chybu v GUI, nie traceback v termináli;</li><li>samotný výpočet dajte do funkcie mimo callbacku.</li></ul></div><div data-lang="en" hidden><p>Create a GUI converter that uses <code>Entry</code>, <code>ttk.Combobox</code>, <code>Button</code> and an output label.</p><p>Support at least these conversions:</p><ul><li>meters → kilometers;</li><li>kilometers → meters;</li><li>Celsius → Fahrenheit;</li><li>Fahrenheit → Celsius;</li><li>EUR → USD with the exchange rate stored in a variable.</li></ul><p>Requirements:</p><ul><li>input must be numeric;</li><li>conversion type is selected with a combobox;</li><li>round the result to two decimal places;</li><li>for invalid input, show an error in the GUI, not a traceback in the terminal;</li><li>put the actual calculation into a function outside the callback.</li></ul></div><pre class="expected-output"><code>12.5 km → m
+Result: 12500.00 m
+
+20 °C → °F
+Result: 68.00 °F</code></pre></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 3 — Search/filter interface</span><span data-lang="en" hidden>Task 3 — Search/Filter Interface</span></h2><div data-lang="sk"><p>Vytvorte malé GUI na filtrovanie datasetu kurzov. Dataset môže byť priamo v súbore.</p></div><div data-lang="en" hidden><p>Create a small GUI for filtering a course dataset. The dataset can be stored directly in the file.</p></div><pre class="worksheet-code"><code>courses = [
+    {&quot;code&quot;: &quot;AI101&quot;, &quot;title&quot;: &quot;Programming in Python&quot;, &quot;teacher&quot;: &quot;Horvath&quot;, &quot;credits&quot;: 5},
+    {&quot;code&quot;: &quot;AI204&quot;, &quot;title&quot;: &quot;Database Systems&quot;, &quot;teacher&quot;: &quot;Novak&quot;, &quot;credits&quot;: 6},
+    {&quot;code&quot;: &quot;AI305&quot;, &quot;title&quot;: &quot;Web Technologies&quot;, &quot;teacher&quot;: &quot;Kovac&quot;, &quot;credits&quot;: 5},
+    {&quot;code&quot;: &quot;AI210&quot;, &quot;title&quot;: &quot;Computer Networks&quot;, &quot;teacher&quot;: &quot;Sokol&quot;, &quot;credits&quot;: 4},
+    {&quot;code&quot;: &quot;AI330&quot;, &quot;title&quot;: &quot;Data Science&quot;, &quot;teacher&quot;: &quot;Horvath&quot;, &quot;credits&quot;: 6},
+]</code></pre><div data-lang="sk"><p>GUI má obsahovať:</p><ul><li>textové pole na hľadanie v názve alebo kóde;</li><li>filter podľa učiteľa cez combobox;</li><li>filter minimálneho počtu kreditov;</li><li>zoznam výsledkov cez <code>Listbox</code> alebo <code>ttk.Treeview</code>;</li><li>label s počtom nájdených výsledkov.</li></ul><p>Filtrovanie sa má spustiť tlačidlom aj stlačením Enter. Pri prázdnom vyhľadávaní zobrazte všetky záznamy, ktoré prejdú ostatnými filtrami.</p><pre class="expected-output"><code>Filter:
+teacher = Horvath
+min credits = 5
+
+Výsledky:
+AI101  Programming in Python  5
+AI330  Data Science           6
+
+Nájdené: 2</code></pre></div><div data-lang="en" hidden><p>The GUI should contain:</p><ul><li>a text field for searching in the title or code;</li><li>a teacher filter through a combobox;</li><li>a minimum credits filter;</li><li>a result list using <code>Listbox</code> or <code>ttk.Treeview</code>;</li><li>a label with the number of found results.</li></ul><p>Filtering should run both from a button and by pressing Enter. For an empty search query, show all records that pass the remaining filters.</p><pre class="expected-output"><code>Filter:
+teacher = Horvath
+min credits = 5
+
+Results:
+AI101  Programming in Python  5
+AI330  Data Science           6
+
+Found: 2</code></pre></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 4 — Refactoring zlého callbacku</span><span data-lang="en" hidden>Task 4 — Refactoring a Bad Callback</span></h2><div data-lang="sk"><p>Nasledujúci callback mieša čítanie widgetov, validáciu, výpočet aj formátovanie výstupu. Prepíšte ho tak, aby sa dal testovať mimo GUI.</p></div><div data-lang="en" hidden><p>The following callback mixes widget reads, validation, calculation and output formatting. Rewrite it so it can be tested outside the GUI.</p></div><pre class="worksheet-code"><code>def on_filter_click():
+    text = search_entry.get().strip().lower()
+    min_credits_text = credits_entry.get().strip()
+    if min_credits_text == &quot;&quot;:
+        min_credits = 0
+    else:
+        min_credits = int(min_credits_text)
+
+    output.delete(0, tk.END)
+    count = 0
+    for course in courses:
+        if text in course[&quot;title&quot;].lower() or text in course[&quot;code&quot;].lower():
+            if course[&quot;credits&quot;] &gt;= min_credits:
+                output.insert(tk.END, course[&quot;code&quot;] + &quot; &quot; + course[&quot;title&quot;])
+                count += 1
+
+    status_label.config(text=f&quot;Found: {count}&quot;)</code></pre><div data-lang="sk"><p>Požiadavky na refactoring:</p><ul><li>vytvorte dátový model alebo aspoň jasnú štruktúru pre kurz;</li><li>vytvorte čistú funkciu na filtrovanie;</li><li>validáciu <code>min_credits</code> riešte mimo samotného výpisu do UI;</li><li>callback nech iba koordinuje čítanie vstupu, volanie funkcií a aktualizáciu widgetov;</li><li>ošetrite nečíselný vstup pre kredity.</li></ul></div><div data-lang="en" hidden><p>Refactoring requirements:</p><ul><li>create a data model or at least a clear structure for a course;</li><li>create a pure function for filtering;</li><li>handle validation of <code>min_credits</code> outside the actual UI output;</li><li>let the callback only coordinate input reads, function calls and widget updates;</li><li>handle non-numeric input for credits.</li></ul></div><pre class="worksheet-code"><code>def filter_courses(
+    courses: list[Course],
+    query: str = &quot;&quot;,
+    teacher: str | None = None,
+    min_credits: int = 0,
+) -&gt; list[Course]:
+    ...</code></pre><p data-lang="sk">Na konci porovnajte, ktorá časť kódu je teraz testovateľná bez spustenia okna.</p><p data-lang="en" hidden>At the end, compare which part of the code is now testable without opening a window.</p></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 5 — Malý textový editor</span><span data-lang="en" hidden>Task 5 — Small Text Editor</span></h2><div data-lang="sk"><p>Vytvorte aplikáciu s viacriadkovým widgetom <code>Text</code>, ktorá vie otvoriť a uložiť textový súbor.</p><p>Minimálne funkcie:</p><ul><li><code>Otvoriť</code> cez <code>filedialog.askopenfilename()</code>;</li><li><code>Uložiť</code> do aktuálneho súboru;</li><li><code>Uložiť ako</code> cez <code>filedialog.asksaveasfilename()</code>;</li><li>zobraziť názov aktuálneho súboru;</li><li>evidovať stav neuložených zmien;</li><li>pri chybe čítania alebo zápisu zobraziť <code>messagebox.showerror()</code>.</li></ul><p>Ak používateľ upraví text, title okna alebo stavový label má naznačiť, že súbor má neuložené zmeny.</p><pre class="expected-output"><code>Stav v GUI:
+sample.txt *
+
+Po uložení:
+sample.txt</code></pre><p class="hint"><strong>Pomôcka:</strong> Zmeny vo widgete <code>Text</code> môžete sledovať cez event <code>&lt;KeyRelease&gt;</code>.</p></div><div data-lang="en" hidden><p>Create an application with a multi-line <code>Text</code> widget that can open and save a text file.</p><p>Minimum functionality:</p><ul><li><code>Open</code> through <code>filedialog.askopenfilename()</code>;</li><li><code>Save</code> to the current file;</li><li><code>Save as</code> through <code>filedialog.asksaveasfilename()</code>;</li><li>show the name of the current file;</li><li>track unsaved changes;</li><li>show <code>messagebox.showerror()</code> on read or write errors.</li></ul><p>If the user edits the text, the window title or status label should indicate that the file has unsaved changes.</p><pre class="expected-output"><code>State in GUI:
+sample.txt *
+
+After saving:
+sample.txt</code></pre><p class="hint"><strong>Hint:</strong> You can track changes in the <code>Text</code> widget with the <code>&lt;KeyRelease&gt;</code> event.</p></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 6 — File analyzer</span><span data-lang="en" hidden>Task 6 — File Analyzer</span></h2><div data-lang="sk"><p>Rozšírte predchádzajúci editor alebo vytvorte samostatnú aplikáciu, ktorá analyzuje vybraný textový súbor.</p><p>Aplikácia má po výbere súboru zobraziť:</p><ul><li>názov súboru;</li><li>počet riadkov;</li><li>počet slov;</li><li>počet znakov;</li><li>počet neprázdnych riadkov;</li><li>päť najčastejších slov dlhších ako tri znaky.</li></ul><p>Business logiku dajte do funkcie mimo GUI.</p></div><div data-lang="en" hidden><p>Extend the previous editor or create a separate application that analyzes a selected text file.</p><p>After selecting a file, the application should show:</p><ul><li>file name;</li><li>number of lines;</li><li>number of words;</li><li>number of characters;</li><li>number of non-empty lines;</li><li>the five most frequent words longer than three characters.</li></ul><p>Put business logic into a function outside the GUI.</p></div><pre class="worksheet-code"><code>from dataclasses import dataclass
+
+@dataclass
+class TextStats:
+    lines: int
+    non_empty_lines: int
+    words: int
+    characters: int
+    top_words: list[tuple[str, int]]
+
+
+def analyze_text(text: str) -&gt; TextStats:
+    ...</code></pre><div data-lang="sk"><pre class="expected-output"><code>sample.txt
+Riadky: 12
+Neprázdne riadky: 10
+Slová: 148
+Znaky: 912
+
+Najčastejšie slová:
+python      7
+data        4
+program     3</code></pre></div><div data-lang="en" hidden><pre class="expected-output"><code>sample.txt
+Lines: 12
+Non-empty lines: 10
+Words: 148
+Characters: 912
+
+Most frequent words:
+python      7
+data        4
+program     3</code></pre></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 7 — Keyboard events</span><span data-lang="en" hidden>Task 7 — Keyboard Events</span></h2><div data-lang="sk"><p>Doplňte do jednej z predchádzajúcich aplikácií ovládanie klávesnicou.</p><p>Požadované skratky:</p><ul><li><code>Enter</code> spustí hlavnú akciu vo formulári alebo vyhľadávaní;</li><li><code>Ctrl+O</code> otvorí súbor;</li><li><code>Ctrl+S</code> uloží súbor;</li><li><code>Escape</code> vyčistí vstup alebo zatvorí dialógovú situáciu podľa kontextu.</li></ul></div><div data-lang="en" hidden><p>Add keyboard controls to one of the previous applications.</p><p>Required shortcuts:</p><ul><li><code>Enter</code> runs the main action in a form or search interface;</li><li><code>Ctrl+O</code> opens a file;</li><li><code>Ctrl+S</code> saves a file;</li><li><code>Escape</code> clears input or closes a dialog-like situation depending on context.</li></ul></div><pre class="worksheet-code"><code>def handle_save(event):
+    save_current_file()
+
+
+root.bind(&quot;&lt;Control-s&gt;&quot;, handle_save)</code></pre><p data-lang="sk">Overte rozdiel medzi callbackom z <code>command</code> a handlerom z <code>bind</code>. Nepresúvajte celú logiku do štyroch rôznych handlerov.</p><p data-lang="en" hidden>Check the difference between a <code>command</code> callback and a handler from <code>bind</code>. Do not move all logic into four separate handlers.</p></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 8 — Canvas interaction</span><span data-lang="en" hidden>Task 8 — Canvas Interaction</span></h2><div data-lang="sk"><p>Vytvorte jednoduchú Canvas aplikáciu na označovanie bodov.</p><p>Správanie:</p><ul><li>ľavý klik vytvorí kruh na pozícii kurzora;</li><li>pravý klik odstráni najbližší kruh, ak je dostatočne blízko;</li><li>tlačidlo <code>Vymazať</code> odstráni všetky kruhy;</li><li>stavový label zobrazuje počet kruhov;</li><li>súradnice ukladajte do vlastnej dátovej štruktúry, nie iba do Canvas objektov.</li></ul></div><div data-lang="en" hidden><p>Create a simple Canvas application for marking points.</p><p>Behavior:</p><ul><li>left click creates a circle at the cursor position;</li><li>right click removes the nearest circle if it is close enough;</li><li>a <code>Clear</code> button removes all circles;</li><li>a status label displays the number of circles;</li><li>store coordinates in your own data structure, not only as Canvas objects.</li></ul></div><pre class="worksheet-code"><code>def add_point(event):
+    x = event.x
+    y = event.y
+    ...
+
+
+canvas.bind(&quot;&lt;Button-1&gt;&quot;, add_point)</code></pre><div data-lang="sk"><pre class="expected-output"><code>Po troch kliknutiach:
+Body: 3
+
+Po vymazaní:
+Body: 0</code></pre><p class="hint"><strong>Pomôcka:</strong> Canvas kreslí objekty, ale aplikačný stav by mal existovať aj vo vašom kóde.</p></div><div data-lang="en" hidden><pre class="expected-output"><code>After three clicks:
+Points: 3
+
+After clearing:
+Points: 0</code></pre><p class="hint"><strong>Hint:</strong> Canvas draws objects, but application state should also exist in your own code.</p></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 9 — after() a stav aplikácie</span><span data-lang="en" hidden>Task 9 — after() and Application State</span></h2><div data-lang="sk"><p>Vytvorte jednoduchý timer alebo stopky bez použitia <code>while True</code> a bez <code>time.sleep()</code>.</p><p>Aplikácia má obsahovať:</p><ul><li>label s aktuálnym časom alebo počítadlom;</li><li>tlačidlo <code>Start</code>;</li><li>tlačidlo <code>Stop</code>;</li><li>tlačidlo <code>Reset</code>;</li><li>stav, ktorý určuje, či timer práve beží.</li></ul></div><div data-lang="en" hidden><p>Create a simple timer or stopwatch without <code>while True</code> and without <code>time.sleep()</code>.</p><p>The application should contain:</p><ul><li>a label with the current time or counter;</li><li>a <code>Start</code> button;</li><li>a <code>Stop</code> button;</li><li>a <code>Reset</code> button;</li><li>state that determines whether the timer is currently running.</li></ul></div><pre class="worksheet-code"><code>def tick():
+    if running:
+        update_time()
+        root.after(1000, tick)</code></pre><div data-lang="sk"><p>Počas behu musí okno ostať responzívne. Skúste si vedome vložiť <code>time.sleep(5)</code> do callbacku a vysvetlite, čo sa stane.</p><pre class="expected-output"><code>00:00
+Start -&gt; 00:01 -&gt; 00:02 -&gt; 00:03
+Stop  -&gt; hodnota sa nemení
+Reset -&gt; 00:00</code></pre></div><div data-lang="en" hidden><p>The window must remain responsive while the timer is running. Intentionally put <code>time.sleep(5)</code> into a callback and explain what happens.</p><pre class="expected-output"><code>00:00
+Start -&gt; 00:01 -&gt; 00:02 -&gt; 00:03
+Stop  -&gt; value does not change
+Reset -&gt; 00:00</code></pre></div></section><section class="worksheet-task"><h2><span data-lang="sk">Úloha 10 — Integračná aplikácia: File Dashboard</span><span data-lang="en" hidden>Task 10 — Integration App: File Dashboard</span></h2><div data-lang="sk"><p>Vytvorte jednu menšiu desktopovú aplikáciu, ktorá spojí viacero prvkov z tohto cvičenia.</p><p>Navrhovaná funkcionalita:</p><ul><li>výber textového súboru cez file dialog;</li><li>zobrazenie názvu súboru a základných štatistík;</li><li>vyhľadávanie slova alebo frázy v texte;</li><li>zobrazenie počtu zhôd;</li><li>zoznam riadkov, kde sa fráza nachádza;</li><li>uloženie krátkeho reportu do súboru;</li><li>stavový label pre chyby a úspešné akcie;</li><li>aspoň dve klávesové skratky;</li><li>oddelená business logika od UI callbackov.</li></ul><p>Minimálne samostatné funkcie mimo GUI:</p></div><div data-lang="en" hidden><p>Create one smaller desktop application that combines several elements from this exercise.</p><p>Suggested functionality:</p><ul><li>selecting a text file through a file dialog;</li><li>showing the file name and basic statistics;</li><li>searching for a word or phrase in the text;</li><li>showing the number of matches;</li><li>listing lines where the phrase appears;</li><li>saving a short report to a file;</li><li>a status label for errors and successful actions;</li><li>at least two keyboard shortcuts;</li><li>business logic separated from UI callbacks.</li></ul><p>Minimum standalone functions outside the GUI:</p></div><pre class="worksheet-code"><code>def analyze_text(text: str) -&gt; TextStats:
+    ...
+
+
+def find_matches(text: str, query: str) -&gt; list[tuple[int, str]]:
+    ...
+
+
+def build_report(filename: str, stats: TextStats, matches: list[tuple[int, str]]) -&gt; str:
+    ...</code></pre><div data-lang="sk"><pre class="expected-output"><code>File Dashboard
+
+Súbor: sample.txt
+Riadky: 12
+Slová: 148
+Zhody pre &quot;python&quot;: 4
+
+3: Python sa často používa na automatizáciu.
+8: Tento skript používa Python 3.11.</code></pre><p>Aplikácia nemusí byť graficky efektná. Má byť použiteľná, rozdelená do funkcií a nesmie zamŕzať pri bežných akciách.</p></div><div data-lang="en" hidden><pre class="expected-output"><code>File Dashboard
+
+File: sample.txt
+Lines: 12
+Words: 148
+Matches for &quot;python&quot;: 4
+
+3: Python is often used for automation.
+8: This script uses Python 3.11.</code></pre><p>The application does not need to be visually impressive. It should be usable, split into functions and must not freeze during common actions.</p></div></section><section class="worksheet-section"><h2><span data-lang="sk">Dokumentácia</span><span data-lang="en" hidden>Documentation</span></h2><ul><li><a href="https://docs.python.org/3/library/tkinter.html" target="_blank" rel="noreferrer">tkinter</a></li><li><a href="https://docs.python.org/3/library/tkinter.ttk.html" target="_blank" rel="noreferrer">ttk widgets</a></li><li><a href="https://docs.python.org/3/library/dialog.html" target="_blank" rel="noreferrer">tkinter dialogs</a></li></ul></section></main><footer class="site-footer"><p><strong data-i18n-key="course.title">Programovanie v Pythone</strong><br>Ing. Marek Horváth, PhD. ·<a href="mailto:marek.horvath@tuke.sk">marek.horvath@tuke.sk</a><br><span data-i18n-key="course.university">Technická univerzita v Košiciach</span></p></footer></div><script type="application/json" data-i18n-translations>{"course.title":{"sk":"Programovanie v Pythone","en":"Programming in Python"},"course.description":{"sk":"Python ako praktický jazyk pre automatizáciu, aplikácie, dáta, webové služby, testovanie a ďalšie oblasti softvérového vývoja.","en":"Python as a practical language for automation, applications, data work, web services, testing and other areas of software development."},"course.university":{"sk":"Technická univerzita v Košiciach","en":"Technical University of Košice"},"course.faculty":{"sk":"Fakulta elektrotechniky a informatiky","en":"Faculty of Electrical Engineering and Informatics"},"nav.home":{"sk":"Úvod","en":"Home"},"nav.lectures":{"sk":"Prednášky","en":"Lectures"},"nav.exercises":{"sk":"Cvičenia","en":"Exercises"},"nav.project":{"sk":"Projekt","en":"Project"},"nav.guides":{"sk":"Návody","en":"Guides"},"nav.cheatsheet":{"sk":"Cheatsheet","en":"Cheatsheet"},"nav.aria":{"sk":"Hlavná navigácia","en":"Main navigation"},"language.label":{"sk":"Jazyk","en":"Language"},"language.sk":{"sk":"Slovenčina","en":"Slovak"},"language.en":{"sk":"Angličtina","en":"English"},"footer.separator":{"sk":"·","en":"·"},"ui.copy":{"sk":"Kopírovať","en":"Copy"},"ui.copied":{"sk":"Skopírované","en":"Copied"},"ui.backHome":{"sk":"← Späť na úvod","en":"← Back to home"},"ui.backLectures":{"sk":"← Späť na prednášky","en":"← Back to lectures"},"ui.continueProject":{"sk":"Pokračovať na stránku Projekt","en":"Continue to Project"},"ui.continueCheatsheet":{"sk":"Pokračovať na Cheatsheet","en":"Continue to Cheatsheet"},"ui.unavailable":{"sk":"zatiaľ nedostupné","en":"not available yet"},"notFound.title":{"sk":"Stránka sa nenašla.","en":"Page not found."},"notFound.description":{"sk":"Požadovaná adresa neexistuje alebo bola presunutá.","en":"The requested address does not exist or has been moved."},"lecture.back":{"sk":"← Prednášky","en":"← Lectures"},"lecture.fullscreen":{"sk":"Celá obrazovka","en":"Fullscreen"},"lecture.neighbors":{"sk":"Susedné prednášky","en":"Adjacent lectures"},"lecture.previousLabel":{"sk":"← Prednáška {number}","en":"← Lecture {number}"},"lecture.nextLabel":{"sk":"Prednáška {number} →","en":"Lecture {number} →"},"lecture.lockedTitle":{"sk":"Materiál zatiaľ nie je zverejnený.","en":"This material is not published yet."},"exercise.done":{"sk":"Hotovo","en":"Done"},"exercise.back":{"sk":"← Cvičenia","en":"← Exercises"},"exercise.markDone":{"sk":"Označiť ako hotové: {title}","en":"Mark as done: {title}"},"exercise.completedProgress":{"sk":"{done} / {total} hotových","en":"{done} of {total} tasks completed"},"exercise.markAll":{"sk":"Označiť všetko ako hotové","en":"Mark all as done"},"exercise.resetProgress":{"sk":"Resetovať označenie","en":"Reset progress"},"exercise.resetTitle":{"sk":"Resetovať označenie?","en":"Reset progress?"},"exercise.resetBody":{"sk":"V tomto cvičení sa zruší označenie všetkých úloh ako hotových.","en":"This will clear all completed task marks in this exercise."},"exercise.cancel":{"sk":"Zrušiť","en":"Cancel"},"exercise.resetConfirm":{"sk":"Resetovať","en":"Reset"},"exercise.neighbors":{"sk":"Susedné cvičenia","en":"Adjacent exercises"},"exercise.previousLabel":{"sk":"← Cvičenie {number}","en":"← Exercise {number}"},"exercise.nextLabel":{"sk":"Cvičenie {number} →","en":"Exercise {number} →"},"exercise.codeSample":{"sk":"ukážka kódu","en":"code sample"},"exercise.expectedOutput":{"sk":"očakávaný výstup","en":"expected output"}}</script><script type="application/json" data-i18n-config>{"storageKey":"python-course.language","defaultLanguage":"sk"}</script><script type="module">var e=document.querySelector(`[data-i18n-config]`),t=document.querySelector(`[data-i18n-translations]`),n=o(),r=n.storageKey,i=n.defaultLanguage,a=s();function o(){if(!e?.textContent)return{storageKey:`python-course.language`,defaultLanguage:`sk`};try{let t=JSON.parse(e.textContent);return{storageKey:t.storageKey??`python-course.language`,defaultLanguage:c(t.defaultLanguage)}}catch{return{storageKey:`python-course.language`,defaultLanguage:`sk`}}}function s(){if(!t?.textContent)return{};try{return JSON.parse(t.textContent)}catch{return{}}}function c(e){return e===`en`?`en`:`sk`}function l(){try{return c(window.localStorage.getItem(r))}catch{return i}}function u(e){try{window.localStorage.setItem(r,e)}catch{}}function d(e,t={}){return e.replace(/\{(\w+)\}/g,(e,n)=>String(t[n]??e))}function f(e){let t=e.getAttribute(`data-i18n-values`);if(!t)return{};try{return JSON.parse(t)}catch{return{}}}function p(e,t){let n=l(),r=a[e];return d(r?.[n]??r?.sk??e,t)}function m(e,t){let n=f(e),r=e.getAttribute(`data-i18n-key`);if(r){let i=a[r];e.textContent=d(i?.[t]??i?.sk??e.textContent??``,n)}let i=e.getAttribute(`data-i18n-html`);if(i){let r=a[i];e.innerHTML=d(r?.[t]??r?.sk??e.innerHTML,n)}let o=e.getAttribute(`data-i18n-aria-label`);if(o){let r=a[o];e.setAttribute(`aria-label`,d(r?.[t]??r?.sk??e.getAttribute(`aria-label`)??``,n))}let s=e.getAttribute(`data-i18n-title`);if(s){let r=a[s];e.setAttribute(`title`,d(r?.[t]??r?.sk??e.getAttribute(`title`)??``,n))}let c=e.getAttribute(`data-i18n-placeholder`);if(c){let r=a[c];e.setAttribute(`placeholder`,d(r?.[t]??r?.sk??e.getAttribute(`placeholder`)??``,n))}}function h(e){let t=document.documentElement.getAttribute(`data-title-${e}`),n=document.documentElement.getAttribute(`data-description-${e}`);t&&(document.title=t);let r=document.querySelector(`meta[name="description"]`);r&&n&&(r.content=n)}function g(e=l()){document.documentElement.lang=e,document.documentElement.dataset.language=e,document.querySelectorAll(`[data-i18n-key], [data-i18n-html], [data-i18n-aria-label], [data-i18n-title], [data-i18n-placeholder]`).forEach(t=>{m(t,e)}),document.querySelectorAll(`[data-lang]`).forEach(t=>{t.hidden=t.getAttribute(`data-lang`)!==e}),document.querySelectorAll(`[data-language-option]`).forEach(t=>{let n=t.dataset.languageOption===e;t.toggleAttribute(`data-active`,n),t.setAttribute(`aria-pressed`,String(n))}),h(e),window.dispatchEvent(new CustomEvent(`python-course-language-applied`,{detail:{language:e}}))}function _(e){u(e),g(e),window.dispatchEvent(new CustomEvent(`python-course-language-change`,{detail:{language:e}}))}window.pythonCourseI18n={get language(){return l()},t:p,setLanguage:_,applyLanguage:()=>g()},document.querySelectorAll(`[data-language-option]`).forEach(e=>{e.addEventListener(`click`,()=>{_(c(e.dataset.languageOption))})}),window.addEventListener(`storage`,e=>{e.key===r&&g(c(e.newValue))}),g(l());</script><script type="application/json" data-exercise-navigation>[{"number":1,"slug":"01-uvod-ku-pythonu-v-praxi","href":"/cvicenia/01-uvod-ku-pythonu-v-praxi/","title":"Cvičenie 01","titleEn":"Exercise 01","subtitle":"Úvod ku Pythonu v praxi","subtitleEn":"Introduction to Python in Practice","taskCount":10},{"number":2,"slug":"02-skriptovanie-automatizacia","href":"/cvicenia/02-skriptovanie-automatizacia/","title":"Cvičenie 02","titleEn":"Exercise 02","subtitle":"Skriptovanie a automatizácia","subtitleEn":"Scripting and Automation","taskCount":10},{"number":3,"slug":"03-gui-event-driven","href":"/cvicenia/03-gui-event-driven/","title":"Cvičenie 03","titleEn":"Exercise 03","subtitle":"GUI a event-driven programovanie","subtitleEn":"GUI and Event-Driven Programming","taskCount":10},{"number":4,"slug":"04-testovanie-debugging-kvalita","href":"/cvicenia/04-testovanie-debugging-kvalita/","title":"Cvičenie 04","titleEn":"Exercise 04","subtitle":"Testovanie, debugging a kvalita kódu","subtitleEn":"Testing, Debugging and Code Quality","taskCount":10},{"number":5,"slug":"05-http-api","href":"/cvicenia/05-http-api/","title":"Cvičenie 05","titleEn":"Exercise 05","subtitle":"Internet, HTTP a API","subtitleEn":"Internet, HTTP and APIs","taskCount":10},{"number":6,"slug":"06-databazy","href":"/cvicenia/06-databazy/","title":"Cvičenie 06","titleEn":"Exercise 06","subtitle":"Databázy v Pythone","subtitleEn":"Databases in Python","taskCount":10},{"number":7,"slug":"07-data-science","href":"/cvicenia/07-data-science/","title":"Cvičenie 07","titleEn":"Exercise 07","subtitle":"Data Science v Pythone","subtitleEn":"Data Science in Python","taskCount":10},{"number":8,"slug":"08-web-scraping-browser","href":"/cvicenia/08-web-scraping-browser/","title":"Cvičenie 08","titleEn":"Exercise 08","subtitle":"Web scraping a automatizácia prehliadača","subtitleEn":"Web Scraping and Browser Automation","taskCount":10},{"number":9,"slug":"09-bezpecne-programovanie","href":"/cvicenia/09-bezpecne-programovanie/","title":"Cvičenie 09","titleEn":"Exercise 09","subtitle":"Bezpečné programovanie v Pythone","subtitleEn":"Secure Programming in Python","taskCount":10},{"number":10,"slug":"10-web-backend","href":"/cvicenia/10-web-backend/","title":"Cvičenie 10","titleEn":"Exercise 10","subtitle":"Web backend v Pythone","subtitleEn":"Web Backends in Python","taskCount":10}]</script><script type="module" src="/python/_astro/ExerciseEnhancements.astro_astro_type_script_index_0_lang.DisVSUVN.js"></script><script>(function(){const basePath = "/python";
+
+  (() => {
+    const rawBasePath = typeof basePath === "string" ? basePath : "/";
+    const normalizedBasePath = rawBasePath === "/" ? "" : rawBasePath.replace(/\/$/, "");
+
+    function withBasePath(path) {
+      if (
+        !normalizedBasePath ||
+        typeof path !== "string" ||
+        !path.startsWith("/") ||
+        path.startsWith("//") ||
+        path === normalizedBasePath ||
+        path.startsWith(`${normalizedBasePath}/`)
+      ) {
+        return path;
+      }
+
+      return `${normalizedBasePath}${path}`;
+    }
+
+    function applyBasePath(root = document) {
+      if (!normalizedBasePath) {
+        return;
+      }
+
+      root.querySelectorAll("a[href]").forEach((link) => {
+        const href = link.getAttribute("href");
+
+        if (!href) {
+          return;
+        }
+
+        link.setAttribute("href", withBasePath(href));
+      });
+    }
+
+    window.pythonCourseWithBasePath = withBasePath;
+    window.pythonCourseApplyBasePath = applyBasePath;
+    applyBasePath();
+  })();
+})();</script></body></html>
