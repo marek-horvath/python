@@ -347,6 +347,53 @@ const lecture01Revised = {
   ]
 };
 
+const lecture01Technical = {
+  slug: "01-uvod-ku-pythonu",
+  title: text("Úvod ku Pythonu", "Introduction to Python"),
+  deck: [
+    { kind: "title", title: text("Úvod ku Pythonu", "Introduction to Python") },
+    { kind: "statement", title: text("Dynamické typovanie", "Dynamic typing"), body: text("Python nie je jazyk bez typov. Typ patrí objektu; meno na objekt iba odkazuje.", "Python is not untyped. A type belongs to an object; a name only refers to it.") },
+    { kind: "areasGrid", title: text("Python v rôznych oblastiach", "Python in different areas") },
+    { kind: "objectModel", title: text("Mená a objekty", "Names and objects"), body: text("Priradenie vytvorí väzbu mena na objekt. Neskoršie priradenie zmení túto väzbu.", "Assignment creates a name binding. A later assignment changes that binding."), name: text("score", "score"), firstObject: text("92\nint", "92\nint"), secondObject: text("\"excellent\"\nstr", "\"excellent\"\nstr") },
+    { kind: "identity", title: text("Rovnosť a identita", "Equality and identity") },
+    { kind: "code", title: text("Priradenie a aliasing", "Assignment and aliasing"), label: "python", code: "results = [72, 91]\nalias = results\n\nalias.append(45)\n\nprint(results)\nprint(alias)", output: text("[72, 91, 45]\n[72, 91, 45]", "[72, 91, 45]\n[72, 91, 45]"), note: text("Priradenie nevytvorilo kópiu listu. Obe mená odkazujú na rovnaký mutable objekt.", "Assignment did not create a copy. Both names refer to the same mutable object.") },
+    { kind: "code", title: text("Argument funkcie a mutable objekt", "A function argument and a mutable object"), label: "python", code: "def add_score(scores: list[int]) -> None:\n    scores.append(100)\n\nvalues = [80, 90]\nadd_score(values)\nprint(values)", output: text("[80, 90, 100]", "[80, 90, 100]"), note: text("Parameter je ďalšie meno pre ten istý list. Python list pri volaní funkcie automaticky nekopíruje.", "The parameter is another name for the same list. Python does not copy a list when calling a function.") },
+    { kind: "mutabilityMap", title: text("Mutabilita objektov", "Object mutability"), body: text("Mutable objekt môžeme zmeniť na mieste. Pri immutable hodnote vznikne nový objekt.", "A mutable object can change in place. An immutable value produces a new object.") },
+    { kind: "sharingComparison", title: text("Aliasing a shallow copy", "Aliasing and shallow copy") },
+    { kind: "copyGraph", title: text("Shallow copy", "Shallow copy"), level: "shallow", body: text("Vonkajší slovník je nový. Vnorený list zostáva zdieľaný.", "The outer dictionary is new. The nested list remains shared.") },
+    { kind: "copyGraph", title: text("Deep copy", "Deep copy"), level: "deep", body: text("deepcopy() vytvorí nezávislé vnorené objekty. Nie je to predvolené riešenie pre každú kópiu.", "deepcopy() creates independent nested objects. It is not the default solution for every copy.") },
+    { kind: "table", title: text("Výber kolekcie", "Choosing a collection"), headers: [text("Typ", "Type"), text("Vlastnosť", "Property"), text("Použitie", "Use")], rows: [
+      [text("list", "list"), text("poradie, opakovania", "order, duplicates"), text("spracované súbory", "processed files")],
+      [text("tuple", "tuple"), text("pevný záznam", "fixed record"), text("(x, y) coordinates", "(x, y) coordinates")],
+      [text("set", "set"), text("unikátne hodnoty", "unique values"), text("email addresses", "email addresses")],
+      [text("dict", "dict"), text("hodnota pod kľúčom", "value by key"), text("user by id", "user by id")]
+    ] },
+    { kind: "collectionChoices", title: text("Rovnaké dáta, iná otázka", "The same data, different question") },
+    { kind: "twoCode", title: text("Index často nepotrebujeme", "An index is often unnecessary"), leftLabel: text("S INDEXOM", "WITH AN INDEX"), leftCode: "for i in range(len(names)):\n    print(names[i])", rightLabel: text("PRIAMO CEZ HODNOTU", "DIRECTLY OVER VALUES"), rightCode: "for name in names:\n    print(name)", note: text("Index pridajte až vtedy, keď ho program naozaj používa.", "Add an index only when the program actually uses it.") },
+    { kind: "twoCode", title: text("items() a enumerate()", "items() and enumerate()"), leftLabel: "dict.items()", leftCode: "for name, score in scores.items():\n    print(name, score)", rightLabel: "enumerate()", rightCode: "for index, name in enumerate(names, start=1):\n    print(index, name)", note: text("Rozbaľovanie pomenúva hodnoty, s ktorými pracujeme.", "Unpacking names the values we work with.") },
+    { kind: "zipLimit", title: text("zip() spája súvisiace sekvencie", "zip() connects related sequences") },
+    { kind: "slicing", title: text("Slicing", "Slicing") },
+    { kind: "unpacking", title: text("Unpacking", "Unpacking") },
+    { kind: "codeFull", title: text("Klasický cyklus", "A conventional loop"), label: "python", code: "scores = [72, 91, 45, 88]\n\npassed = []\nfor score in scores:\n    if score >= 51:\n        passed.append(score)", note: text("Postup je priamy: prejdeme hodnoty, vyberieme úspešné a uložíme ich.", "The process is direct: iterate, select passing values and store them.") },
+    { kind: "beforeAfter", title: text("List comprehension", "List comprehension"), leftLabel: text("CYKLUS", "LOOP"), leftCode: "passed = []\nfor score in scores:\n    if score >= 51:\n        passed.append(score)", rightLabel: text("COMPREHENSION", "COMPREHENSION"), rightCode: "passed = [\n    score\n    for score in scores\n    if score >= 51\n]", note: text("Comprehension je vhodný pre jednu krátku, čitateľnú transformáciu.", "A comprehension is suitable for one short, readable transformation.") },
+    { kind: "reasonList", title: text("Kedy comprehension nepoužiť", "When not to use a comprehension"), items: [text("viac vnorených iterácií", "multiple nested iterations"), text("viac podmienok alebo vetvení", "multiple conditions or branches"), text("side effects", "side effects"), text("potreba pomenovaných medzivýsledkov", "a need for named intermediate values")] },
+    { kind: "functionContract", title: text("Rozhranie funkcie", "A function interface"), body: text("Podpis určuje očakávaný vstup, výsledok a spôsob zlyhania.", "A signature specifies expected input, a result and a failure mode.") },
+    { kind: "twoCode", title: text("Pozičné a keyword argumenty", "Positional and keyword arguments"), leftLabel: text("POZÍCIA", "POSITION"), leftCode: "create_report(data,\n              \"score\",\n              True)", rightLabel: text("KEYWORD", "KEYWORD"), rightCode: "create_report(\n    data,\n    sort_by=\"score\",\n    descending=True,\n)", note: text("Keyword argumenty robia význam volania viditeľný priamo na mieste použitia.", "Keyword arguments make the meaning of a call visible at the point of use.") },
+    { kind: "typeHints", title: text("Type hints a statická kontrola", "Type hints and static checking") },
+    { kind: "twoCode", title: text("Mutable default argument", "A mutable default argument"), leftLabel: text("ZLE", "WRONG"), leftCode: "def add(name, students=[]):\n    students.append(name)\n    return students", rightLabel: text("SPRÁVNE", "CORRECT"), rightCode: "def add(name, students=None):\n    if students is None:\n        students = []\n    students.append(name)\n    return students", note: text("Default list vznikne pri definícii funkcie a potom sa zdieľa medzi volaniami.", "A default list is created at function definition time and shared between calls.") },
+    { kind: "recordComparison", title: text("Pomenovaný dátový záznam", "A named data record") },
+    { kind: "code", title: text("Definícia dataclass", "Defining a dataclass"), label: "python", code: "from dataclasses import dataclass\n\n@dataclass\nclass Result:\n    student: str\n    course: str\n    points: int\n\n    def passed(self) -> bool:\n        return self.points >= 51", note: text("dataclass je vhodný, keď hodnoty spolu opisujú jednu doménovú vec.", "A dataclass is useful when values describe one domain concept together.") },
+    { kind: "failureFlow", title: text("Exception handling", "Exception handling"), body: text("Volajúci kód má dostať konkrétnu chybu a rozhodnúť, ako na ňu zareaguje.", "Calling code should receive a specific error and decide how to react.") },
+    { kind: "twoCode", title: text("Konkrétna výnimka", "A specific exception"), leftLabel: text("NEPRESNÉ", "IMPRECISE"), leftCode: "try:\n    score = int(raw)\nexcept:\n    pass", rightLabel: text("KONKRÉTNE", "SPECIFIC"), rightCode: "try:\n    score = int(raw)\nexcept ValueError as error:\n    raise ValueError(\n        \"score must be an integer\"\n    ) from error", note: text("except: pass ukryje problém. Zachytávajte iba chybu, pri ktorej viete rozumne konať.", "except: pass hides a problem. Catch only an error you can handle meaningfully.") },
+    { kind: "moduleMain", title: text("Modul a main()", "A module and main()") },
+    { kind: "venv", title: text("Virtuálne prostredie", "Virtual environment") },
+    { kind: "projectFile", title: text("Projektové závislosti", "Project dependencies") },
+    { kind: "codeFull", title: text("Spracovanie výsledkov predmetu", "Processing course results"), label: "python", code: "def passed_by_course(results: list[Result]) -> dict[str, list[str]]:\n    grouped: dict[str, list[str]] = {}\n    for result in results:\n        if result.passed():\n            grouped.setdefault(result.course, []).append(result.student)\n    return grouped", note: text("Kolekcie, dataclass, funkcia a type hints sú tu súčasťou jedného malého programu.", "Collections, a dataclass, a function and type hints form one small program here.") },
+    { kind: "synthesisOutput", title: text("Výsledok spracovania", "Processing output") },
+    { kind: "learningModel", title: text("Model pre ďalšie týždne", "Model for the following weeks") }
+  ]
+};
+
 const lecture02Revised = {
   slug: "02-skriptovanie-automatizacia",
   title: text("Skriptovanie a automatizácia", "Scripting and Automation"),
@@ -772,7 +819,7 @@ if (!lecture) {
   throw new Error(`Neznáma prednáška: ${lectureId}`);
 }
 
-const deck = lecture.deck;
+let deck = lecture.deck;
 
 function value(item, language) {
   return typeof item === "string" ? item : item[language];
@@ -883,6 +930,202 @@ function renderSlide(pptx, item, index, language) {
   }
 
   addHeading(slide, title);
+  if (item.kind === "areasGrid") {
+    const areas = [
+      ["AUTOMATIZÁCIA", "pathlib · subprocess · scripts"],
+      ["DÁTA", "NumPy · pandas"],
+      ["WEB A API", "HTTPX · FastAPI"],
+      ["DESKTOP", "Tkinter"]
+    ];
+    areas.forEach(([label, detail], index) => {
+      const x = index % 2 === 0 ? 0.9 : 7.05;
+      const y = index < 2 ? 2.08 : 4.35;
+      slide.addShape("line", { x, y, w: 5.15, h: 0, line: { color: index % 2 ? colors.teal : colors.blue, pt: 1.4 } });
+      addText(slide, label, x, y + 0.32, 5.0, 0.3, { fontFace: fonts.mono, fontSize: 16, color: colors.navy, bold: true });
+      addText(slide, detail, x, y + 0.85, 5.0, 0.36, { fontSize: 23, color: colors.ink });
+    });
+    return;
+  }
+  if (item.kind === "identity") {
+    addCodePanel(slide, 0.78, 2.0, 5.42, 2.45, "python", "a = [1, 2]\nb = [1, 2]\n\na == b  # True\na is b  # False", 18);
+    addText(slide, "==", 6.85, 2.34, 1.0, 0.4, { fontFace: fonts.mono, fontSize: 28, color: colors.blue, bold: true, align: "center" });
+    addText(slide, "porovnáva hodnoty", 6.35, 2.95, 2.0, 0.32, { fontSize: 17, color: colors.muted, align: "center" });
+    addText(slide, "is", 6.85, 3.62, 1.0, 0.4, { fontFace: fonts.mono, fontSize: 28, color: colors.teal, bold: true, align: "center" });
+    addText(slide, "porovnáva identitu", 6.35, 4.23, 2.0, 0.32, { fontSize: 17, color: colors.muted, align: "center" });
+    addCodePanel(slide, 8.95, 2.0, 3.55, 2.45, "identity check", "value is None", 20);
+    addText(slide, "is používame typicky pri kontrole singletonov, najmä None; nie na porovnávanie bežných hodnôt.", 0.82, 5.42, 11.25, 0.46, { fontSize: 20, color: colors.muted });
+    return;
+  }
+  if (item.kind === "sharingComparison") {
+    const panels = [
+      { x: 0.78, label: "ALIASING", code: "b = a", names: "a ──┐\n    ├──→ [72, 91]\nb ──┘", note: "Dve mená. Jeden objekt." },
+      { x: 6.95, label: "SHALLOW COPY", code: "b = a.copy()", names: "a ───→ [72, 91]\nb ───→ [72, 91]", note: "Nový vonkajší objekt." }
+    ];
+    panels.forEach((panel) => {
+      addText(slide, panel.label, panel.x, 2.08, 5.1, 0.24, { fontFace: fonts.mono, fontSize: 13, color: colors.blue, bold: true });
+      addText(slide, panel.names, panel.x, 2.72, 5.2, 1.12, { fontFace: fonts.mono, fontSize: 22, color: colors.navy, valign: "mid" });
+      addText(slide, panel.code, panel.x, 4.5, 5.1, 0.32, { fontFace: fonts.mono, fontSize: 19, color: colors.ink, bold: true });
+      addText(slide, panel.note, panel.x, 5.15, 5.2, 0.32, { fontSize: 20, color: colors.muted });
+    });
+    slide.addShape("line", { x: 6.22, y: 2.0, w: 0, h: 3.65, line: { color: colors.line, pt: 0.8 } });
+    return;
+  }
+  if (item.kind === "copyGraph") {
+    addText(slide, value(item.body, language), 0.78, 1.9, 11.0, 0.42, { fontSize: 20, color: colors.muted });
+    const deep = item.level === "deep";
+    const names = deep ? ["original", "deep"] : ["original", "copy"];
+    const dicts = deep ? ["dict A", "dict B"] : ["dict A", "dict B"];
+    const lists = deep ? ["scores\nlist A", "scores\nlist B"] : ["scores\nshared list", "scores\nshared list"];
+    [0, 1].forEach((index) => {
+      const y = index === 0 ? 3.05 : 4.75;
+      addText(slide, names[index], 0.86, y + 0.28, 1.45, 0.3, { fontFace: fonts.mono, fontSize: 20, color: colors.navy, bold: true });
+      slide.addShape("chevron", { x: 2.45, y: y + 0.3, w: 0.28, h: 0.26, fill: { color: colors.blue }, line: { color: colors.blue } });
+      slide.addShape("rect", { x: 2.95, y, w: 2.05, h: 0.9, fill: { color: colors.panel }, line: { color: colors.line, pt: 0.75 } });
+      addText(slide, dicts[index], 3.1, y + 0.28, 1.75, 0.25, { fontFace: fonts.mono, fontSize: 17, color: colors.navy, bold: true, align: "center" });
+      slide.addShape("chevron", { x: 5.25, y: y + 0.3, w: 0.28, h: 0.26, fill: { color: colors.blue }, line: { color: colors.blue } });
+      slide.addShape("rect", { x: 5.75, y, w: 2.45, h: 0.9, fill: { color: deep ? "EAF3F7" : colors.panel }, line: { color: colors.line, pt: 0.75 } });
+      addText(slide, lists[index], 5.92, y + 0.17, 2.1, 0.5, { fontFace: fonts.mono, fontSize: 15.5, color: colors.navy, bold: true, align: "center", valign: "mid" });
+    });
+    if (!deep) slide.addShape("line", { x: 8.42, y: 3.5, w: 0.55, h: 1.5, line: { color: colors.accent, pt: 1.4 } });
+    addText(slide, deep ? "Dva slovníky, dva vnorené listy." : "Dva slovníky, jeden zdieľaný vnorený list.", 9.28, 3.5, 2.9, 1.15, { fontSize: 21, color: colors.navy, bold: true, valign: "mid" });
+    return;
+  }
+  if (item.kind === "collectionChoices") {
+    const lines = [
+      ["Potrebujem zachovať poradie", "list"],
+      ["Potrebujem unikátne emaily", "set"],
+      ["Potrebujem user podľa id", "dict"],
+      ["Potrebujem pevnú dvojicu coordinates", "tuple"]
+    ];
+    lines.forEach(([question, answer], index) => {
+      const y = 1.95 + index * 1.08;
+      addText(slide, question, 0.9, y, 7.6, 0.35, { fontSize: 24, color: colors.ink });
+      addText(slide, `→ ${answer}`, 8.85, y, 2.7, 0.35, { fontFace: fonts.mono, fontSize: 24, color: colors.blue, bold: true });
+      slide.addShape("line", { x: 0.9, y: y + 0.58, w: 10.65, h: 0, line: { color: colors.line, pt: 0.7 } });
+    });
+    return;
+  }
+  if (item.kind === "twoCode") {
+    addCodePanel(slide, 0.72, 2.0, 5.68, 3.56, value(item.leftLabel, language), item.leftCode, 17.2);
+    addCodePanel(slide, 6.93, 2.0, 5.68, 3.56, value(item.rightLabel, language), item.rightCode, 17.2);
+    addText(slide, value(item.note, language), 0.82, 6.0, 11.3, 0.45, { fontSize: 19.5, color: colors.muted, valign: "top" });
+    return;
+  }
+  if (item.kind === "zipLimit") {
+    addCodePanel(slide, 0.78, 2.0, 6.45, 3.85, "python", "names = [\"Anna\", \"Peter\", \"Lucia\"]\npoints = [92, 67]\n\nfor name, score in zip(names, points):\n    print(name, score)", 17.2);
+    addText(slide, "Anna 92\nPeter 67", 8.15, 2.25, 3.1, 0.75, { fontFace: fonts.mono, fontSize: 22, color: colors.navy, bold: true });
+    addText(slide, "zip() štandardne skončí pri kratšom iterable. Hodnota Lucia sa nespracuje.", 8.15, 3.55, 3.55, 1.1, { fontSize: 21, color: colors.muted, valign: "top" });
+    return;
+  }
+  if (item.kind === "slicing") {
+    addText(slide, "values = [10, 20, 30, 40, 50, 60]", 0.85, 2.0, 9.8, 0.35, { fontFace: fonts.mono, fontSize: 22, color: colors.navy, bold: true });
+    const values = ["10", "20", "30", "40", "50", "60"];
+    values.forEach((entry, index) => {
+      const x = 0.92 + index * 1.65;
+      slide.addShape("rect", { x, y: 2.78, w: 1.18, h: 0.72, fill: { color: index < 3 ? "EAF3F7" : colors.panel }, line: { color: colors.line, pt: 0.7 } });
+      addText(slide, entry, x, 3.0, 1.18, 0.24, { fontFace: fonts.mono, fontSize: 19, color: colors.navy, bold: true, align: "center" });
+    });
+    addText(slide, "values[:3]", 0.92, 4.12, 2.5, 0.3, { fontFace: fonts.mono, fontSize: 21, color: colors.blue, bold: true });
+    addText(slide, "[10, 20, 30]", 3.45, 4.12, 3.2, 0.3, { fontFace: fonts.mono, fontSize: 21, color: colors.ink });
+    addText(slide, "values[::2]", 0.92, 4.92, 2.5, 0.3, { fontFace: fonts.mono, fontSize: 21, color: colors.blue, bold: true });
+    addText(slide, "[10, 30, 50]", 3.45, 4.92, 3.2, 0.3, { fontFace: fonts.mono, fontSize: 21, color: colors.ink });
+    addText(slide, "values[::-1]", 0.92, 5.72, 2.5, 0.3, { fontFace: fonts.mono, fontSize: 21, color: colors.blue, bold: true });
+    addText(slide, "[60, 50, 40, 30, 20, 10]", 3.45, 5.72, 5.8, 0.3, { fontFace: fonts.mono, fontSize: 21, color: colors.ink });
+    return;
+  }
+  if (item.kind === "unpacking") {
+    addText(slide, "first, *middle, last = values", 0.85, 1.95, 10.4, 0.38, { fontFace: fonts.mono, fontSize: 23, color: colors.navy, bold: true });
+    const groups = [
+      { x: 0.92, w: 1.32, label: "10", role: "first" },
+      { x: 2.58, w: 6.05, label: "20   30   40   50", role: "middle" },
+      { x: 8.97, w: 1.32, label: "60", role: "last" }
+    ];
+    groups.forEach((group, index) => {
+      slide.addShape("rect", { x: group.x, y: 3.05, w: group.w, h: 0.86, fill: { color: index === 1 ? "EAF3F7" : colors.panel }, line: { color: colors.line, pt: 0.7 } });
+      addText(slide, group.label, group.x, 3.35, group.w, 0.24, { fontFace: fonts.mono, fontSize: 19, color: colors.navy, bold: true, align: "center" });
+      addText(slide, group.role, group.x, 4.42, group.w, 0.3, { fontFace: fonts.mono, fontSize: 19, color: colors.blue, bold: true, align: "center" });
+    });
+    addText(slide, "Unpacking dáva názvy častiam sekvencie, keď majú v programe jasný význam.", 0.92, 5.55, 10.8, 0.38, { fontSize: 21, color: colors.muted });
+    return;
+  }
+  if (item.kind === "reasonList") {
+    addText(slide, "Použite radšej pomenované medzivýsledky a klasický cyklus, ak potrebujete:", 0.88, 1.95, 10.8, 0.44, { fontSize: 23, color: colors.muted });
+    item.items.forEach((entry, index) => {
+      const y = 2.85 + index * 0.82;
+      addText(slide, "—", 0.94, y, 0.35, 0.32, { fontSize: 25, color: colors.blue, bold: true });
+      addText(slide, value(entry, language), 1.42, y, 9.4, 0.32, { fontSize: 24, color: colors.ink });
+    });
+    return;
+  }
+  if (item.kind === "typeHints") {
+    addCodePanel(slide, 0.8, 2.0, 4.5, 3.5, "python", "def average(\n    values: list[float]\n) -> float:\n    ...", 18);
+    const stages = ["source code", "IDE / type checker", "potenciálny problém\npred spustením"];
+    stages.forEach((stage, index) => {
+      const x = 6.12 + index * 2.05;
+      if (index > 0) slide.addShape("chevron", { x: x - 0.36, y: 3.22, w: 0.2, h: 0.27, fill: { color: colors.blue }, line: { color: colors.blue } });
+      addText(slide, stage, x, 2.82, 1.8, 0.72, { fontSize: 16.5, color: colors.navy, bold: true, align: "center", valign: "mid" });
+    });
+    addText(slide, "Python runtime type hints bežne nevynucuje.", 6.12, 4.7, 5.7, 0.35, { fontSize: 21, color: colors.muted, valign: "top" });
+    return;
+  }
+  if (item.kind === "recordComparison") {
+    addText(slide, "Tuple bez pomenovaných polí", 0.82, 2.05, 5.0, 0.32, { fontSize: 22, color: colors.muted });
+    addText(slide, "(\"Anna\", \"Python\", 92)", 0.82, 2.7, 5.25, 0.42, { fontFace: fonts.mono, fontSize: 23, color: colors.navy, bold: true });
+    addText(slide, "Čo znamená index 1?", 0.82, 3.58, 5.0, 0.32, { fontSize: 22, color: colors.ink });
+    slide.addShape("line", { x: 6.35, y: 1.95, w: 0, h: 3.85, line: { color: colors.line, pt: 0.8 } });
+    addText(slide, "dataclass s pomenovanými poľami", 6.95, 2.05, 5.0, 0.32, { fontSize: 22, color: colors.muted });
+    addText(slide, "Result(\n    student=\"Anna\",\n    course=\"Python\",\n    points=92,\n)", 6.95, 2.62, 4.7, 1.7, { fontFace: fonts.mono, fontSize: 20, color: colors.navy, bold: true, valign: "top" });
+    addText(slide, "Význam dát je viditeľný priamo v kóde.", 6.95, 4.78, 4.7, 0.55, { fontSize: 21, color: colors.ink });
+    return;
+  }
+  if (item.kind === "moduleMain") {
+    addText(slide, "import", 0.92, 2.08, 2.5, 0.32, { fontFace: fonts.mono, fontSize: 26, color: colors.blue, bold: true });
+    addText(slide, "sprístupní verejné funkcie modulu", 0.92, 2.68, 4.6, 0.35, { fontSize: 22, color: colors.ink });
+    addText(slide, "execute", 0.92, 4.12, 2.5, 0.32, { fontFace: fonts.mono, fontSize: 26, color: colors.teal, bold: true });
+    addText(slide, "spustí program cez main()", 0.92, 4.72, 4.6, 0.35, { fontSize: 22, color: colors.ink });
+    addCodePanel(slide, 6.35, 2.0, 5.85, 3.9, "python", "from report import build_summary\n\ndef main() -> None:\n    print(build_summary(\"results.csv\"))\n\nif __name__ == \"__main__\":\n    main()", 16.6);
+    return;
+  }
+  if (item.kind === "venv") {
+    const projects = [
+      { x: 0.9, label: "project A", deps: "dependencies A" },
+      { x: 7.0, label: "project B", deps: "dependencies B" }
+    ];
+    projects.forEach((project) => {
+      addText(slide, project.label, project.x, 2.05, 4.2, 0.34, { fontFace: fonts.mono, fontSize: 23, color: colors.navy, bold: true });
+      slide.addShape("chevron", { x: project.x + 1.75, y: 2.72, w: 0.3, h: 0.28, fill: { color: colors.blue }, line: { color: colors.blue } });
+      addText(slide, ".venv", project.x, 3.15, 4.2, 0.34, { fontFace: fonts.mono, fontSize: 26, color: colors.blue, bold: true });
+      slide.addShape("chevron", { x: project.x + 1.75, y: 3.8, w: 0.3, h: 0.28, fill: { color: colors.blue }, line: { color: colors.blue } });
+      addText(slide, project.deps, project.x, 4.25, 4.8, 0.34, { fontSize: 22, color: colors.ink });
+    });
+    addText(slide, "Každý projekt môže mať vlastné verzie knižníc bez zásahu do systémového Pythonu.", 0.9, 5.7, 10.85, 0.4, { fontSize: 20, color: colors.muted });
+    return;
+  }
+  if (item.kind === "projectFile") {
+    addCodePanel(slide, 0.78, 2.0, 5.4, 3.55, "terminal", "python -m venv .venv\n.venv\\Scripts\\activate\n\npython -m pip install httpx", 17.4);
+    addCodePanel(slide, 6.9, 2.0, 5.4, 3.55, "pyproject.toml", "[project]\nname = \"course-report\"\ndependencies = [\n    \"httpx>=0.27\",\n]", 17.4);
+    addText(slide, "pyproject.toml opisuje závislosti potrebné na spustenie projektu na inom počítači.", 0.85, 6.0, 11.0, 0.4, { fontSize: 20, color: colors.muted });
+    return;
+  }
+  if (item.kind === "synthesisOutput") {
+    addText(slide, "results = [", 0.85, 1.92, 2.5, 0.3, { fontFace: fonts.mono, fontSize: 21, color: colors.navy, bold: true });
+    addText(slide, "Result(\"Anna\", \"Python\", 92),\nResult(\"Peter\", \"Python\", 67),\nResult(\"Lucia\", \"Databázy\", 45),\n]", 0.85, 2.45, 5.5, 1.5, { fontFace: fonts.mono, fontSize: 18, color: colors.ink, valign: "top" });
+    addText(slide, "passed_by_course(results)", 0.85, 4.55, 5.7, 0.3, { fontFace: fonts.mono, fontSize: 20, color: colors.blue, bold: true });
+    slide.addShape("line", { x: 6.55, y: 1.95, w: 0, h: 3.75, line: { color: colors.line, pt: 0.8 } });
+    addText(slide, "{\n    \"Python\": [\"Anna\", \"Peter\"]\n}", 7.15, 2.55, 4.4, 1.2, { fontFace: fonts.mono, fontSize: 23, color: colors.navy, bold: true, valign: "top" });
+    addText(slide, "Výsledkom je obyčajný dict, ktorého štruktúru určuje otázka programu.", 7.15, 4.55, 4.45, 0.7, { fontSize: 20, color: colors.muted, valign: "top" });
+    return;
+  }
+  if (item.kind === "learningModel") {
+    const stages = ["objekty", "kolekcie", "funkcie", "moduly", "aplikácia"];
+    stages.forEach((stage, index) => {
+      const x = 0.76 + index * 2.42;
+      addText(slide, stage, x, 2.72, 1.72, 0.34, { fontSize: 21, color: colors.navy, bold: true, align: "center" });
+      if (index < stages.length - 1) slide.addShape("chevron", { x: x + 1.88, y: 2.77, w: 0.22, h: 0.24, fill: { color: colors.blue }, line: { color: colors.blue } });
+    });
+    addText(slide, "Tieto princípy budeme používať pri automatizácii, GUI, HTTP, databázach a testovaní.", 0.95, 4.65, 10.8, 0.48, { fontSize: 23, color: colors.muted, align: "center" });
+    return;
+  }
   if (item.kind === "objectModel") {
     addText(slide, value(item.body, language), 0.76, 1.86, 10.7, 0.46, { fontSize: 18.5, color: colors.muted, valign: "top" });
     const bindings = [
@@ -1039,12 +1282,14 @@ function renderSlide(pptx, item, index, language) {
 }
 
 async function build(language) {
+  const sourceLecture = lectureId === "01" && language === "sk" ? lecture01Technical : lecture;
+  deck = sourceLecture.deck;
   const pptx = new pptxgen();
   pptx.layout = "LAYOUT_WIDE";
   pptx.author = "TUKE FEI";
   pptx.company = "Technická univerzita v Košiciach";
   pptx.subject = language === "sk" ? "Programovanie v Pythone" : "Programming in Python";
-  pptx.title = value(lecture.title, language);
+  pptx.title = value(sourceLecture.title, language);
   pptx.lang = language === "sk" ? "sk-SK" : "en-US";
   pptx.theme = { headFontFace: "Aptos Display", bodyFontFace: "Aptos", lang: pptx.lang };
   deck.forEach((item, index) => renderSlide(pptx, item, index + 1, language));
@@ -1054,5 +1299,5 @@ async function build(language) {
   console.log(`Vytvorený PPTX: ${output}`);
 }
 
-await build("sk");
-await build("en");
+const languages = process.argv.includes("--sk") ? ["sk"] : process.argv.includes("--en") ? ["en"] : ["sk", "en"];
+for (const language of languages) await build(language);
