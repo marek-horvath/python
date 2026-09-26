@@ -27,7 +27,7 @@ export const presentations: Presentation[] = weeks
     title: week.title,
     titleEn: weekTitleTranslations[week.number as keyof typeof weekTitleTranslations]?.en ?? week.title,
     description: week.description,
-    duration: "50-60 minút",
+    duration: week.lectureDuration ?? "50-60 minút",
     source: {
       sk: `presentations/${presentationFileName(week.number, week.slug, "sk")}`,
       en: `presentations/${presentationFileName(week.number, week.slug, "en")}`

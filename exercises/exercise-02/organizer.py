@@ -1,34 +1,31 @@
+import argparse
 from pathlib import Path
 
 
-def find_files(directory: Path, extension: str) -> list[Path]:
-    """Return files with the selected extension, including subdirectories."""
-    # TODO: implement in task 2
-    return []
+def vypis_polozky(priecinok: Path) -> None:
+    """Vypíše bezprostredné položky vstupného priečinka."""
+    # TODO: úloha 1
 
 
-def load_config(path: Path) -> dict[str, list[str]]:
-    """Load JSON category configuration."""
-    # TODO: implement in task 3
+def organizuj(priecinok: Path, vykonat: bool = False) -> dict[str, int]:
+    """Naplánuje alebo vykoná organizáciu súborov podľa prípony."""
+    # TODO: úlohy 2 až 4 a 6
     return {}
 
 
-def organize_files(
-    directory: Path,
-    config: dict[str, list[str]],
-    dry_run: bool = False,
-) -> dict[str, int]:
-    """Organize files into category folders and return counts."""
-    # TODO: implement in task 4
-    return {}
+def parse_args() -> argparse.Namespace:
+    """Načíta argumenty príkazového riadku."""
+    # TODO: úloha 5
+    parser = argparse.ArgumentParser(description="Triedi súbory podľa prípony.")
+    return parser.parse_args()
 
 
 def main() -> None:
-    # TODO: implement CLI in task 5
-    directory = Path("sample_downloads")
-    print(f"Directory: {directory}")
+    # Úloha 1 začína týmto výpisom. V úlohe 2 ho nahraďte volaním organizuj().
+    vypis_polozky(Path("subory"))
+
+    # TODO v úlohe 5 nahraďte hardcoded cestu argumentmi z parse_args().
 
 
 if __name__ == "__main__":
     main()
-

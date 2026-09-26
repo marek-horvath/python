@@ -54,18 +54,18 @@ export const exercises: Exercise[] = [
     slug: "02-skriptovanie-automatizacia",
     title: "Cvičenie 02",
     subtitle: "Skriptovanie a automatizácia",
-    description: "Praktický file organizer, JSON/CSV konfigurácia, textové logy, CLI argumenty a dry-run.",
+    description: "Postupná tvorba bezpečného file organizera: pathlib, dry-run, kolízie, CLI a súhrnný report.",
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/02-skriptovanie-automatizacia/",
-    taskCount: 10,
+    taskCount: 6,
     starterPath: "exercises/exercise-02/",
     solutionPath: "solutions/exercise-02/",
     translations: {
       en: {
         title: "Exercise 02",
         subtitle: "Scripting and Automation",
-        description: "A practical file organizer, JSON/CSV configuration, text logs, CLI arguments and dry-run.",
+        description: "Step-by-step development of a safe file organiser: pathlib, dry run, collisions, CLI and a summary report.",
         duration: "approximately 90 min"
       }
     }

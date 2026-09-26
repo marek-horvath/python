@@ -16,7 +16,8 @@ const tocItems: Array<{ id: string; label: Pair }> = [
   { id: "dokumentacia", label: { sk: "Dokumentácia", en: "Documentation" } },
   { id: "video", label: { sk: "Video", en: "Video" } },
   { id: "odovzdavanie", label: { sk: "Odovzdávanie", en: "Submission" } },
-  { id: "samostatnost", label: { sk: "Samostatnosť", en: "Independent Work" } },
+  { id: "ai", label: { sk: "Použitie AI", en: "Use of AI" } },
+  { id: "vyskum", label: { sk: "Výskum", en: "Research" } },
   { id: "hodnotenie", label: { sk: "Hodnotenie", en: "Grading" } }
 ];
 
@@ -618,20 +619,44 @@ Spustenie / Running
 Základné použitie / Basic usage`}</code></pre>
         </section>
 
-        <section id="samostatnost" class="project-section">
+        <section id="ai" class="project-section">
           <div class="project-section__heading">
-            <h2><LocalizedText sk="Samostatnosť a zdroje" en="Independent Work and Sources" /></h2>
+            <h2><LocalizedText sk="Použitie AI a zodpovednosť" en="Use of AI and Responsibility" /></h2>
           </div>
           <p>
             <LocalizedText
-              sk="Projekt musí byť výsledkom vlastnej práce študenta. Je možné používať dokumentáciu, knihy, Stack Overflow, tutoriály, AI nástroje a bežné vývojárske zdroje, ale študent musí rozumieť výslednému riešeniu a vedieť vysvetliť svoje technické rozhodnutia."
-              en="The project must be the student's own work. Documentation, books, Stack Overflow, tutorials, AI tools and common developer resources may be used, but the student must understand the submitted solution and be able to explain technical decisions."
+              sk="Používanie AI nástrojov je pri projekte povolené. Za celý odovzdaný projekt však zodpovedá študent: musí rozumieť vygenerovanému kódu, vedieť ho upraviť, vysvetliť jeho správanie a obhájiť svoje technické rozhodnutia."
+              en="AI tools are permitted for the project. However, the student remains responsible for the entire submission: they must understand generated code, be able to modify it, explain its behaviour and defend their technical decisions."
             />
           </p>
           <p>
             <LocalizedText
-              sk="Nie je v poriadku odovzdať cudzí alebo kompletne prevzatý projekt ako vlastný. Výraznejší externý zdroj, template, knižnica alebo AI nástroj má byť transparentne uvedený v dokumentácii spolu s tým, na čo bol použitý."
-              en="Submitting someone else's project or a fully copied project as your own is not acceptable. Significant external sources, templates, libraries or AI tools should be transparently listed in the documentation together with how they were used."
+              sk="Ak študent nevie vysvetliť alebo samostatne upraviť podstatnú časť svojho riešenia, bude to považované za nedostatočné zvládnutie projektu. Výsledkom môže byť bodová penalizácia; pri zásadnom neporozumení projektu študent nemusí splniť podmienky na absolvovanie predmetu."
+              en="If a student cannot explain or independently modify a substantial part of the solution, this will be treated as insufficient mastery of the project. It may result in a point penalty; fundamental lack of understanding may mean the student does not satisfy the requirements for passing the course."
+            />
+          </p>
+          <p>
+            <LocalizedText
+              sk="Výraznejšie externé zdroje, templates, knižnice a AI nástroje musia byť transparentne uvedené v dokumentácii spolu s opisom, na čo boli použité. Odovzdanie cudzieho alebo kompletne prevzatého projektu ako vlastného nie je prípustné."
+              en="Significant external sources, templates, libraries and AI tools must be transparently listed in the documentation together with how they were used. Submitting someone else's project or a fully copied project as one's own is not acceptable."
+            />
+          </p>
+        </section>
+
+        <section id="vyskum" class="project-section">
+          <div class="project-section__heading">
+            <h2><LocalizedText sk="Anonymizované využitie na výskum" en="Anonymised Use for Research" /></h2>
+          </div>
+          <p>
+            <LocalizedText
+              sk="Odovzdané zadania a projekty môžu byť spracované na účely pedagogického a vedeckého výskumu. Pred výskumným spracovaním budú odstránené priame identifikátory študentov a výsledky budú vyhodnocované a prezentované v anonymizovanej alebo súhrnnej podobe."
+              en="Submitted assignments and projects may be processed for educational and scientific research. Direct student identifiers will be removed before research processing, and results will be evaluated and presented in anonymised or aggregated form."
+            />
+          </p>
+          <p>
+            <LocalizedText
+              sk="Cieľom je skúmať postupy riešenia, kvalitu programátorských výstupov a využívanie nástrojov pri výučbe; nie verejne hodnotiť alebo identifikovať konkrétnych študentov."
+              en="The purpose is to study solution approaches, the quality of programming outputs and tool use in education, not to publicly evaluate or identify individual students."
             />
           </p>
         </section>

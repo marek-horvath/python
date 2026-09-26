@@ -1,6 +1,0 @@
-{
-  "documents": [".pdf", ".docx", ".txt"],
-  "images": [".jpg", ".jpeg", ".png"],
-  "archives": [".zip", ".rar", ".7z"]
-}
-

@@ -16,6 +16,7 @@ export type WeekConfig = {
   description: string;
   status: WeekStatus;
   lectureAvailable: boolean;
+  lectureDuration?: string;
   exerciseAvailable: boolean;
   materials: MaterialLink[];
   plannedFocus: string[];

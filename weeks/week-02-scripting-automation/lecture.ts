@@ -5,7 +5,7 @@ export const lecture02 = {
   slug: "02-skriptovanie-automatizacia",
   title: "Skriptovanie a automatizácia",
   description: "Python ako praktický nástroj na automatizáciu práce so súbormi, textom, dátovými formátmi a operačným systémom.",
-  duration: "50-60 minút",
+  duration: "90 minút",
   slides: [
     {
       id: "01-title",
@@ -704,7 +704,7 @@ if __name__ == "__main__":
     en: {
       title: "Scripting and Automation",
       description: "Python as a practical tool for automating work with files, text, data formats and the operating system.",
-      duration: "50-60 min",
+      duration: "90 min",
       slides: {
         "01-title": {
           title: "Scripting and Automation"

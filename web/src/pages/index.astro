@@ -2,27 +2,20 @@
 import { courseConfig } from "@shared/course.config";
 import {
   academicResourceTranslations,
-  formatLocalizedDay,
-  formatLocalizedTime,
   localizedCourse,
   translate,
   type I18nDictionary,
   weekTitleTranslations
 } from "@shared/i18n";
-import { formatLectureDate, getScheduledWeeks, isWeekReleased } from "@shared/publication";
+import { formatLectureDate, isWeekReleased } from "@shared/publication";
 import { lectures } from "@shared/lectures";
 import { weeks } from "@shared/weeks";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const scheduledWeeks = getScheduledWeeks(weeks);
-const localizedSchedule = scheduledWeeks.map((week) => ({
-  number: week.number,
-  titles: weekTitleTranslations[week.number] ?? { sk: week.title, en: week.title },
-  lectureAt: week.lectureAt
-}));
-const firstScheduledWeek = localizedSchedule[0];
-const firstLectureDay = formatLocalizedDay(firstScheduledWeek?.lectureAt, "sk", courseConfig.timezone);
-const firstLectureTime = formatLocalizedTime(firstScheduledWeek?.lectureAt, "sk", courseConfig.timezone);
+const activeWeek = weeks.find((week) => week.number === courseConfig.currentWeek) ?? weeks[0];
+const activeWeekTitles = activeWeek
+  ? weekTitleTranslations[activeWeek.number] ?? { sk: activeWeek.title, en: activeWeek.title }
+  : { sk: "", en: "" };
 
 const homeTranslations = {
   "home.lead": {
@@ -41,7 +34,7 @@ const homeTranslations = {
   "home.exercises": { sk: "Cvičenia", en: "Exercises" },
   "home.online": { sk: "online", en: "online" },
   "home.connection": { sk: "Pripojenie", en: "Connection" },
-  "home.connectionInfo": { sk: "informácie budú doplnené", en: "details will be added later" },
+  "home.connectionInfo": { sk: "MS Teams · kód tímu: izbx6z5", en: "MS Teams · team code: izbx6z5" },
   "home.lecturer": { sk: "Vyučujúci", en: "Lecturer" },
   "home.contact": { sk: "Kontakt", en: "Contact" },
   "home.resourcesKicker": { sk: "Doplňujúce zdroje", en: "Additional Resources" },
@@ -67,22 +60,23 @@ const homeTranslations = {
       <aside
         class="next-lecture"
         data-next-lecture
-        data-schedule={JSON.stringify(localizedSchedule)}
+        data-week-number={activeWeek?.number ?? ""}
+        data-week-titles={JSON.stringify(activeWeekTitles)}
         data-timezone={courseConfig.timezone}
         aria-label={translate(homeTranslations, "home.nextAria", "sk")}
         data-i18n-aria-label="home.nextAria"
       >
         <p class="next-lecture__label" data-i18n-key="home.nextLabel">Najbližšie</p>
         <div class="next-lecture__date-row">
-          <p class="next-lecture__day" data-next-day>{firstLectureDay}</p>
-          <p class="next-lecture__time" data-next-time>{firstLectureTime}</p>
+          <p class="next-lecture__day" data-next-day>pondelok</p>
+          <p class="next-lecture__time" data-next-time>09:10</p>
         </div>
         <div class="next-lecture__topic">
           <p class="next-lecture__number" data-next-number>
-            {firstScheduledWeek ? String(firstScheduledWeek.number).padStart(2, "0") : ""}
+            {activeWeek ? String(activeWeek.number).padStart(2, "0") : ""}
           </p>
           <p class="next-lecture__title" data-next-title>
-            {firstScheduledWeek?.titles.sk ?? translate(homeTranslations, "home.noNext", "sk")}
+            {activeWeekTitles.sk || translate(homeTranslations, "home.noNext", "sk")}
           </p>
         </div>
         <p class="countdown-value" data-countdown data-i18n-key="home.countdownLoading">Odpočet sa načítava.</p>
@@ -140,7 +134,7 @@ const homeTranslations = {
           </div>
           <div>
             <dt data-i18n-key="home.connection">Pripojenie</dt>
-            <dd data-i18n-key="home.connectionInfo">informácie budú doplnené</dd>
+            <dd data-i18n-key="home.connectionInfo">MS Teams · kód tímu: izbx6z5</dd>
           </div>
           <div>
             <dt data-i18n-key="home.lecturer">Vyučujúci</dt>
@@ -174,11 +168,6 @@ const homeTranslations = {
 
   <script>
     type Language = "sk" | "en";
-    type ScheduledWeek = {
-      number: number;
-      titles: Record<Language, string>;
-      lectureAt: string;
-    };
     type I18nApi = {
       language: Language;
       t: (key: string) => string;
@@ -192,7 +181,8 @@ const homeTranslations = {
     const countdown = root?.querySelector<HTMLElement>("[data-countdown]");
     const empty = root?.querySelector<HTMLElement>("[data-no-next]");
     const timezone = root?.getAttribute("data-timezone") ?? "Europe/Bratislava";
-    const schedule = JSON.parse(root?.getAttribute("data-schedule") ?? "[]") as ScheduledWeek[];
+    const weekNumber = Number(root?.getAttribute("data-week-number") ?? "0");
+    const weekTitles = JSON.parse(root?.getAttribute("data-week-titles") ?? "{}") as Partial<Record<Language, string>>;
 
     function i18n() {
       return (window as Window & { pythonCourseI18n?: I18nApi }).pythonCourseI18n;
@@ -234,12 +224,68 @@ const homeTranslations = {
       });
     }
 
+    function zonedParts(value: Date) {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: timezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23"
+      }).formatToParts(value);
+      const part = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((item) => item.type === type)?.value);
+      return {
+        year: part("year"),
+        month: part("month"),
+        day: part("day"),
+        hour: part("hour"),
+        minute: part("minute"),
+        second: part("second")
+      };
+    }
+
+    function dateAtTimezone(year: number, month: number, dayOfMonth: number, hour: number, minute: number) {
+      const desired = Date.UTC(year, month - 1, dayOfMonth, hour, minute);
+      let result = new Date(desired);
+
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const actual = zonedParts(result);
+        const represented = Date.UTC(actual.year, actual.month - 1, actual.day, actual.hour, actual.minute, actual.second);
+        result = new Date(result.getTime() + desired - represented);
+      }
+
+      return result;
+    }
+
     function findNextLecture() {
-      const now = Date.now();
-      return schedule
-        .map((item) => ({ ...item, date: new Date(item.lectureAt) }))
-        .filter((item) => Number.isFinite(item.date.getTime()) && item.date.getTime() > now)
-        .sort((a, b) => a.date.getTime() - b.date.getTime())[0];
+      const now = new Date();
+      const localNow = zonedParts(now);
+      const weekdayName = new Intl.DateTimeFormat("en-US", { timeZone: timezone, weekday: "short" }).format(now);
+      const weekday = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 }[weekdayName] ?? 1;
+      const daysUntilMonday = (8 - weekday) % 7;
+      const localTarget = new Date(Date.UTC(localNow.year, localNow.month - 1, localNow.day + daysUntilMonday));
+      let date = dateAtTimezone(
+        localTarget.getUTCFullYear(),
+        localTarget.getUTCMonth() + 1,
+        localTarget.getUTCDate(),
+        9,
+        10
+      );
+
+      if (date.getTime() <= now.getTime()) {
+        localTarget.setUTCDate(localTarget.getUTCDate() + 7);
+        date = dateAtTimezone(
+          localTarget.getUTCFullYear(),
+          localTarget.getUTCMonth() + 1,
+          localTarget.getUTCDate(),
+          9,
+          10
+        );
+      }
+
+      return { number: weekNumber, titles: weekTitles, date };
     }
 
     function plural(value: number, one: string, many: string) {

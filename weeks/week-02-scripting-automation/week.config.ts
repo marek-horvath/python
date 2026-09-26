@@ -7,9 +7,10 @@ const config = {
   title: "Skriptovanie a automatizácia",
   shortTitle: "Skriptovanie",
   description:
-    "Praktická práca so súbormi, adresármi, textom, dátovými formátmi a operačným systémom.",
+    "Postupná tvorba bezpečného organizátora súborov cez pathlib, dry-run a príkazový riadok.",
   status: "published",
   lectureAvailable: true,
+  lectureDuration: "90 minút",
   exerciseAvailable: true,
   materials: [
     {
@@ -27,19 +28,19 @@ const config = {
   ],
   plannedFocus: [
     "script ako malý opakovateľný program",
-    "čítanie a zápis textových súborov",
-    "pathlib a bezpečná práca s cestami",
-    "organizácia súborov cez priebežný príklad Downloads",
-    "JSON, CSV, string metódy a regulárne výrazy",
-    "argumenty príkazového riadku, environment variables a subprocess"
+    "relatívne cesty a aktuálny pracovný priečinok",
+    "pathlib a bezpečná práca so súbormi a adresármi",
+    "dry-run, kolízie a explicitné vykonanie zmien",
+    "organizácia súborov podľa normalizovanej prípony",
+    "argumenty príkazového riadku cez argparse"
   ],
   learningOutcomes: [
-    "navrhnúť jednoduchý script s funkciou main() a jasným vstupom",
-    "čítať a zapisovať textové súbory s explicitným encodingom",
-    "použiť pathlib na kontrolu, skladanie a vyhľadávanie ciest",
-    "spracovať jednoduchý JSON a CSV pomocou štandardnej knižnice",
-    "zvoliť medzi string metódami a regex podľa zložitosti problému",
-    "použiť argparse, os.getenv a subprocess v jednoduchom automatizačnom scenári"
+    "spustiť Python script s explicitným vstupom z príkazového riadku",
+    "použiť pathlib na skladanie ciest a rozlíšenie súborov od priečinkov",
+    "normalizovať príponu a bezpečne určiť cieľovú cestu",
+    "navrhnúť dry-run ako predvolený režim hromadnej zmeny",
+    "ošetriť chýbajúci vstup a kolíziu cieľového súboru",
+    "použiť argparse s povinným argumentom a prepínačom --vykonat"
   ]
 } satisfies WeekConfig;
 
