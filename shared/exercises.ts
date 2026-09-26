@@ -58,7 +58,7 @@ export const exercises: Exercise[] = [
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/02-skriptovanie-automatizacia/",
-    taskCount: 6,
+    taskCount: 10,
     starterPath: "exercises/exercise-02/",
     solutionPath: "solutions/exercise-02/",
     translations: {

@@ -26,8 +26,8 @@ const descriptionEn = exercise.translations?.en?.description ?? exercise.descrip
       <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
       <p>
         <LocalizedText
-          sk="Stiahnite si starter ZIP a rozbaľte ho do samostatného pracovného priečinka. Počas celého cvičenia pracujte iba s testovacím priečinkom subory/."
-          en="Download the starter ZIP and extract it into a separate working directory. Work only with the test subory/ directory throughout the exercise."
+          sk="Stiahnite si starter ZIP a rozbaľte ho do samostatného pracovného priečinka. Pracujte iba s priloženými testovacími súbormi, nie so svojimi osobnými dátami."
+          en="Download the starter ZIP and extract it into a separate working directory. Work only with the supplied test files, not with personal data."
         />
       </p>
       <p><a href="/downloads/exercise-02-starter.zip" download><LocalizedText sk="Stiahnuť starter ZIP" en="Download starter ZIP" /></a></p>
@@ -39,44 +39,34 @@ const descriptionEn = exercise.translations?.en?.description ?? exercise.descrip
     ├── poznamky.txt
     ├── README
     └── podklady/`}</code></pre>
-      <p class="hint">
+      <p>
         <LocalizedText
-          sk="Pred testom skutočného presunu si priečinok subory/ skopírujte. Dry-run ho nesmie zmeniť, režim --vykonat ho zmení."
-          en="Copy the subory/ directory before testing a real move. A dry run must not change it; --vykonat will."
+          sk="Pred úlohami, ktoré menia súbory, si vytvorte čistú kópiu priečinka subory/. Jednotlivé úlohy opisujú požadované správanie; spôsob implementácie navrhnite sami podľa prednášky a dokumentácie."
+          en="Before tasks that modify files, create a clean copy of subory/. Each task describes required behaviour; design the implementation yourself using the lecture and documentation."
         />
       </p>
     </section>
 
     <section class="worksheet-section">
-      <h2><LocalizedText sk="Cieľ" en="Goal" /></h2>
+      <h2><LocalizedText sk="Výsledok cvičenia" en="Exercise Outcome" /></h2>
       <p>
         <LocalizedText
-          sk="Postupne dokončíte jeden bezpečný organizátor súborov. Bez prepínača iba vypíše plán; súbory presunie až po explicitnom použití --vykonat. Priečinky neprechádza a existujúci cieľ nikdy neprepíše."
-          en="You will incrementally complete one safe file organiser. Without a flag it only prints a plan; it moves files only after explicit use of --vykonat. It does not traverse directories and never overwrites an existing target."
+          sk="Výsledkom bude príkazový nástroj, ktorý triedi bezprostredné súbory podľa prípony. Predvolený režim iba zobrazí plán. Zmenu na disku vykoná až po explicitnom potvrdení, neprechádza podadresáre a neprepisuje existujúce súbory."
+          en="The result will be a command-line tool that sorts immediate files by suffix. Its default mode only shows a plan. It changes the disk only after explicit confirmation, does not traverse subdirectories and does not overwrite existing files."
         />
       </p>
     </section>
 
     <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 1 — Preskúmanie vstupu" en="Task 1 — Inspect the Input" /></h2>
-      <p class="course-meta">10 min</p>
+      <h2><LocalizedText sk="Úloha 1 — Inventúra priečinka" en="Task 1 — Directory Inventory" /></h2>
+      <p class="course-meta">8 min</p>
       <div data-lang="sk">
-        <p>Doplňte funkciu <code>vypis_polozky(priecinok: Path)</code>. Pre každú bezprostrednú položku vypíšte názov, typ a príponu.</p>
-        <ul>
-          <li>použite <code>Path.iterdir()</code>, <code>is_file()</code> a <code>is_dir()</code>;</li>
-          <li>neprechádzajte do <code>podklady/</code>;</li>
-          <li>nepredpokladajte poradie z <code>iterdir()</code>;</li>
-          <li>pri neexistujúcom vstupe vypíšte čitateľnú chybu.</li>
-        </ul>
+        <p>Doplňte program tak, aby pre každú bezprostrednú položku v <code>subory/</code> vypísal názov, typ a príponu.</p>
+        <p>Výpis musí rozlíšiť súbor od priečinka, súbor bez prípony a príponu zapísanú veľkými písmenami. Poradie riadkov sa nemusí zhodovať s ukážkou.</p>
       </div>
       <div data-lang="en" hidden>
-        <p>Complete <code>vypis_polozky(priecinok: Path)</code>. Print the name, type and suffix of every immediate entry.</p>
-        <ul>
-          <li>use <code>Path.iterdir()</code>, <code>is_file()</code> and <code>is_dir()</code>;</li>
-          <li>do not enter <code>podklady/</code>;</li>
-          <li>do not rely on the order returned by <code>iterdir()</code>;</li>
-          <li>print a clear error for a missing input directory.</li>
-        </ul>
+        <p>Complete the program so it prints the name, type and suffix of every immediate entry in <code>subory/</code>.</p>
+        <p>The output must distinguish a file from a directory, a suffixless file and an uppercase suffix. Line order does not have to match the example.</p>
       </div>
       <pre class="expected-output"><code>{`FOTO.JPG       súbor      .JPG
 report.pdf     súbor      .pdf
@@ -86,27 +76,32 @@ podklady       priečinok  -`}</code></pre>
     </section>
 
     <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 2 — Plán organizácie" en="Task 2 — Build the Plan" /></h2>
-      <p class="course-meta">20 min</p>
+      <h2><LocalizedText sk="Úloha 2 — Pravidlá kategorizácie" en="Task 2 — Categorisation Rules" /></h2>
+      <p class="course-meta">8 min</p>
       <div data-lang="sk">
-        <p>Doplňte funkciu <code>organizuj()</code> tak, aby zatiaľ iba vypísala plán pre súbory.</p>
-        <ul>
-          <li>príponu normalizujte cez <code>lower().lstrip(".")</code>;</li>
-          <li>súbor bez prípony zaraďte do <code>bez_pripony</code>;</li>
-          <li>cieľ skladajte cez operátor <code>/</code> nad <code>Path</code>;</li>
-          <li>priečinok <code>podklady/</code> preskočte cez <code>continue</code>;</li>
-          <li>v tejto úlohe ešte nevolajte <code>mkdir()</code> ani <code>rename()</code>.</li>
-        </ul>
+        <p>Pre každý súbor určte názov cieľovej kategórie. Kategória zodpovedá prípone bez bodky a bez rozdielu medzi veľkými a malými písmenami. Súbor bez prípony patrí do <code>bez_pripony</code>.</p>
+        <p>Overte pravidlá aspoň na všetkých štyroch súboroch zo startera.</p>
       </div>
       <div data-lang="en" hidden>
-        <p>Complete <code>organizuj()</code> so that it only prints a plan for files.</p>
-        <ul>
-          <li>normalise a suffix with <code>lower().lstrip(".")</code>;</li>
-          <li>place a suffixless file in <code>bez_pripony</code>;</li>
-          <li>build targets with the <code>/</code> operator on <code>Path</code>;</li>
-          <li>skip <code>podklady/</code> using <code>continue</code>;</li>
-          <li>do not call <code>mkdir()</code> or <code>rename()</code> yet.</li>
-        </ul>
+        <p>Determine the destination category name for each file. A category corresponds to the suffix without its dot and without a distinction between uppercase and lowercase. A suffixless file belongs in <code>bez_pripony</code>.</p>
+        <p>Verify the rules on at least all four starter files.</p>
+      </div>
+      <pre class="expected-output"><code>{`FOTO.JPG -> jpg
+report.pdf -> pdf
+poznamky.txt -> txt
+README -> bez_pripony`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Plán cieľových ciest" en="Task 3 — Destination Plan" /></h2>
+      <p class="course-meta">10 min</p>
+      <div data-lang="sk">
+        <p>Z predchádzajúcich pravidiel vytvorte plán organizácie. Každý riadok musí obsahovať pôvodný názov a relatívnu cieľovú cestu.</p>
+        <p>Spustenie tejto verzie nesmie vytvoriť priečinok, premenovať súbor ani zmeniť obsah <code>subory/</code>.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Build an organisation plan from the previous rules. Each line must contain the original name and relative destination path.</p>
+        <p>Running this version must not create a directory, rename a file or change the contents of <code>subory/</code>.</p>
       </div>
       <pre class="expected-output"><code>{`PLAN: FOTO.JPG -> jpg/FOTO.JPG
 PLAN: report.pdf -> pdf/report.pdf
@@ -115,23 +110,44 @@ PLAN: README -> bez_pripony/README`}</code></pre>
     </section>
 
     <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 3 — Kolízie bez prepisovania" en="Task 3 — Collisions without Overwriting" /></h2>
-      <p class="course-meta">15 min</p>
+      <h2><LocalizedText sk="Úloha 4 — Hranica spracovania" en="Task 4 — Processing Boundary" /></h2>
+      <p class="course-meta">8 min</p>
       <div data-lang="sk">
-        <p>Manuálne vytvorte <code>subory/jpg/</code> a skopírujte doň <code>FOTO.JPG</code>; pôvodný súbor nechajte aj priamo v <code>subory/</code>. Pred každým plánom overte presný cieľ cez <code>exists()</code>.</p>
-        <ul>
-          <li>existujúci cieľ nesmie byť prepísaný;</li>
-          <li>pri kolízii vypíšte <code>PRESKOCENE</code> a pokračujte ďalším súborom;</li>
-          <li>samotná kontrola stále nesmie vytvárať priečinky ani presúvať súbory.</li>
-        </ul>
+        <p>Do <code>podklady/</code> pridajte súbor <code>archiv.zip</code>. Program musí naďalej plánovať iba štyri pôvodné súbory.</p>
+        <p>Priečinok <code>podklady/</code> ani jeho obsah nesmie byť cieľom presunu. Túto hranicu zachovajte aj vo všetkých ďalších úlohách.</p>
       </div>
       <div data-lang="en" hidden>
-        <p>Manually create <code>subory/jpg/</code> and copy <code>FOTO.JPG</code> into it; keep the original file directly in <code>subory/</code> as well. Check the exact target with <code>exists()</code> before every plan.</p>
-        <ul>
-          <li>an existing target must not be overwritten;</li>
-          <li>print <code>PRESKOCENE</code> for a collision and continue with the next file;</li>
-          <li>the check must still create no directories and move no files.</li>
-        </ul>
+        <p>Add <code>archiv.zip</code> inside <code>podklady/</code>. The program must still plan only the four original files.</p>
+        <p>Neither <code>podklady/</code> nor its contents may become a move target. Preserve this boundary in all following tasks.</p>
+      </div>
+      <pre class="expected-output"><code>{`Počet naplánovaných súborov: 4
+podklady/archiv.zip sa vo výstupe nenachádza`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — Neplatný vstup" en="Task 5 — Invalid Input" /></h2>
+      <p class="course-meta">8 min</p>
+      <div data-lang="sk">
+        <p>Program musí odmietnuť cestu, ktorá neexistuje, aj cestu smerujúcu na obyčajný súbor. V oboch prípadoch vypíšte zrozumiteľnú chybu a nevykonajte žiadnu ďalšiu operáciu.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>The program must reject both a path that does not exist and a path pointing to a regular file. In both cases, print a clear error and perform no further operation.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`python organizer.py neexistuje
+python organizer.py subory/report.pdf`}</code></pre>
+      <pre class="expected-output"><code>{`CHYBA: vstup nie je existujúci priečinok: neexistuje`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — Kolízia cieľa" en="Task 6 — Destination Collision" /></h2>
+      <p class="course-meta">10 min</p>
+      <div data-lang="sk">
+        <p>Vytvorte testovací stav, v ktorom už existuje <code>subory/jpg/FOTO.JPG</code>, pričom pôvodný <code>subory/FOTO.JPG</code> zostane na mieste.</p>
+        <p>Program nesmie existujúci cieľ prepísať ani zmeniť. Konfliktný súbor označí ako preskočený a pokračuje ďalšími položkami.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Create a test state where <code>subory/jpg/FOTO.JPG</code> already exists while the original <code>subory/FOTO.JPG</code> remains in place.</p>
+        <p>The program must not overwrite or modify the existing target. It marks the conflicting file as skipped and continues with the remaining entries.</p>
       </div>
       <pre class="expected-output"><code>{`PRESKOCENE: FOTO.JPG (cieľ už existuje)
 PLAN: report.pdf -> pdf/report.pdf
@@ -140,78 +156,64 @@ PLAN: README -> bez_pripony/README`}</code></pre>
     </section>
 
     <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 4 — Bezpečné vykonanie" en="Task 4 — Safe Execution" /></h2>
-      <p class="course-meta">15 min</p>
+      <h2><LocalizedText sk="Úloha 7 — Bezpečný predvolený režim" en="Task 7 — Safe Default Mode" /></h2>
+      <p class="course-meta">8 min</p>
       <div data-lang="sk">
-        <p>Najprv odstráňte testovací priečinok <code>subory/jpg/</code> z predchádzajúcej úlohy alebo obnovte čistú kópiu dát. Parameter <code>vykonat: bool = False</code> potom použite ako jedinú podmienku, ktorá dovolí zmenu na disku.</p>
-        <ul>
-          <li>v režime vykonania vytvorte cieľ cez <code>mkdir(exist_ok=True)</code>;</li>
-          <li>súbor presuňte cez <code>cesta.rename(ciel)</code>;</li>
-          <li>po úspechu vypíšte <code>PRESUNUTE</code>;</li>
-          <li>overte, že predvolený režim nemení obsah <code>subory/</code>.</li>
-        </ul>
+        <p>Obnovte čisté vstupné dáta. Bežné spustenie programu musí iba vypísať plán. Porovnajte obsah priečinka pred spustením a po ňom.</p>
+        <p>Ak sa bez výslovného potvrdenia zmení čo i len jeden súbor alebo vznikne nový priečinok, úloha nie je splnená.</p>
       </div>
       <div data-lang="en" hidden>
-        <p>First remove the test <code>subory/jpg/</code> directory from the previous task or restore a clean copy of the data. Then use <code>vykonat: bool = False</code> as the only condition that permits a disk change.</p>
-        <ul>
-          <li>in execution mode create the target with <code>mkdir(exist_ok=True)</code>;</li>
-          <li>move a file with <code>cesta.rename(ciel)</code>;</li>
-          <li>print <code>PRESUNUTE</code> after success;</li>
-          <li>verify that the default mode leaves <code>subory/</code> unchanged.</li>
-        </ul>
+        <p>Restore clean input data. A normal program run must only print a plan. Compare the directory contents before and after running it.</p>
+        <p>If even one file changes or a new directory appears without explicit confirmation, the task is not complete.</p>
       </div>
-      <pre class="expected-output"><code>{`PRESUNUTE: FOTO.JPG -> jpg/FOTO.JPG
-PRESUNUTE: report.pdf -> pdf/report.pdf
-PRESUNUTE: poznamky.txt -> txt/poznamky.txt
-PRESUNUTE: README -> bez_pripony/README`}</code></pre>
+      <pre class="worksheet-code"><code>{`python organizer.py subory`}</code></pre>
     </section>
 
     <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 5 — Rozhranie príkazového riadku" en="Task 5 — Command-Line Interface" /></h2>
-      <p class="course-meta">15 min</p>
+      <h2><LocalizedText sk="Úloha 8 — Vykonanie plánu" en="Task 8 — Execute the Plan" /></h2>
+      <p class="course-meta">10 min</p>
       <div data-lang="sk">
-        <p>Doplňte <code>argparse</code> rozhranie s povinným argumentom <code>priecinok</code> a prepínačom <code>--vykonat</code>.</p>
-        <ul>
-          <li>bez flagu musí program urobiť iba dry-run;</li>
-          <li>s flagom musí zavolať rovnakú funkciu v režime vykonania;</li>
-          <li>hardcoded <code>Path("subory")</code> nesmie zostať vo funkcii <code>organizuj()</code>;</li>
-          <li>vyskúšajte aj chýbajúci argument a neexistujúcu cestu.</li>
-        </ul>
+        <p>Pridajte režim, ktorý po explicitnom potvrdení vykoná rovnaký plán. Po úspešnom spustení musí vzniknúť nasledujúca štruktúra a <code>podklady/</code> musí zostať zachovaný.</p>
+        <p>Každú úspešnú zmenu oznámte vo výstupe. Pravidlo o neprepisovaní cieľa zostáva platné.</p>
       </div>
       <div data-lang="en" hidden>
-        <p>Add an <code>argparse</code> interface with the required <code>priecinok</code> argument and a <code>--vykonat</code> flag.</p>
-        <ul>
-          <li>without the flag the program must perform a dry run only;</li>
-          <li>with the flag it must call the same function in execution mode;</li>
-          <li>hard-coded <code>Path("subory")</code> must not remain inside <code>organizuj()</code>;</li>
-          <li>also test a missing argument and a path that does not exist.</li>
-        </ul>
+        <p>Add a mode that executes the same plan after explicit confirmation. After a successful run, the following structure must exist and <code>podklady/</code> must remain preserved.</p>
+        <p>Report every successful change in the output. The no-overwrite rule remains in effect.</p>
+      </div>
+      <pre class="expected-output"><code>{`subory/
+├── bez_pripony/README
+├── jpg/FOTO.JPG
+├── pdf/report.pdf
+├── txt/poznamky.txt
+└── podklady/`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — Príkazové rozhranie" en="Task 9 — Command-Line Interface" /></h2>
+      <p class="course-meta">10 min</p>
+      <div data-lang="sk">
+        <p>Dokončite rozhranie programu tak, aby prijímalo povinnú cestu k priečinku a voliteľný prepínač <code>--vykonat</code>.</p>
+        <p>Bez cesty má program zobraziť stručnú nápovedu. Cesta môže byť relatívna aj absolútna. Bez prepínača zostáva aktívny bezpečný plánovací režim.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Complete the program interface so it accepts a required directory path and an optional <code>--vykonat</code> flag.</p>
+        <p>Without a path, the program should display concise help. The path may be relative or absolute. Without the flag, safe planning mode remains active.</p>
       </div>
       <pre class="worksheet-code"><code>{`python organizer.py subory
 python organizer.py subory --vykonat
-python organizer.py neexistuje`}</code></pre>
+python organizer.py`}</code></pre>
     </section>
 
     <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 6 — Súhrnný report" en="Task 6 — Summary Report" /></h2>
-      <p class="course-meta">15 min</p>
+      <h2><LocalizedText sk="Úloha 10 — Súhrn a opakované spustenie" en="Task 10 — Summary and Repeated Run" /></h2>
+      <p class="course-meta">10 min</p>
       <div data-lang="sk">
-        <p>Rozšírte organizátor o počítanie výsledkov. Na konci vypíšte počet spracovaných, naplánovaných alebo presunutých a preskočených súborov aj počty podľa kategórie.</p>
-        <ul>
-          <li>report musí fungovať v dry-run aj vykonávacom režime;</li>
-          <li>kolíziu započítajte medzi preskočené položky;</li>
-          <li><code>podklady/</code> sa do počtu súborov nezapočíta;</li>
-          <li>poradie kategórií vo výstupe stabilizujte cez <code>sorted()</code>.</li>
-        </ul>
+        <p>Na konci každého spustenia vypíšte súhrn: počet spracovaných, naplánovaných alebo presunutých a preskočených súborov spolu s počtami podľa kategórie.</p>
+        <p>Overte aj opakované spustenie po úspešnom presune. Program nesmie poškodiť už usporiadanú štruktúru ani začať spracúvať vytvorené kategórie.</p>
       </div>
       <div data-lang="en" hidden>
-        <p>Extend the organiser with result counts. At the end, print processed, planned or moved, and skipped file counts together with counts by category.</p>
-        <ul>
-          <li>the report must work in dry-run and execution modes;</li>
-          <li>count a collision as a skipped entry;</li>
-          <li>do not count <code>podklady/</code> as a file;</li>
-          <li>stabilise category order in the output with <code>sorted()</code>.</li>
-        </ul>
+        <p>At the end of every run, print a summary: processed, planned or moved, and skipped file counts together with counts by category.</p>
+        <p>Also test a repeated run after a successful move. The program must not damage the organised structure or start processing the category directories it created.</p>
       </div>
       <pre class="expected-output"><code>{`SÚHRN
 Spracované súbory: 4
@@ -226,20 +228,24 @@ txt: 1`}</code></pre>
     </section>
 
     <section class="worksheet-section">
-      <h2><LocalizedText sk="Kontrolný zoznam" en="Checklist" /></h2>
+      <h2><LocalizedText sk="Akceptačný checklist" en="Acceptance Checklist" /></h2>
       <ul data-lang="sk">
-        <li>dry-run nevytvorí priečinok a nepremiestni žiadny súbor;</li>
-        <li><code>FOTO.JPG</code> patrí do <code>jpg/</code> a <code>README</code> do <code>bez_pripony/</code>;</li>
-        <li><code>podklady/</code> zostane bez zmeny;</li>
+        <li>predvolený režim nemení súborový systém;</li>
+        <li><code>FOTO.JPG</code> skončí v <code>jpg/</code> a <code>README</code> v <code>bez_pripony/</code>;</li>
+        <li>podadresáre a ich obsah sa nespracúvajú;</li>
         <li>existujúci cieľ sa nikdy neprepíše;</li>
-        <li>CLI funguje s relatívnou aj absolútnou cestou.</li>
+        <li>neplatný vstup skončí čitateľnou chybou;</li>
+        <li>CLI funguje s relatívnou aj absolútnou cestou;</li>
+        <li>výstup obsahuje zrozumiteľný súhrn.</li>
       </ul>
       <ul data-lang="en" hidden>
-        <li>a dry run creates no directory and moves no file;</li>
-        <li><code>FOTO.JPG</code> belongs in <code>jpg/</code> and <code>README</code> in <code>bez_pripony/</code>;</li>
-        <li><code>podklady/</code> remains unchanged;</li>
+        <li>default mode does not change the filesystem;</li>
+        <li><code>FOTO.JPG</code> ends up in <code>jpg/</code> and <code>README</code> in <code>bez_pripony/</code>;</li>
+        <li>subdirectories and their contents are not processed;</li>
         <li>an existing target is never overwritten;</li>
-        <li>the CLI works with relative and absolute paths.</li>
+        <li>invalid input ends with a clear error;</li>
+        <li>the CLI works with relative and absolute paths;</li>
+        <li>the output contains a clear summary.</li>
       </ul>
     </section>
 
