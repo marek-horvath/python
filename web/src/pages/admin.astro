@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const adminUrl = import.meta.env.PUBLIC_ANALYTICS_ADMIN_URL ?? "/admin";
+---
+
+<BaseLayout
+  title="Administrácia"
+  titleEn="Administration"
+  description="Presmerovanie do administrácie predmetu."
+  descriptionEn="Redirecting to the course administration."
+>
+  <main class="page text-page">
+    <h1>
+      <span data-lang="sk">Administrácia</span>
+      <span data-lang="en" hidden>Administration</span>
+    </h1>
+    <p>
+      <span data-lang="sk">Presmerovanie na zabezpečené štatistiky predmetu…</span>
+      <span data-lang="en" hidden>Redirecting to the secured course statistics…</span>
+    </p>
+    <p><a href={adminUrl} data-admin-link>Pokračovať do administrácie</a></p>
+  </main>
+</BaseLayout>
+
+<script define:vars={{ adminUrl }}>
+  window.location.replace(adminUrl);
+</script>

@@ -1,0 +1,90 @@
+---
+const endpoint = import.meta.env.PUBLIC_ANALYTICS_API_URL ?? (process.env.GITHUB_PAGES === "true" ? "" : "/api/analytics");
+---
+
+<script type="application/json" data-analytics-config set:html={JSON.stringify({ endpoint })}></script>
+
+<script>
+  type AnalyticsConfig = {
+    endpoint: string;
+  };
+
+  type ExerciseProgressDetail = {
+    exerciseId?: string;
+    taskId?: string;
+    checked?: boolean;
+  };
+
+  const visitorStorageKey = "python-course.analytics.visitor";
+  const configSource = document.querySelector<HTMLScriptElement>("[data-analytics-config]");
+
+  function readConfig() {
+    try {
+      return JSON.parse(configSource?.textContent ?? "{}") as Partial<AnalyticsConfig>;
+    } catch {
+      return {};
+    }
+  }
+
+  function createVisitorId() {
+    if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  function visitorId() {
+    try {
+      const existing = window.localStorage.getItem(visitorStorageKey);
+      if (existing) return existing;
+      const created = createVisitorId();
+      window.localStorage.setItem(visitorStorageKey, created);
+      return created;
+    } catch {
+      return createVisitorId();
+    }
+  }
+
+  const config = readConfig();
+  const analyticsEndpoint = config.endpoint?.replace(/\/$/, "");
+  const anonymousVisitorId = visitorId();
+
+  function postEvent(path: string, payload: Record<string, unknown>) {
+    if (!analyticsEndpoint) return;
+
+    void fetch(`${analyticsEndpoint}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitor_id: anonymousVisitorId, ...payload }),
+      credentials: "omit",
+      keepalive: true
+    }).catch(() => {
+      // Analytics must never affect access to the course materials.
+    });
+  }
+
+  function pageResource() {
+    const path = window.location.pathname;
+    const lecture = path.match(/\/prednasky\/([^/]+)/);
+    if (lecture) return { resource_type: "lecture", resource_id: lecture[1] };
+
+    const exercise = path.match(/\/cvicenia\/([^/]+)/);
+    if (exercise) return { resource_type: "exercise", resource_id: exercise[1] };
+
+    return { resource_type: "page", resource_id: null };
+  }
+
+  postEvent("/page-view", {
+    path: window.location.pathname,
+    ...pageResource()
+  });
+
+  window.addEventListener("python-course-exercise-progress", (event) => {
+    const detail = (event as CustomEvent<ExerciseProgressDetail>).detail;
+    if (!detail?.exerciseId || !detail.taskId || typeof detail.checked !== "boolean") return;
+
+    postEvent("/exercise-progress", {
+      exercise_id: detail.exerciseId,
+      task_id: detail.taskId,
+      checked: detail.checked
+    });
+  });
+</script>

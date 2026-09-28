@@ -198,6 +198,19 @@ const exerciseNavigation = exercises.map((exercise) => ({
     return match?.[1] ?? "unknown";
   }
 
+  function exerciseSlugFromLocation() {
+    const match = window.location.pathname.match(/\/cvicenia\/([^/]+)/);
+    return match?.[1] ?? "unknown";
+  }
+
+  function reportExerciseProgress(exerciseId: string, taskId: string, checked: boolean) {
+    window.dispatchEvent(
+      new CustomEvent("python-course-exercise-progress", {
+        detail: { exerciseId, taskId, checked }
+      })
+    );
+  }
+
   function setTaskCompleted(section: HTMLElement, checked: boolean) {
     section.classList.toggle("is-completed", checked);
     const status = section.querySelector<HTMLElement>("[data-task-status]");
@@ -228,27 +241,31 @@ const exerciseNavigation = exercises.map((exercise) => ({
     });
   }
 
-  function resetCompletedTasks(root: HTMLElement, exerciseId: string) {
+  function resetCompletedTasks(root: HTMLElement, exerciseId: string, exerciseSlug: string) {
     root.querySelectorAll<HTMLElement>("[data-exercise-task]").forEach((section) => {
       const taskId = section.dataset.taskId;
       if (!taskId) return;
+      const wasCompleted = window.localStorage.getItem(storageKey(exerciseId, taskId)) === "true";
       window.localStorage.removeItem(storageKey(exerciseId, taskId));
       const checkbox = section.querySelector<HTMLInputElement>("input[type='checkbox']");
       if (checkbox) checkbox.checked = false;
       setTaskCompleted(section, false);
+      if (wasCompleted) reportExerciseProgress(exerciseSlug, taskId, false);
     });
 
     updateProgress(root);
   }
 
-  function markMainTasksCompleted(root: HTMLElement, exerciseId: string) {
+  function markMainTasksCompleted(root: HTMLElement, exerciseId: string, exerciseSlug: string) {
     root.querySelectorAll<HTMLElement>("[data-main-task='true']").forEach((section) => {
       const taskId = section.dataset.taskId;
       if (!taskId) return;
+      const wasCompleted = window.localStorage.getItem(storageKey(exerciseId, taskId)) === "true";
       window.localStorage.setItem(storageKey(exerciseId, taskId), "true");
       const checkbox = section.querySelector<HTMLInputElement>("input[type='checkbox']");
       if (checkbox) checkbox.checked = true;
       setTaskCompleted(section, true);
+      if (!wasCompleted) reportExerciseProgress(exerciseSlug, taskId, true);
     });
 
     updateProgress(root);
@@ -365,6 +382,7 @@ const exerciseNavigation = exercises.map((exercise) => ({
 
   function enhanceTasks(root: HTMLElement, items: ExerciseNavigationItem[]) {
     const exerciseId = exerciseIdFromLocation();
+    const exerciseSlug = exerciseSlugFromLocation();
     const sections = Array.from(root.querySelectorAll<HTMLElement>(".worksheet-task"));
     if (sections.length === 0) return;
 
@@ -460,6 +478,7 @@ const exerciseNavigation = exercises.map((exercise) => ({
         window.localStorage.setItem(completedKey, String(checkbox.checked));
         setTaskCompleted(section, checkbox.checked);
         updateProgress(root);
+        reportExerciseProgress(exerciseSlug, taskId, checkbox.checked);
       });
     });
 
@@ -479,9 +498,9 @@ const exerciseNavigation = exercises.map((exercise) => ({
 
       const markAll = progress.querySelector<HTMLButtonElement>("[data-mark-all-exercise]");
       const reset = progress.querySelector<HTMLButtonElement>("[data-reset-exercise]");
-      const resetDialog = createResetDialog(() => resetCompletedTasks(root, exerciseId));
+      const resetDialog = createResetDialog(() => resetCompletedTasks(root, exerciseId, exerciseSlug));
 
-      markAll?.addEventListener("click", () => markMainTasksCompleted(root, exerciseId));
+      markAll?.addEventListener("click", () => markMainTasksCompleted(root, exerciseId, exerciseSlug));
       reset?.addEventListener("click", () => {
         if (typeof resetDialog.showModal === "function") {
           resetDialog.showModal();

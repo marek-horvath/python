@@ -34,6 +34,9 @@ jobs:
 
       - name: Build static website
         run: npm run build:pages
+        env:
+          PUBLIC_ANALYTICS_API_URL: https://python-course-api.167.233.132.16.sslip.io/api/analytics
+          PUBLIC_ANALYTICS_ADMIN_URL: https://python-course-api.167.233.132.16.sslip.io/admin
 
       - name: Publish gh-pages branch
         uses: peaceiris/actions-gh-pages@v4

@@ -3,6 +3,7 @@ import { localizedCourse } from "@shared/i18n";
 import type { I18nDictionary } from "@shared/i18n";
 import { courseConfig } from "@shared/course.config";
 import BasePathLinks from "../components/BasePathLinks.astro";
+import AnalyticsClient from "../components/AnalyticsClient.astro";
 import ExerciseEnhancements from "../components/ExerciseEnhancements.astro";
 import I18nController from "../components/I18nController.astro";
 import LanguageBoot from "../components/LanguageBoot.astro";
@@ -65,6 +66,7 @@ const materialLocked = currentExercise ? !isMaterialReleased(currentExercise.wee
       </footer>
     </div>
     <I18nController translations={Astro.props.i18n} />
+    <AnalyticsClient />
     <ExerciseEnhancements />
     <BasePathLinks />
   </body>

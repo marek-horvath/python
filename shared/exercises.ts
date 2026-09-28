@@ -76,7 +76,7 @@ export const exercises: Exercise[] = [
     slug: "03-gui-event-driven",
     title: "Cvičenie 03",
     subtitle: "GUI a event-driven programovanie",
-    description: "Postupná tvorba Tkinter/ttk aplikácie Text Analyzer s callbackmi, stavom, súborovým dialógom a Canvas.",
+    description: "Postupná tvorba Tkinter správcu úloh: widgety, callbacky, výber, dátový stav a obnova zobrazenia.",
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/03-gui-event-driven/",
@@ -87,7 +87,7 @@ export const exercises: Exercise[] = [
       en: {
         title: "Exercise 03",
         subtitle: "GUI and Event-Driven Programming",
-        description: "Incremental development of a Tkinter/ttk Text Analyzer with callbacks, state, file dialog and Canvas.",
+        description: "Incremental development of a Tkinter task manager: widgets, callbacks, selection, data state and view refresh.",
         duration: "approximately 90 min"
       }
     }

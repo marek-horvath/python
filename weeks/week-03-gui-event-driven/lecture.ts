@@ -5,7 +5,7 @@ export const lecture03 = {
   slug: "03-gui-event-driven",
   title: "GUI a event-driven programovanie",
   description: "Event loop, callbacky, stav aplikácie a jednoduché desktopové aplikácie cez Tkinter a ttk.",
-  duration: "50-60 minút",
+  duration: "90 minút",
   slides: [
     {
       id: "01-title",

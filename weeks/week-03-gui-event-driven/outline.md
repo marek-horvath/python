@@ -1,82 +1,67 @@
 # Týždeň 03 - GUI a event-driven programovanie
 
-Stav: rozpracované ako kompletná webová prednáška.
+Stav: publikované ako 90-minútová prednáška.
 
 ## Cieľ prednášky
 
-Študent má pochopiť event-driven programovací model a vedieť vytvoriť jednoduchú desktopovú aplikáciu v Tkinter/ttk. Tkinter je použitý ako výučbový nástroj, nie ako tvrdenie, že ide o najlepší framework pre každý desktopový projekt.
+Študent má pochopiť rozdiel medzi lineárnym skriptom a event-driven aplikáciou. Počas prednášky postupne vznikne jedna malá Tkinter aplikácia na správu úloh. Rovnaký príklad ukáže vytvorenie okna, rozloženie widgetov, callbacky, klávesovú udalosť a synchronizáciu dát so zobrazením.
 
 ## Learning outcomes
 
 Po prednáške má študent vedieť:
 
-- vysvetliť rozdiel medzi lineárnym programom a GUI aplikáciou;
-- popísať event loop, event, callback, widget a application state;
-- vytvoriť základné Tkinter okno a spustiť `mainloop()`;
-- použiť `ttk.Label`, `ttk.Entry`, `ttk.Button` a základný layout;
-- vysvetliť rozdiel medzi `command=save` a `command=save()`;
-- čítať vstup z widgetu a aktualizovať UI v callbacku;
-- použiť `bind()` na jednoduchú klávesovú alebo myšiu udalosť;
-- oddeliť GUI callback od aplikačnej logiky;
-- použiť `dataclass` pri jednoduchom výsledku analýzy;
-- vysvetliť, prečo dlhý callback alebo `time.sleep()` blokuje GUI.
+- vysvetliť, prečo GUI vopred nepozná nasledujúcu akciu používateľa;
+- popísať úlohu `mainloop()` v Tkinter aplikácii;
+- vytvoriť `Label`, `Entry`, `Button` a `Listbox` a rozložiť ich cez `grid()`;
+- vysvetliť rozdiel medzi `command=callback` a `command=callback()`;
+- pripojiť kláves Enter cez `bind()` a pracovať s event parametrom;
+- čítať a validovať aktuálnu hodnotu z `Entry`;
+- udržiavať úlohy v samostatnom dátovom zozname;
+- obnoviť Listbox a odvodené počítadlo z jedného zdroja pravdy;
+- bezpečne pracovať s prázdnym výberom v `Listbox`;
+- pridať, prepínať a odstrániť vybranú úlohu.
 
 ## Narrative flow
 
-1. Začíname terminálovým programom a ukazujeme, že má pevné poradie.
-2. GUI aplikácia nemá pevné poradie akcií, preto potrebujeme event-driven model.
-3. Vysvetlíme event loop, callback, widget a stav aplikácie.
-4. Postupne postavíme malé Tkinter/ttk okno: Label, Entry, Button, callback a layout.
-5. Prejdeme na praktickejší príklad Text Analyzer, ktorý prepája GUI s prácou so súbormi z prednášky 02.
-6. Oddelíme GUI logiku od aplikačnej logiky a pripravíme pôdu pre testovanie v prednáške 04.
-7. Krátko ukážeme Canvas, súradnice, kliknutie a časované udalosti cez `after()`.
+1. Porovnáme pevný priebeh terminálového skriptu s viacerými možnými udalosťami v GUI.
+2. Vytvoríme najmenšie okno a vysvetlíme pozorovateľnú úlohu `mainloop()`.
+3. Pridáme Label, Entry a Button a rozložíme ich cez `grid()`.
+4. Pripojíme callback cez `command` a kláves Enter cez `bind()`.
+5. Doplníme Listbox, validáciu vstupu a vyčistenie poľa.
+6. Presunieme úlohy do samostatného dátového zoznamu a zavedeme `obnov_zobrazenie()`.
+7. Implementujeme výber, prepínanie dokončenia, odstránenie a počítadlo.
+8. Spojíme všetky časti do jedného spustiteľného programu a rozoberieme časté chyby.
 
 ## Časti prednášky
 
-- A - Od terminálového programu k event loopu
-- B - Tkinter, ttk, prvé okno a callbacky
-- C - Entry, layout, widgety a stav aplikácie
-- D - Events, bind a dialogs
-- E - Text Analyzer a oddelenie logiky
-- F - Canvas, kliknutie a `after()`
-- G - Organizácia väčšieho GUI, iné frameworky, live demo a záver
+- A - Prečo GUI funguje inak ako skript, 12 minút
+- B - Prvé okno a rozloženie, 16 minút
+- C - Udalosti a callbacky, 18 minút
+- D - Stav aplikácie a práca so zoznamom, 22 minút
+- E - Celá aplikácia, časté chyby a hranice riešenia, 15 minút
+- F - Zhrnutie a predikcia správania, 7 minút
 
-## Približný rozsah
+## Rozsah
 
-- 45 slajdov
-- 50-60 minút
-- približne 5 krátkych otázok/interakcií
-- 1 live demo checkpoint na 5-8 minút
+- 44 slajdov
+- približne 90 minút
+- jedna priebežne rozvíjaná aplikácia
+- tri používateľské operácie: pridať, označiť a odstrániť úlohu
 
 ## Code examples
 
-- lineárny program cez `input()` a `print()`;
-- prvé Tkinter okno;
-- `ttk.Label`, `ttk.Entry`, `ttk.Button`;
-- rozdiel medzi odovzdaním callbacku a zavolaním funkcie;
-- `grid()` layout;
-- `StringVar`, `BooleanVar`, `IntVar`;
-- `bind("<Return>", handler)`;
-- `filedialog.askopenfilename()`;
-- `messagebox.showerror()`;
-- `TextStats` cez `dataclass`;
-- `analyze_text(text: str)`;
-- Canvas shapes, Canvas click handler;
-- `root.after()`.
+- najmenšie okno s `tk.Tk()` a `mainloop()`;
+- vytvorenie a umiestnenie widgetov cez `grid()`;
+- callback tlačidla cez `command`;
+- získanie a validácia textu cez `Entry.get().strip()`;
+- vloženie a vymazanie položiek v `Listbox`;
+- pripojenie Enter cez `bind("<Return>", handler)`;
+- dátové záznamy úloh ako dictionaries;
+- obnova zobrazenia z dátového zoznamu;
+- bezpečné použitie `curselection()`;
+- prepínanie boolean stavu a odstránenie cez `del`;
+- odvodený počet nesplnených úloh.
 
-## Live demo
+## Hranice riešenia
 
-Názov: Od prázdneho súboru k GUI.
-
-Postup:
-
-1. `Tk()` a titulok okna.
-2. `Label`.
-3. `Entry`.
-4. `Button`.
-5. callback pre tlačidlo.
-6. `grid()` namiesto jednoduchého `pack()`.
-7. Enter event cez `bind()`.
-8. `filedialog`, ak zostane čas.
-
-Demo má zostať krátke. Cieľ nie je pekný desktopový nástroj, ale pochopenie reakcie na udalosti.
+Aplikácia počas prednášky neukladá dáta na disk. Úlohy po zatvorení okna zaniknú. Ukladanie do JSON a editácia textu úlohy sú vhodné nadväzujúce rozšírenia pre cvičenie.

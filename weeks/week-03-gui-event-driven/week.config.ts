@@ -7,9 +7,10 @@ const config = {
   title: "GUI a event-driven programovanie",
   shortTitle: "GUI",
   description:
-    "Základné princípy používateľských rozhraní, udalostí, stavov aplikácie a reakcií na vstup používateľa.",
+    "Postupná tvorba malej Tkinter aplikácie cez udalosti, callbacky, widgety a oddelený stav úloh.",
   status: "published",
   lectureAvailable: true,
+  lectureDuration: "90 minút",
   exerciseAvailable: true,
   materials: [
     {
@@ -27,21 +28,21 @@ const config = {
   ],
   plannedFocus: [
     "prechod od terminálového programu k GUI aplikácii",
-    "event loop, event, callback a stav aplikácie",
-    "základy Tkinter a ttk: okno, Label, Entry, Button",
-    "layout cez pack() a grid()",
-    "dialogs, validácia vstupu a praktické exceptions v GUI",
-    "oddelenie GUI callbackov od aplikačnej logiky",
-    "Canvas, súradnice, kliknutie a jednoduché časované udalosti"
+    "event loop, udalosť a callback",
+    "základy Tkinter: okno, Label, Entry, Button a Listbox",
+    "rozloženie prvkov cez grid()",
+    "command, bind() a reakcia na kláves Enter",
+    "dátový stav aplikácie a obnova zobrazenia",
+    "pridanie, prepínanie a odstránenie úloh"
   ],
   learningOutcomes: [
     "vysvetliť rozdiel medzi lineárnym programom a event-driven aplikáciou",
     "vytvoriť jednoduché Tkinter okno s event loopom",
-    "použiť ttk widgety, callbacky a základný layout",
-    "čítať vstup z Entry a aktualizovať UI podľa udalosti",
-    "oddeliť aplikačnú logiku od GUI callbacku",
-    "použiť filedialog, messagebox a základné ošetrenie chýb",
-    "vysvetliť, prečo dlhý callback alebo time.sleep() blokuje GUI"
+    "použiť základné widgety a rozložiť ich cez grid()",
+    "pripojiť callback cez command a bind()",
+    "čítať a validovať vstup z Entry",
+    "pracovať s výberom v Listbox bez predpokladu, že položka je označená",
+    "udržať zhodu medzi dátovým zoznamom a obsahom okna"
   ]
 } satisfies WeekConfig;
 

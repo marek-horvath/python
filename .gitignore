@@ -19,3 +19,6 @@ __pycache__/
 .env.*
 !.env.example
 presentations/*-commented.pptx
+
+# Private local analytics service (database, credentials and admin UI)
+/local-analytics/

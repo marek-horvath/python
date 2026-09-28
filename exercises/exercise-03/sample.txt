@@ -1,4 +1,0 @@
-Python sa často používa na automatizáciu, spracovanie dát a malé interné nástroje.
-
-Tento súbor slúži ako vstup pre Text Analyzer.
-

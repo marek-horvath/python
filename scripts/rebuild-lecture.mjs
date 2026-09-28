@@ -481,37 +481,101 @@ const lecture02Technical = {
   ]
 };
 
+const todoCopy = {
+  submit: text("Poslať zadanie", "Submit assignment"),
+  study: text("Prejsť si callbacky", "Review callbacks"),
+  buy: text("Kúpiť papier", "Buy paper")
+};
+
+const todoState = (input, tasks, options = {}) => ({ input, tasks, ...options });
+const todoTask = (label, done = false, selected = false) => ({ label, done, selected });
+
 const lecture03Revised = {
   slug: "03-gui-event-driven",
   title: text("GUI a event-driven programovanie", "GUI and Event-Driven Programming"),
   deck: [
-    { kind: "title", title: text("GUI a event-driven programovanie", "GUI and Event-Driven Programming"), subtitle: text("Keď poradie programu určuje používateľ", "When the user determines program order") },
-    { kind: "compare", title: text("Dva modely toku programu", "Two program flow models"), columns: [
-      { title: text("Terminálový program", "A terminal program"), items: [text("input()", "input()"), text("spracovanie", "processing"), text("print()", "print()"), text("koniec", "end")] },
-      { title: text("GUI aplikácia", "A GUI application"), items: [text("čaká na event", "waits for an event"), text("spustí callback", "runs a callback"), text("zmení stav alebo UI", "changes state or UI"), text("čaká znova", "waits again")] }
+    { kind: "title", title: text("GUI a event-driven programovanie", "GUI and Event-Driven Programming"), subtitle: text("Jedna aplikácia, udalosti a stav používateľského rozhrania", "One application, events and user-interface state"), gui: todoState("", [todoTask(todoCopy.submit), todoTask(todoCopy.study, true)]) },
+    { kind: "guiTransitions", title: text("Čo bude aplikácia robiť", "What the application will do"), transitions: [
+      { label: text("Pridať úlohu", "Add a task"), before: todoState(todoCopy.submit, []), after: todoState("", [todoTask(todoCopy.submit)]) },
+      { label: text("Označiť ako hotovú", "Mark as done"), before: todoState("", [todoTask(todoCopy.submit, false, true)]), after: todoState("", [todoTask(todoCopy.submit, true, true)]) },
+      { label: text("Odstrániť úlohu", "Delete a task"), before: todoState("", [todoTask(todoCopy.submit, true, true)]), after: todoState("", []) }
     ] },
-    { kind: "diagram", title: text("Event loop drží aplikáciu pri živote", "The event loop keeps an application alive"), items: [text("vytvoriť okno", "create a window"), text("mainloop()", "mainloop()"), text("event", "event"), text("callback a update", "callback and update")] },
-    { kind: "code", title: text("Najmenšie funkčné okno", "The smallest working window"), label: "python", code: "import tkinter as tk\n\nroot = tk.Tk()\nroot.title(\"Text Analyzer\")\nroot.geometry(\"520x280\")\n\nroot.mainloop()", note: text("Po mainloop() už nepíšeme sekvenčný program. Nasledujúce kroky spúšťajú eventy používateľa alebo systému.", "After mainloop(), we no longer write a sequential program. The next steps are triggered by user or system events.") },
-    { kind: "statement", title: text("Widget je objekt. Callback je funkcia, ktorú event loop zavolá neskôr.", "A widget is an object. A callback is a function the event loop calls later."), body: text("Tento rozdiel je základom čitateľného GUI kódu.", "This difference is the foundation of readable GUI code.") },
-    { kind: "splitCode", title: text("command potrebuje funkciu, nie jej výsledok", "command needs a function, not its result"), items: [text("command=analyze odovzdá funkciu", "command=analyze passes a function"), text("command=analyze() ju spustí už pri tvorbe tlačidla", "command=analyze() runs it while the button is created"), text("callback dostane kontrolu až po kliknutí", "the callback gets control only after a click")], label: "python", code: "def analyze() -> None:\n    print(\"Analyze clicked\")\n\nbutton = ttk.Button(\n    root,\n    text=\"Analyzovať\",\n    command=analyze,\n)\nbutton.grid()" },
-    { kind: "code", title: text("Prvý krok Text Analyzeru", "The first Text Analyzer step"), label: "python", code: "from tkinter import ttk\n\nstatus = ttk.Label(root, text=\"Zadajte text\")\nbutton = ttk.Button(root, text=\"Analyzovať\", command=analyze)\n\nstatus.grid(row=0, column=0, sticky=\"w\")\nbutton.grid(row=1, column=0, pady=12)", note: text("ttk poskytuje systémovo ladené widgety. V príkladoch používame grid pre formulárové rozloženie.", "ttk provides system-themed widgets. We use grid for a form-like layout.") },
-    { kind: "diagram", title: text("grid vyjadruje vzťahy, nie súradnice", "grid expresses relationships, not coordinates"), items: [text("Label\nrow 0", "Label\nrow 0"), text("Entry\nrow 1", "Entry\nrow 1"), text("Button\nrow 2", "Button\nrow 2"), text("Result\nrow 3", "Result\nrow 3")] },
-    { kind: "codeFull", title: text("Vstup, callback, výstup", "Input, callback, output"), label: "python", code: "entry = ttk.Entry(root, width=48)\nresult = ttk.Label(root)\n\ndef analyze() -> None:\n    text = entry.get()\n    result.config(text=f\"Počet znakov: {len(text)}\")\n\nentry.grid(row=1, column=0)\nresult.grid(row=3, column=0, sticky=\"w\")", note: text("Callback číta aktuálny stav widgetu a aktualizuje iný widget. Toto je jednoduchá forma toku stavu v GUI.", "The callback reads current widget state and updates another widget. This is a simple form of state flow in GUI.") },
-    { kind: "splitCode", title: text("Enter je tiež event", "Enter is also an event"), items: [text("command callback nemá argument", "a command callback has no argument"), text("bind handler dostane event objekt", "a bind handler receives an event object"), text("spoločná funkcia zabráni duplicite logiky", "a shared function prevents logic duplication")], label: "python", code: "def on_return(event: tk.Event) -> None:\n    analyze()\n\nentry.bind(\"<Return>\", on_return)\n\n# tlačidlo stále používa\n# command=analyze" },
-    { kind: "statement", title: text("GUI callback nemá obsahovať celú aplikačnú logiku.", "A GUI callback should not contain all application logic."), body: text("Ak vieme logiku zavolať bez okna, vieme ju aj testovať a znovu použiť.", "If logic can run without a window, it can also be tested and reused.") },
-    { kind: "code", title: text("Čistá analýza textu", "Pure text analysis"), label: "python", code: "from dataclasses import dataclass\n\n@dataclass\nclass TextStats:\n    characters: int\n    words: int\n    lines: int\n\ndef analyze_text(text: str) -> TextStats:\n    return TextStats(len(text), len(text.split()), text.count(\"\\n\") + 1 if text else 0)", note: text("Táto funkcia nepozná Entry, Label ani messagebox. GUI ju iba zavolá a zobrazí výsledok.", "This function knows no Entry, Label or messagebox. The GUI only calls it and displays the result.") },
-    { kind: "code", title: text("Callback iba koordinuje UI", "The callback only coordinates UI"), label: "python", code: "def analyze() -> None:\n    stats = analyze_text(entry.get())\n    result.config(\n        text=f\"Slová: {stats.words}; riadky: {stats.lines}\"\n    )", note: text("Oddelenie nie je MVC tutorial. Je to praktický spôsob, ako zmenšiť callback a overiť dôležitú logiku.", "This separation is not an MVC tutorial. It is a practical way to shrink a callback and verify important logic.") },
-    { kind: "code", title: text("Validácia pri hranici používateľa", "Validation at the user boundary"), label: "python", code: "from tkinter import messagebox\n\ndef analyze() -> None:\n    text = entry.get().strip()\n    if not text:\n        messagebox.showerror(\"Chyba\", \"Zadajte text.\")\n        return\n    result.config(text=str(analyze_text(text)))", note: text("Používateľský vstup môže byť prázdny alebo neplatný. Pred ďalším spracovaním ho validujeme na hranici UI.", "User input can be empty or invalid. Validate it at the UI boundary before further processing.") },
-    { kind: "splitCode", title: text("Dialog je rozšírenie pracovného toku", "A dialog extends the workflow"), items: [text("Cancel nie je chyba", "Cancel is not an error"), text("cesta k súboru môže zlyhať pri čítaní", "a file path can fail while reading"), text("Path z prednášky 02 ostáva užitočný", "Path from Lecture 02 remains useful")], label: "python", code: "from tkinter import filedialog\nfrom pathlib import Path\n\ndef open_file() -> None:\n    filename = filedialog.askopenfilename(filetypes=[(\"Text\", \"*.txt\")])\n    if not filename:\n        return\n    text = Path(filename).read_text(encoding=\"utf-8\")\n    show_stats(analyze_text(text))" },
-    { kind: "question", title: text("Prečo okno zamrzne?", "Why does the window freeze?"), prompt: text("Čo sa počas sleep() deje s event loopom?", "What happens to the event loop during sleep()?"), label: "python", code: "def on_click() -> None:\n    time.sleep(5)\n    status.config(text=\"Done\")" },
-    { kind: "diagram", title: text("Blokujúci callback zastaví event loop", "A blocking callback stops the event loop"), items: [text("kliknutie", "click"), text("callback", "callback"), text("sleep / dlhá operácia", "sleep / long operation"), text("žiadny ďalší event", "no next event")] },
-    { kind: "code", title: text("after naplánuje ďalší krok", "after schedules the next step"), label: "python", code: "from datetime import datetime\n\ndef update_clock() -> None:\n    status.config(text=datetime.now().strftime(\"%H:%M:%S\"))\n    root.after(1000, update_clock)\n\nupdate_clock()", note: text("after vráti kontrolu event loopu. Nie je to náhrada pre CPU náročnú prácu, ale správny základ pre časované UI aktualizácie.", "after returns control to the event loop. It is not a replacement for CPU-heavy work, but is the correct basis for timed UI updates.") },
-    { kind: "splitCode", title: text("Entry je krátky vstup, Text je dokument", "Entry is short input, Text is a document"), items: [text("Entry sa číta cez get()", "Read an Entry through get()"), text("Text potrebuje rozsah od 1.0 po end", "Text needs a range from 1.0 to end"), text("pre analyzátor dokumentu je Text prirodzenejší", "Text is more natural for a document analyser")], label: "python", code: "editor = tk.Text(root, width=58, height=10)\neditor.grid(row=1, column=0)\n\ndef analyze_editor() -> None:\n    text = editor.get(\"1.0\", \"end-1c\")\n    show_stats(analyze_text(text))" },
-    { kind: "code", title: text("StringVar je pozorovateľný stav", "StringVar is observable state"), label: "python", code: "filename = tk.StringVar(value=\"Bez súboru\")\n\nlabel = ttk.Label(root, textvariable=filename)\n\ndef set_file(path: Path) -> None:\n    filename.set(path.name)", note: text("StringVar nie je povinný pre každý widget. Pomáha tam, kde má stav viac pozorovateľov alebo väzieb.", "StringVar is not required for every widget. It helps where state has multiple observers or bindings.") },
-    { kind: "code", title: text("Súbor môže zlyhať aj po výbere", "A file can fail after selection"), label: "python", code: "try:\n    text = Path(filename).read_text(encoding=\"utf-8\")\nexcept OSError as error:\n    messagebox.showerror(\n        \"Čítanie súboru\", str(error)\n    )\n    return\neditor.delete(\"1.0\", \"end\")\neditor.insert(\"1.0\", text)", note: text("Výber súboru neznamená, že ho vieme prečítať. Ošetrujeme chybu priamo pri I/O operácii.", "Selecting a file does not mean we can read it. Handle the error at the I/O operation itself.") },
-    { kind: "diagram", title: text("Canvas reaguje na súradnice eventu", "Canvas reacts to event coordinates"), items: [text("kliknutie myšou", "mouse click"), text("event.x / event.y", "event.x / event.y"), text("callback", "callback"), text("nakreslený objekt", "drawn object")] },
-    { kind: "code", title: text("Jednoduchý Canvas event", "A simple Canvas event"), label: "python", code: "canvas = tk.Canvas(root, width=360, height=180)\n\ndef draw_circle(event: tk.Event) -> None:\n    x, y = event.x, event.y\n    canvas.create_oval(x - 8, y - 8, x + 8, y + 8, fill=\"#1877B9\")\n\ncanvas.bind(\"<Button-1>\", draw_circle)", note: text("Event objekt nesie kontext udalosti. Ten istý callback môže reagovať na kliknutia na rôznych miestach.", "The event object carries event context. The same callback can respond to clicks at different positions.") },
-    { kind: "codeFull", title: text("Text Analyzer ako malá aplikácia", "Text Analyzer as a small application"), label: "text", code: "ui.py\n├── vytvorí widgety\n├── spracuje eventy\n└── zobrazí výsledok\n\nanalysis.py\n├── TextStats\n└── analyze_text()\n\nfiles.py\n└── načíta text cez Path", note: text("GUI, logika a prístup k súborom majú odlišné dôvody na zmenu. Aj malý program získa jasnejšie hranice.", "GUI, logic and file access have different reasons to change. Even a small program gains clearer boundaries.") }
+    { kind: "diagram", title: text("Vstup, udalosť, reakcia", "Input, event, response"), items: [text("text: Poslať zadanie", "text: Submit assignment"), text("kliknutie na Pridať", "click Add"), text("nový riadok v zozname", "new row in the list")] },
+    { kind: "splitCode", title: text("Doterajší skript má jeden priebeh", "A script has one execution path"), items: [text("program si vypýta vstup", "the program requests input"), text("spracuje ho na určenom mieste", "it processes input at a fixed point"), text("vypíše výsledok a pokračuje", "it prints a result and continues")], label: "python", code: text("text = input(\"Úloha: \")\ntext = text.strip()\nprint(f\"Pridané: {text}\")", "text = input(\"Task: \")\ntext = text.strip()\nprint(f\"Added: {text}\")") },
+    { kind: "choiceMap", title: text("GUI má viac možných ďalších krokov", "A GUI has several possible next steps"), state: todoState(todoCopy.submit, [todoTask(todoCopy.study)]), choices: [text("písať", "type"), text("kliknúť", "click"), text("stlačiť Enter", "press Enter"), text("zavrieť okno", "close the window")] },
+    { kind: "agenda", title: text("Cieľ prednášky", "Lecture objectives"), items: [text("vysvetliť úlohu mainloop()", "explain the role of mainloop()"), text("pripojiť callback k tlačidlu a klávese Enter", "connect a callback to a button and the Enter key"), text("čítať vstup z Entry a meniť stav aplikácie", "read Entry input and change application state"), text("udržať zhodu medzi dátami a obsahom okna", "keep application data and the window in sync")] },
+    { kind: "codeGui", title: text("Najmenšie okno Tkinter", "The smallest Tkinter window"), label: "app.py", code: text("import tkinter as tk\n\nroot = tk.Tk()\nroot.title(\"Moje úlohy\")\nroot.mainloop()", "import tkinter as tk\n\nroot = tk.Tk()\nroot.title(\"My tasks\")\nroot.mainloop()"), state: todoState("", [], { shellOnly: true }), note: text("Tk() vytvorí hlavné okno; title() nastaví text v jeho titulku.", "Tk() creates the main window; title() sets its title-bar text.") },
+    { kind: "splitCode", title: text("mainloop() drží program otvorený", "mainloop() keeps the program open"), items: [text("čaká na udalosti operačného systému", "waits for operating-system events"), text("odovzdáva ich pripojeným callbackom", "dispatches them to connected callbacks"), text("skončí po zatvorení hlavného okna", "ends after the main window is closed")], label: "python", code: text("root = tk.Tk()\nroot.title(\"Moje úlohy\")\n\nroot.mainloop()  # event loop", "root = tk.Tk()\nroot.title(\"My tasks\")\n\nroot.mainloop()  # event loop") },
+    { kind: "beforeAfter", title: text("Čo sa stane bez mainloop()?", "What happens without mainloop()?"), leftLabel: text("BEZ EVENT LOOPU", "WITHOUT THE EVENT LOOP"), leftCode: text("root = tk.Tk()\nroot.title(\"Moje úlohy\")\n\n# program dôjde na koniec", "root = tk.Tk()\nroot.title(\"My tasks\")\n\n# the program reaches its end"), rightLabel: text("S EVENT LOOPOM", "WITH THE EVENT LOOP"), rightCode: text("root = tk.Tk()\nroot.title(\"Moje úlohy\")\n\nroot.mainloop()", "root = tk.Tk()\nroot.title(\"My tasks\")\n\nroot.mainloop()"), note: text("Bez mainloop() program neposkytne trvalo použiteľné okno; s ním zostáva okno otvorené a reaguje.", "Without mainloop(), the program does not provide a persistently usable window; with it, the window stays open and responds.") },
+    { kind: "codeGui", title: text("Prvý widget: Label", "The first widget: Label"), label: "python", code: text("nadpis = tk.Label(\n    root,\n    text=\"Moje úlohy\",\n    font=(\"Arial\", 16, \"bold\"),\n)\nnadpis.grid(row=0, column=0, columnspan=2)", "heading = tk.Label(\n    root,\n    text=\"My tasks\",\n    font=(\"Arial\", 16, \"bold\"),\n)\nheading.grid(row=0, column=0, columnspan=2)"), state: todoState("", [], { headingOnly: true }), note: text("Vytvorenie widgetu a jeho umiestnenie cez grid() sú dva samostatné kroky.", "Creating a widget and placing it with grid() are two separate steps.") },
+    { kind: "guiStates", title: text("Entry drží aktuálny text", "Entry holds the current text"), states: [
+      { label: text("Pred písaním", "Before typing"), state: todoState("", []) },
+      { label: text("Po napísaní textu", "After typing"), state: todoState(todoCopy.submit, []) }
+    ], code: text("vstup = tk.Entry(root, width=34)\nvstup.grid(row=1, column=0)", "entry = tk.Entry(root, width=34)\nentry.grid(row=1, column=0)"), note: text("Text je zatiaľ iba vo widgete. Žiadna operácia sa nespustila.", "The text is only in the widget. No operation has run yet.") },
+    { kind: "codeGui", title: text("Button zatiaľ iba existuje", "The Button only exists for now"), label: "python", code: text("pridat = tk.Button(\n    root,\n    text=\"Pridať\",\n)\npridat.grid(row=1, column=1)", "add_button = tk.Button(\n    root,\n    text=\"Add\",\n)\nadd_button.grid(row=1, column=1)"), state: todoState(todoCopy.submit, []), note: text("Tlačidlo je viditeľné, ale bez command zatiaľ nemá aplikačné správanie.", "The button is visible, but without command it has no application behaviour yet.") },
+    { kind: "gridLayout", title: text("grid() ukladá prvky do riadkov a stĺpcov", "grid() places widgets in rows and columns"), cells: [[text("nadpis · columnspan=2", "heading · columnspan=2"), null], [text("Entry · row=1, column=0", "Entry · row=1, column=0"), text("Button · row=1, column=1", "Button · row=1, column=1")]], code: text("nadpis.grid(row=0, column=0, columnspan=2)\nvstup.grid(row=1, column=0)\npridat.grid(row=1, column=1)", "heading.grid(row=0, column=0, columnspan=2)\nentry.grid(row=1, column=0)\nadd_button.grid(row=1, column=1)") },
+    { kind: "guiStates", title: text("Odstupy spravia rovnaký layout čitateľnejší", "Spacing makes the same layout easier to read"), states: [
+      { label: text("Bez odstupov", "Without spacing"), state: todoState(todoCopy.submit, [], { tight: true }) },
+      { label: text("S padx, pady a sticky", "With padx, pady and sticky"), state: todoState(todoCopy.submit, []) }
+    ], code: "vstup.grid(row=1, column=0, padx=12, pady=8, sticky=\"ew\")\npridat.grid(row=1, column=1, padx=(0, 12), pady=8)", note: text("Používame iba parametre, ktoré pomáhajú tomuto konkrétnemu rozloženiu.", "We use only the parameters that help this particular layout.") },
+    { kind: "codeGui", title: text("Aktuálny stav programu", "Current program state"), label: "app.py", code: text("import tkinter as tk\n\nroot = tk.Tk()\nroot.title(\"Moje úlohy\")\n\nnadpis = tk.Label(root, text=\"Moje úlohy\")\nvstup = tk.Entry(root, width=34)\npridat = tk.Button(root, text=\"Pridať\")\n\nnadpis.grid(row=0, column=0, columnspan=2)\nvstup.grid(row=1, column=0, padx=12, pady=8)\npridat.grid(row=1, column=1, padx=(0, 12))\n\nroot.mainloop()", "import tkinter as tk\n\nroot = tk.Tk()\nroot.title(\"My tasks\")\n\nheading = tk.Label(root, text=\"My tasks\")\nentry = tk.Entry(root, width=34)\nadd_button = tk.Button(root, text=\"Add\")\n\nheading.grid(row=0, column=0, columnspan=2)\nentry.grid(row=1, column=0, padx=12, pady=8)\nadd_button.grid(row=1, column=1, padx=(0, 12))\n\nroot.mainloop()"), state: todoState(todoCopy.submit, []), note: text("Každý viditeľný prvok má zodpovedajúce vytvorenie widgetu aj umiestnenie.", "Every visible element has a matching widget creation and placement call.") },
+    { kind: "choiceMap", title: text("Kliknutie je udalosť", "A click is an event"), state: todoState(todoCopy.submit, [], { highlightAdd: true }), choices: [text("Ktorý kód sa má vykonať?", "Which code should run?"), text("Kedy sa má vykonať?", "When should it run?")] },
+    { kind: "code", title: text("Prvá reakcia na tlačidlo", "The first button response"), label: "python", code: text("def pridaj_ulohu():\n    print(\"Kliknutie\")\n\npridat = tk.Button(\n    root, text=\"Pridať\", command=pridaj_ulohu\n)", "def add_task():\n    print(\"Click\")\n\nadd_button = tk.Button(\n    root, text=\"Add\", command=add_task\n)"), output: text("Kliknutie\nKliknutie", "Click\nClick"), note: text("Tkinter zavolá callback pri každom kliknutí. Funkciu nevoláme sami pri tvorbe tlačidla.", "Tkinter calls the callback on each click. We do not call it ourselves while creating the button.") },
+    { kind: "beforeAfter", title: text("command potrebuje funkciu, nie jej výsledok", "command needs a function, not its result"), leftLabel: text("SPRÁVNE · NESKÔR", "CORRECT · LATER"), leftCode: text("command=pridaj_ulohu\n\n# odovzdá objekt funkcie\n# volanie príde po kliknutí", "command=add_task\n\n# passes the function object\n# the call comes after a click"), rightLabel: text("CHYBNE · IHNEĎ", "WRONG · IMMEDIATELY"), rightCode: text("command=pridaj_ulohu()\n\n# funkciu zavolá pri tvorbe\n# tlačidla a uloží jej výsledok", "command=add_task()\n\n# calls the function while creating\n# the button and stores its result"), note: text("Zátvorky znamenajú okamžité volanie. Bez zátvoriek odovzdávame funkciu, ktorú Tkinter zavolá neskôr.", "Parentheses mean an immediate call. Without parentheses, we pass the function for Tkinter to call later.") },
+    { kind: "code", title: text("Text získame z Entry v čase udalosti", "Read Entry text at event time"), label: "python", code: text("def pridaj_ulohu():\n    text = vstup.get()\n    print(repr(text))", "def add_task():\n    text = entry.get()\n    print(repr(text))"), output: text("prázdne pole  → ''\nnapísaný text → 'Poslať zadanie'", "empty field → ''\ntyped text  → 'Submit assignment'"), note: text("Widget je zdrojom aktuálnej hodnoty. get() čítame až v callbacku.", "The widget is the source of the current value. We call get() inside the callback.") },
+    { kind: "codeGui", title: text("Prázdny vstup ignorujeme", "Ignore empty input"), label: "python", code: text("def pridaj_ulohu():\n    text = vstup.get().strip()\n    if not text:\n        return\n\n    print(f\"Pridané: {text}\")", "def add_task():\n    text = entry.get().strip()\n    if not text:\n        return\n\n    print(f\"Added: {text}\")"), state: todoState("   ", []), note: text("strip() zmení vstup zložený iba z medzier na prázdny reťazec; do zoznamu nič nepribudne.", "strip() turns whitespace-only input into an empty string; nothing is added to the list.") },
+    { kind: "guiStates", title: text("Novú úlohu zobrazí Listbox", "Listbox displays the new task"), states: [
+      { label: text("Pred kliknutím", "Before the click"), state: todoState(todoCopy.submit, []) },
+      { label: text("Po kliknutí", "After the click"), state: todoState(todoCopy.submit, [todoTask(todoCopy.submit)]) }
+    ], code: text("zoznam = tk.Listbox(root, height=7)\nzoznam.grid(row=2, column=0, columnspan=2, sticky=\"ew\")\n\nzoznam.insert(tk.END, text)", "task_list = tk.Listbox(root, height=7)\ntask_list.grid(row=2, column=0, columnspan=2, sticky=\"ew\")\n\ntask_list.insert(tk.END, text)"), note: text("tk.END znamená vloženie za posledný existujúci riadok.", "tk.END inserts after the last existing row.") },
+    { kind: "codeGui", title: text("Po pridaní vstup vyčistíme", "Clear the input after adding"), label: "python", code: text("def pridaj_ulohu():\n    text = vstup.get().strip()\n    if not text:\n        return\n\n    zoznam.insert(tk.END, text)\n    vstup.delete(0, tk.END)", "def add_task():\n    text = entry.get().strip()\n    if not text:\n        return\n\n    task_list.insert(tk.END, text)\n    entry.delete(0, tk.END)"), state: todoState("", [todoTask(todoCopy.submit)]), note: text("Poradie je dôležité: najprv text načítať, potom vložiť a až nakoniec vymazať pole.", "Order matters: read the text, insert it, and only then clear the field.") },
+    { kind: "splitCode", title: text("Enter vyvolá rovnakú operáciu", "Enter triggers the same operation"), items: [text("tlačidlo používa command bez argumentu", "the button uses command without an argument"), text("bind() odovzdá event objekt", "bind() passes an event object"), text("spoločná logika zostáva v pridaj_ulohu()", "shared logic remains in add_task()")], label: "python", code: text("def pridaj_enter(event):\n    pridaj_ulohu()\n\nvstup.bind(\"<Return>\", pridaj_enter)\n\n# tlačidlo:\ncommand=pridaj_ulohu", "def add_with_enter(event):\n    add_task()\n\nentry.bind(\"<Return>\", add_with_enter)\n\n# button:\ncommand=add_task") },
+    { kind: "compare", title: text("Dva spôsoby pripojenia reakcie", "Two ways to connect a response"), columns: [
+      { title: "command=", items: [text("vlastnosť tlačidla", "a button option"), text("callback bez event parametra", "callback without an event parameter"), text("command=pridaj_ulohu", "command=add_task")] },
+      { title: "bind()", items: [text("všeobecná udalosť widgetu", "a general widget event"), text("callback dostane event", "callback receives event"), text("vstup.bind(\"<Return>\", pridaj_enter)", "entry.bind(\"<Return>\", add_with_enter)")] }
+    ] },
+    { kind: "diagram", title: text("Po callbacku sa aplikácia vráti k čakaniu", "After a callback, the application waits again"), items: [text("otvorenie okna", "open window"), text("písanie", "typing"), "Enter", text("aktualizácia zoznamu", "update list"), text("ďalšie čakanie", "wait again")] },
+    { kind: "code", title: text("Úloha ako dátový záznam", "A task as a data record"), label: "python", code: text("ulohy = [\n    {\"text\": \"Poslať zadanie\", \"hotova\": False},\n    {\"text\": \"Prejsť si callbacky\", \"hotova\": True},\n]", "tasks = [\n    {\"text\": \"Submit assignment\", \"done\": False},\n    {\"text\": \"Review callbacks\", \"done\": True},\n]"), output: text("2 úlohy\n1 nesplnená", "2 tasks\n1 incomplete"), note: text("Text a informácia o dokončení patria do dát aplikácie, nie iba do vykresleného riadka.", "Task text and completion belong in application data, not only in a rendered row.") },
+    { kind: "dataGui", title: text("Stav aplikácie a jeho zobrazenie", "Application state and its view"), label: "python", code: text("ulohy = [\n    {\"text\": \"Poslať zadanie\", \"hotova\": False},\n    {\"text\": \"Prejsť si callbacky\", \"hotova\": True},\n]", "tasks = [\n    {\"text\": \"Submit assignment\", \"done\": False},\n    {\"text\": \"Review callbacks\", \"done\": True},\n]"), state: todoState("", [todoTask(todoCopy.submit), todoTask(todoCopy.study, true)]), note: text("Dáta sú zdroj pravdy. Po ich zmene z nich znova vytvoríme obsah okna.", "Data is the source of truth. After changing it, rebuild the window contents from the data.") },
+    { kind: "codeGui", title: text("obnov_zobrazenie() premietne dáta do Listbox", "refresh_view() projects data into the Listbox"), label: "python", code: text("def obnov_zobrazenie():\n    zoznam.delete(0, tk.END)\n\n    for uloha in ulohy:\n        znacka = \"[x]\" if uloha[\"hotova\"] else \"[ ]\"\n        riadok = f\"{znacka} {uloha['text']}\"\n        zoznam.insert(tk.END, riadok)", "def refresh_view():\n    task_list.delete(0, tk.END)\n\n    for task in tasks:\n        mark = \"[x]\" if task[\"done\"] else \"[ ]\"\n        row = f\"{mark} {task['text']}\"\n        task_list.insert(tk.END, row)"), state: todoState("", [todoTask(todoCopy.submit), todoTask(todoCopy.study, true)]), note: text("Najprv odstránime staré riadky, potom vykreslíme presný aktuálny stav dát.", "First remove old rows, then render the exact current data state.") },
+    { kind: "beforeAfter", title: text("Stav úlohy má jedno pravidlo zobrazenia", "Task state has one display rule"), leftLabel: text("NESPLNENÁ", "INCOMPLETE"), leftCode: text("uloha = {\"text\": \"Poslať zadanie\",\n         \"hotova\": False}\n\n[ ] Poslať zadanie", "task = {\"text\": \"Submit assignment\",\n        \"done\": False}\n\n[ ] Submit assignment"), rightLabel: text("HOTOVÁ", "DONE"), rightCode: text("uloha = {\"text\": \"Poslať zadanie\",\n         \"hotova\": True}\n\n[x] Poslať zadanie", "task = {\"text\": \"Submit assignment\",\n        \"done\": True}\n\n[x] Submit assignment"), note: text("Značka je odvodená z boolean hodnoty; nie je to druhý nezávislý stav.", "The mark is derived from the boolean value; it is not a second independent state.") },
+    { kind: "codeGui", title: text("Pridanie mení dáta a potom obnoví okno", "Adding changes data, then refreshes the window"), label: "python", code: text("def pridaj_ulohu():\n    text = vstup.get().strip()\n    if not text:\n        return\n\n    ulohy.append({\n        \"text\": text,\n        \"hotova\": False,\n    })\n    vstup.delete(0, tk.END)\n    obnov_zobrazenie()", "def add_task():\n    text = entry.get().strip()\n    if not text:\n        return\n\n    tasks.append({\n        \"text\": text,\n        \"done\": False,\n    })\n    entry.delete(0, tk.END)\n    refresh_view()"), state: todoState("", [todoTask(todoCopy.submit)]), note: text("Výsledok vyzerá rovnako ako predtým, ale aplikácia teraz pozná aj stav hotova.", "The result looks the same as before, but the application now also knows the done state.") },
+    { kind: "guiStates", title: text("curselection() vráti pozíciu vybraného riadka", "curselection() returns the selected row position"), states: [
+      { label: text("Bez výberu → ()", "No selection → ()"), state: todoState("", [todoTask(todoCopy.submit), todoTask(todoCopy.study)]) },
+      { label: text("Druhý riadok → (1,)", "Second row → (1,)"), state: todoState("", [todoTask(todoCopy.submit), todoTask(todoCopy.study, false, true)]) }
+    ], code: text("vyber = zoznam.curselection()\nprint(vyber)", "selection = task_list.curselection()\nprint(selection)"), note: text("Výsledkom je tuple indexov. Pri tomto Listboxe pracujeme s jedným vybraným indexom.", "The result is a tuple of indices. This Listbox uses one selected index.") },
+    { kind: "codeGui", title: text("Bez výberu callback bezpečne skončí", "Without a selection, the callback exits safely"), label: "python", code: text("def prepni_hotovu():\n    vyber = zoznam.curselection()\n    if not vyber:\n        return\n\n    index = vyber[0]", "def toggle_done():\n    selection = task_list.curselection()\n    if not selection:\n        return\n\n    index = selection[0]"), state: todoState("", [todoTask(todoCopy.submit), todoTask(todoCopy.study)]), note: text("GUI nesmie predpokladať, že používateľ vykonal kroky v nami očakávanom poradí.", "A GUI must not assume that the user performed actions in the order we expected.") },
+    { kind: "guiStates", title: text("Vybraná úloha zmení stav", "The selected task changes state"), states: [
+      { label: text("Pred kliknutím", "Before the click"), state: todoState("", [todoTask(todoCopy.submit, false, true)]) },
+      { label: text("Po kliknutí", "After the click"), state: todoState("", [todoTask(todoCopy.submit, true, true)]) }
+    ], code: text("index = vyber[0]\nulohy[index][\"hotova\"] = True\nobnov_zobrazenie()\nzoznam.selection_set(index)", "index = selection[0]\ntasks[index][\"done\"] = True\nrefresh_view()\ntask_list.selection_set(index)"), note: text("Po prekreslení znovu označíme rovnaký index, pretože delete() pôvodný výber odstráni.", "After redrawing, select the same index again because delete() removes the original selection.") },
+    { kind: "code", title: text("Opakované kliknutie stav prepína", "Repeated clicks toggle the state"), label: "python", code: text("ulohy[index][\"hotova\"] = (\n    not ulohy[index][\"hotova\"]\n)\nobnov_zobrazenie()\nzoznam.selection_set(index)", "tasks[index][\"done\"] = (\n    not tasks[index][\"done\"]\n)\nrefresh_view()\ntask_list.selection_set(index)"), output: text("1. klik: [ ] → [x]\n2. klik: [x] → [ ]", "1st click: [ ] → [x]\n2nd click: [x] → [ ]"), note: text("not prepne boolean a obnovený výber umožní ďalší klik bez opätovného označenia riadka.", "not toggles the boolean, and restoring selection allows another click without selecting the row again.") },
+    { kind: "dataGui", title: text("Odstránenie mení rovnaký zdroj pravdy", "Deleting changes the same source of truth"), label: "python", code: text("def odstran_ulohu():\n    vyber = zoznam.curselection()\n    if not vyber:\n        return\n\n    del ulohy[vyber[0]]\n    obnov_zobrazenie()", "def delete_task():\n    selection = task_list.curselection()\n    if not selection:\n        return\n\n    del tasks[selection[0]]\n    refresh_view()"), state: todoState("", [todoTask(todoCopy.study, true)]), note: text("Pred odstránením boli v dátach dve úlohy; po del a obnove zostáva iba nevybraná položka.", "Before deletion the data held two tasks; after del and refresh only the unselected item remains.") },
+    { kind: "guiStates", title: text("Počet nesplnených je odvodený údaj", "Incomplete count is derived data"), states: [
+      { label: text("Dve nesplnené", "Two incomplete"), state: todoState("", [todoTask(todoCopy.submit), todoTask(todoCopy.study)]) },
+      { label: text("Jedna nesplnená", "One incomplete"), state: todoState("", [todoTask(todoCopy.submit, true), todoTask(todoCopy.study)]) }
+    ], code: text("zostava = sum(\n    not uloha[\"hotova\"] for uloha in ulohy\n)\npocet.config(text=f\"Nesplnené: {zostava}\")", "remaining = sum(\n    not task[\"done\"] for task in tasks\n)\ncount_label.config(text=f\"Incomplete: {remaining}\")"), note: text("Počítadlo neukladáme samostatne; vždy ho vypočítame z aktuálnych úloh.", "Do not store the count separately; always derive it from the current tasks.") },
+    { kind: "stateProjection", title: text("Jeden stav sa premieta na viac miest v okne", "One state is projected to several places in the window"), source: text("ulohy", "tasks"), targets: [text("riadky v Listbox", "Listbox rows"), text("počet nesplnených", "incomplete count")], functionName: text("obnov_zobrazenie()", "refresh_view()"), note: text("Každý callback mení dáta a potom volá jednu obnovovaciu funkciu. Tak nezabudne aktualizovať časť rozhrania.", "Every callback changes data and then calls one refresh function, so no part of the interface is forgotten.") },
+    { kind: "codeColumns", title: text("Celý program: dáta a funkcie", "Complete program: data and functions"), leftLabel: "app.py · 1/2", leftCode: text("import tkinter as tk\n\nulohy = []\n\ndef obnov_zobrazenie():\n    zoznam.delete(0, tk.END)\n    for uloha in ulohy:\n        znacka = \"[x]\" if uloha[\"hotova\"] else \"[ ]\"\n        zoznam.insert(tk.END, f\"{znacka} {uloha['text']}\")\n\n    zostava = sum(not u[\"hotova\"] for u in ulohy)\n    pocet.config(text=f\"Nesplnené: {zostava}\")", "import tkinter as tk\n\ntasks = []\n\ndef refresh_view():\n    task_list.delete(0, tk.END)\n    for task in tasks:\n        mark = \"[x]\" if task[\"done\"] else \"[ ]\"\n        task_list.insert(tk.END, f\"{mark} {task['text']}\")\n\n    remaining = sum(not t[\"done\"] for t in tasks)\n    count_label.config(text=f\"Incomplete: {remaining}\")"), rightLabel: text("CALLBACKY", "CALLBACKS"), rightCode: text("def pridaj_ulohu():\n    text = vstup.get().strip()\n    if not text:\n        return\n    ulohy.append({\"text\": text, \"hotova\": False})\n    vstup.delete(0, tk.END)\n    obnov_zobrazenie()\n\ndef prepni_hotovu():\n    vyber = zoznam.curselection()\n    if vyber:\n        i = vyber[0]\n        ulohy[i][\"hotova\"] = not ulohy[i][\"hotova\"]\n        obnov_zobrazenie()\n        zoznam.selection_set(i)\n\ndef odstran_ulohu():\n    vyber = zoznam.curselection()\n    if vyber:\n        del ulohy[vyber[0]]\n        obnov_zobrazenie()", "def add_task():\n    text = entry.get().strip()\n    if not text:\n        return\n    tasks.append({\"text\": text, \"done\": False})\n    entry.delete(0, tk.END)\n    refresh_view()\n\ndef toggle_done():\n    selection = task_list.curselection()\n    if selection:\n        i = selection[0]\n        tasks[i][\"done\"] = not tasks[i][\"done\"]\n        refresh_view()\n        task_list.selection_set(i)\n\ndef delete_task():\n    selection = task_list.curselection()\n    if selection:\n        del tasks[selection[0]]\n        refresh_view()") },
+    { kind: "codeColumns", title: text("Celý program: okno a widgety", "Complete program: window and widgets"), leftLabel: "app.py · 2/2", leftCode: text("root = tk.Tk()\nroot.title(\"Moje úlohy\")\nroot.columnconfigure(0, weight=1)\n\nnadpis = tk.Label(root, text=\"Moje úlohy\", font=(\"Arial\", 16, \"bold\"))\nvstup = tk.Entry(root, width=34)\npridat = tk.Button(root, text=\"Pridať\", command=pridaj_ulohu)\nzoznam = tk.Listbox(root, height=7)\nhotovo = tk.Button(root, text=\"Hotové\", command=prepni_hotovu)\nodstranit = tk.Button(root, text=\"Odstrániť\", command=odstran_ulohu)\npocet = tk.Label(root, text=\"\")", "root = tk.Tk()\nroot.title(\"My tasks\")\nroot.columnconfigure(0, weight=1)\n\nheading = tk.Label(root, text=\"My tasks\", font=(\"Arial\", 16, \"bold\"))\nentry = tk.Entry(root, width=34)\nadd_button = tk.Button(root, text=\"Add\", command=add_task)\ntask_list = tk.Listbox(root, height=7)\ndone_button = tk.Button(root, text=\"Done\", command=toggle_done)\ndelete_button = tk.Button(root, text=\"Delete\", command=delete_task)\ncount_label = tk.Label(root, text=\"\")"), rightLabel: text("LAYOUT A UDALOSTI", "LAYOUT AND EVENTS"), rightCode: text("nadpis.grid(row=0, column=0, columnspan=2, pady=(12, 4))\nvstup.grid(row=1, column=0, padx=(12, 6), sticky=\"ew\")\npridat.grid(row=1, column=1, padx=(0, 12))\nzoznam.grid(row=2, column=0, columnspan=2, padx=12, pady=8, sticky=\"ew\")\nhotovo.grid(row=3, column=0, padx=12, sticky=\"w\")\nodstranit.grid(row=3, column=1, padx=12, sticky=\"e\")\npocet.grid(row=4, column=0, columnspan=2, pady=(8, 12))\n\ndef pridaj_enter(event):\n    pridaj_ulohu()\n\nvstup.bind(\"<Return>\", pridaj_enter)\nobnov_zobrazenie()\nroot.mainloop()", "heading.grid(row=0, column=0, columnspan=2, pady=(12, 4))\nentry.grid(row=1, column=0, padx=(12, 6), sticky=\"ew\")\nadd_button.grid(row=1, column=1, padx=(0, 12))\ntask_list.grid(row=2, column=0, columnspan=2, padx=12, pady=8, sticky=\"ew\")\ndone_button.grid(row=3, column=0, padx=12, sticky=\"w\")\ndelete_button.grid(row=3, column=1, padx=12, sticky=\"e\")\ncount_label.grid(row=4, column=0, columnspan=2, pady=(8, 12))\n\ndef add_with_enter(event):\n    add_task()\n\nentry.bind(\"<Return>\", add_with_enter)\nrefresh_view()\nroot.mainloop()") },
+    { kind: "guiSequence", title: text("Priebeh jedného použitia", "One complete interaction"), steps: [
+      { label: text("Prázdna aplikácia", "Empty application"), state: todoState("", []), data: text("[]", "[]") },
+      { label: text("Dve úlohy", "Two tasks"), state: todoState("", [todoTask(todoCopy.submit), todoTask(todoCopy.study)]), data: text("2 záznamy", "2 records") },
+      { label: text("Jedna hotová", "One done"), state: todoState("", [todoTask(todoCopy.submit, true), todoTask(todoCopy.study)]), data: text("hotova: True, False", "done: True, False") },
+      { label: text("Druhá odstránená", "Second deleted"), state: todoState("", [todoTask(todoCopy.submit, true)]), data: text("1 záznam", "1 record") }
+    ] },
+    { kind: "table", title: text("Tri časté chyby", "Three common mistakes"), headers: [text("Chyba", "Mistake"), text("Príznak", "Symptom"), text("Oprava", "Fix")], rows: [
+      [text("command=funkcia()", "command=function()"), text("spustí sa pri vytváraní tlačidla", "runs while the button is created"), text("command=funkcia", "command=function")],
+      [text("chýba kontrola výberu", "missing selection check"), text("IndexError bez označeného riadka", "IndexError with no selected row"), text("if not vyber: return", "if not selection: return")],
+      [text("zmena dát bez obnovy", "data changes without refresh"), text("okno ukazuje starý stav", "the window shows stale state"), text("obnov_zobrazenie()", "refresh_view()")]
+    ] },
+    { kind: "statement", title: text("Po zatvorení okna sa úlohy stratia.", "Tasks disappear when the window closes."), body: text("Aktuálna verzia drží stav iba v pamäti procesu. Ukladanie do JSON je prirodzené ďalšie rozšírenie, nie podmienka pochopenia udalostí.", "The current version keeps state only in process memory. Saving to JSON is a natural extension, not a prerequisite for understanding events.") },
+    { kind: "guiQuestion", title: text("Predpovedzte správanie aplikácie", "Predict the application's behaviour"), state: todoState("", [todoTask(todoCopy.submit), todoTask(todoCopy.study)]), questions: [
+      { q: text("Klik na Hotové bez výberu", "Click Done with no selection"), a: text("Nič sa nezmení.", "Nothing changes.") },
+      { q: text("Tri medzery a Enter", "Three spaces and Enter"), a: text("Vstup sa ignoruje.", "The input is ignored.") },
+      { q: text("Prvý riadok a dva kliky na Hotové", "First row and two Done clicks"), a: text("Stav sa prepne tam a späť.", "The state toggles there and back.") }
+    ] },
+    { kind: "diagram", title: text("Od udalosti k zhodnému rozhraniu", "From an event to a consistent interface"), body: text("Na cvičení môžete rovnaký model rozšíriť o editáciu textu alebo ukladanie do JSON.", "In the exercise, the same model can be extended with text editing or JSON persistence."), items: ["mainloop()", "command / bind", text("callback mení ulohy", "callback changes tasks"), text("obnov_zobrazenie()", "refresh_view()") ] }
   ]
 };
 
@@ -942,6 +1006,205 @@ function addCodePanel(slide, x, y, w, h, label, code, fontSize = 16) {
   addText(slide, code, x + 0.24, y + (compact ? 0.43 : 0.72), w - 0.52, h - (compact ? 0.48 : 1.02), { fontFace: fonts.mono, fontSize, color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
 }
 
+function localized(content, language, fallback = "") {
+  return content == null ? fallback : value(content, language);
+}
+
+function drawTodoWindow(slide, state, language, x, y, w, h) {
+  const compact = w < 4 || h < 2.35;
+  const title = language === "sk" ? "Moje úlohy" : "My tasks";
+  const addLabel = language === "sk" ? "Pridať" : "Add";
+  const doneLabel = language === "sk" ? "Hotové" : "Done";
+  const deleteLabel = language === "sk" ? "Odstrániť" : "Delete";
+  const countLabel = language === "sk" ? "Nesplnené" : "Incomplete";
+  const tasks = state.tasks ?? [];
+  const remaining = tasks.filter((task) => !task.done).length;
+  const input = localized(state.input, language);
+
+  slide.addShape("rect", { x, y, w, h, fill: { color: "FFFFFF" }, line: { color: "95A3B3", pt: 0.8 } });
+  const titleH = compact ? 0.2 : 0.34;
+  slide.addShape("rect", { x, y, w, h: titleH, fill: { color: "E7EEF4" }, line: { color: "E7EEF4", pt: 0 } });
+  addText(slide, title, x + 0.14, y + (compact ? 0.04 : 0.08), w - 0.28, compact ? 0.11 : 0.16, { fontSize: compact ? 6.4 : 8.8, bold: true, color: colors.navy, valign: "mid" });
+
+  if (state.shellOnly) return;
+
+  if (compact) {
+    const contentY = y + titleH + 0.08;
+    if (input) {
+      slide.addShape("rect", { x: x + 0.1, y: contentY, w: w - 0.2, h: 0.22, fill: { color: "FFFFFF" }, line: { color: "AAB4BF", pt: 0.5 } });
+      addText(slide, input, x + 0.18, contentY + 0.04, w - 0.34, 0.11, { fontSize: 6.5, color: colors.ink, valign: "mid" });
+    }
+    const listY = contentY + (input ? 0.3 : 0.02);
+    const available = Math.max(0.24, h - (listY - y) - 0.24);
+    const rowH = Math.min(0.25, available / Math.max(tasks.length, 1));
+    if (tasks.length === 0) {
+      addText(slide, language === "sk" ? "žiadne úlohy" : "no tasks", x + 0.12, listY + 0.04, w - 0.24, 0.14, { fontSize: 6.5, color: colors.muted, align: "center" });
+    }
+    tasks.slice(0, 3).forEach((task, index) => {
+      if (task.selected) slide.addShape("rect", { x: x + 0.09, y: listY + index * rowH, w: w - 0.18, h: rowH, fill: { color: "DCECF6" }, line: { color: "DCECF6", pt: 0 } });
+      addText(slide, `${task.done ? "[x]" : "[ ]"} ${localized(task.label, language)}`, x + 0.15, listY + 0.02 + index * rowH, w - 0.3, rowH - 0.03, { fontFace: fonts.mono, fontSize: 6.5, color: colors.ink, valign: "mid" });
+    });
+    addText(slide, `${countLabel}: ${remaining}`, x + 0.12, y + h - 0.2, w - 0.24, 0.11, { fontSize: 6.2, color: colors.muted, align: "right" });
+    return;
+  }
+
+  const pad = state.tight ? 0.06 : 0.24;
+  const contentX = x + pad;
+  const contentW = w - pad * 2;
+  const headingY = y + titleH + (state.tight ? 0.04 : 0.18);
+  addText(slide, title, contentX, headingY, contentW, 0.32, { fontSize: 15.5, bold: true, color: colors.navy, align: "center" });
+  if (state.headingOnly) return;
+
+  const entryY = headingY + (state.tight ? 0.3 : 0.46);
+  const buttonW = Math.max(0.9, contentW * 0.24);
+  slide.addShape("rect", { x: contentX, y: entryY, w: contentW - buttonW - 0.12, h: 0.43, fill: { color: "FFFFFF" }, line: { color: "929EAA", pt: 0.75 } });
+  if (input) addText(slide, input, contentX + 0.12, entryY + 0.09, contentW - buttonW - 0.34, 0.2, { fontSize: 10.2, color: colors.ink });
+  slide.addShape("rect", { x: contentX + contentW - buttonW, y: entryY, w: buttonW, h: 0.43, fill: { color: state.highlightAdd ? "DCECF6" : "F3F5F7" }, line: { color: state.highlightAdd ? colors.blue : "929EAA", pt: state.highlightAdd ? 1.5 : 0.75 } });
+  addText(slide, addLabel, contentX + contentW - buttonW, entryY + 0.09, buttonW, 0.2, { fontSize: 9.6, bold: state.highlightAdd, color: colors.navy, align: "center" });
+
+  const listY = entryY + (state.tight ? 0.49 : 0.65);
+  const bottomControls = 0.98;
+  const listH = Math.max(0.75, y + h - listY - bottomControls);
+  slide.addShape("rect", { x: contentX, y: listY, w: contentW, h: listH, fill: { color: "FFFFFF" }, line: { color: "929EAA", pt: 0.75 } });
+  const rowH = Math.min(0.42, listH / Math.max(tasks.length, 1));
+  if (tasks.length === 0) addText(slide, language === "sk" ? "Zoznam je prázdny" : "The list is empty", contentX + 0.16, listY + 0.18, contentW - 0.32, 0.22, { fontSize: 9.2, color: colors.muted, align: "center" });
+  tasks.slice(0, 5).forEach((task, index) => {
+    if (task.selected) slide.addShape("rect", { x: contentX + 0.03, y: listY + 0.03 + index * rowH, w: contentW - 0.06, h: rowH, fill: { color: "DCECF6" }, line: { color: "DCECF6", pt: 0 } });
+    addText(slide, `${task.done ? "[x]" : "[ ]"} ${localized(task.label, language)}`, contentX + 0.13, listY + 0.1 + index * rowH, contentW - 0.26, rowH - 0.08, { fontFace: fonts.mono, fontSize: 9.3, color: colors.ink, valign: "mid" });
+  });
+
+  const actionsY = listY + listH + 0.15;
+  const actionW = Math.min(1.55, contentW * 0.36);
+  [
+    { label: doneLabel, x: contentX },
+    { label: deleteLabel, x: contentX + contentW - actionW }
+  ].forEach((action) => {
+    slide.addShape("rect", { x: action.x, y: actionsY, w: actionW, h: 0.37, fill: { color: "F3F5F7" }, line: { color: "929EAA", pt: 0.7 } });
+    addText(slide, action.label, action.x, actionsY + 0.08, actionW, 0.18, { fontSize: 8.8, color: colors.navy, align: "center" });
+  });
+  addText(slide, `${countLabel}: ${remaining}`, contentX, actionsY + 0.51, contentW, 0.2, { fontSize: 9, color: colors.muted, align: "center" });
+}
+
+function renderGuiTransitions(slide, item, language) {
+  const firstY = 2.02;
+  addText(slide, language === "sk" ? "PRED" : "BEFORE", 2.42, 1.81, 4.2, 0.14, { fontSize: 7.8, color: colors.muted, bold: true, fontFace: fonts.mono });
+  addText(slide, language === "sk" ? "PO" : "AFTER", 7.56, 1.81, 4.2, 0.14, { fontSize: 7.8, color: colors.muted, bold: true, fontFace: fonts.mono });
+  item.transitions.forEach((transition, index) => {
+    const y = firstY + index * 1.58;
+    addText(slide, localized(transition.label, language), 0.76, y + 0.4, 1.42, 0.36, { fontSize: 14.2, bold: true, color: colors.navy, valign: "mid" });
+    drawTodoWindow(slide, transition.before, language, 2.4, y, 4.18, 1.25);
+    slide.addShape("chevron", { x: 6.84, y: y + 0.47, w: 0.28, h: 0.3, fill: { color: colors.blue }, line: { color: colors.blue } });
+    drawTodoWindow(slide, transition.after, language, 7.52, y, 4.18, 1.25);
+  });
+}
+
+function renderGuiStates(slide, item, language) {
+  const count = item.states.length;
+  const gap = count === 2 ? 0.7 : 0.42;
+  const width = (11.86 - gap * (count - 1)) / count;
+  const hasCode = Boolean(item.code);
+  const stateH = hasCode ? 2.8 : 3.82;
+  item.states.forEach((entry, index) => {
+    const x = 0.74 + index * (width + gap);
+    addText(slide, localized(entry.label, language), x, 1.9, width, 0.25, { fontSize: 14.5, bold: true, color: colors.navy, align: "center" });
+    drawTodoWindow(slide, entry.state, language, x, 2.24, width, stateH);
+  });
+  if (hasCode) addCodePanel(slide, 0.74, 5.28, 11.86, 1.15, "python", localized(item.code, language), 13.2);
+  if (item.note) addText(slide, localized(item.note, language), 0.8, 6.66, 11.2, 0.2, { fontSize: 12.5, color: colors.muted, align: "center" });
+}
+
+function renderCodeGui(slide, item, language) {
+  addCodePanel(slide, 0.72, 1.95, 6.2, 4.62, localized(item.label, language), localized(item.code, language), codeFontSize(localized(item.code, language), 15.1));
+  drawTodoWindow(slide, item.state, language, 7.42, 2.0, 5.18, 4.5);
+  if (item.note) addText(slide, localized(item.note, language), 0.84, 6.68, 11.2, 0.2, { fontSize: 12.5, color: colors.muted, align: "center" });
+}
+
+function renderChoiceMap(slide, item, language) {
+  drawTodoWindow(slide, item.state, language, 4.16, 2.02, 5.0, 4.45);
+  const positions = item.choices.length > 2
+    ? [{ x: 0.78, y: 2.38 }, { x: 9.72, y: 2.38 }, { x: 0.78, y: 4.85 }, { x: 9.72, y: 4.85 }]
+    : [{ x: 0.78, y: 3.42 }, { x: 9.72, y: 3.42 }];
+  item.choices.forEach((choice, index) => {
+    const position = positions[index];
+    const boxW = 2.82;
+    slide.addShape("rect", { x: position.x, y: position.y, w: boxW, h: 0.76, fill: { color: index % 2 ? "EAF3F7" : colors.panel }, line: { color: colors.line, pt: 0.75 } });
+    addText(slide, localized(choice, language), position.x + 0.12, position.y + 0.16, boxW - 0.24, 0.4, { fontSize: 14.2, color: colors.navy, bold: true, align: "center", valign: "mid" });
+    const fromX = position.x < 4 ? position.x + boxW : position.x;
+    const toX = position.x < 4 ? 4.16 : 9.16;
+    slide.addShape("line", { x: Math.min(fromX, toX), y: position.y + 0.38, w: Math.abs(toX - fromX), h: 0, line: { color: colors.blue, pt: 0.9 } });
+  });
+}
+
+function renderGridLayout(slide, item, language) {
+  const x = 0.78;
+  const y = 2.15;
+  const w = 5.15;
+  const h = 2.95;
+  slide.addShape("rect", { x, y, w, h, fill: { color: "FFFFFF" }, line: { color: colors.line, pt: 0.8 } });
+  slide.addShape("line", { x: x + 3.4, y, w: 0, h, line: { color: colors.line, pt: 0.7 } });
+  slide.addShape("line", { x, y: y + 1.3, w, h: 0, line: { color: colors.line, pt: 0.7 } });
+  addText(slide, "column 0", x + 0.1, y - 0.3, 3.1, 0.18, { fontFace: fonts.mono, fontSize: 9, color: colors.muted, align: "center" });
+  addText(slide, "column 1", x + 3.5, y - 0.3, 1.5, 0.18, { fontFace: fonts.mono, fontSize: 9, color: colors.muted, align: "center" });
+  addText(slide, localized(item.cells[0][0], language), x + 0.18, y + 0.46, w - 0.36, 0.36, { fontSize: 15, color: colors.navy, bold: true, align: "center" });
+  addText(slide, localized(item.cells[1][0], language), x + 0.16, y + 1.75, 3.05, 0.44, { fontSize: 12.4, color: colors.ink, align: "center" });
+  addText(slide, localized(item.cells[1][1], language), x + 3.5, y + 1.75, 1.45, 0.44, { fontSize: 11.4, color: colors.ink, align: "center" });
+  addCodePanel(slide, 6.45, 2.05, 6.14, 3.85, "python", localized(item.code, language), 15.2);
+}
+
+function renderDataGui(slide, item, language) {
+  addCodePanel(slide, 0.74, 2.02, 5.25, 4.34, localized(item.label, language), localized(item.code, language), codeFontSize(localized(item.code, language), 14.5));
+  slide.addShape("chevron", { x: 6.3, y: 3.9, w: 0.34, h: 0.42, fill: { color: colors.blue }, line: { color: colors.blue } });
+  drawTodoWindow(slide, item.state, language, 7.02, 2.02, 5.56, 4.34);
+  if (item.note) addText(slide, localized(item.note, language), 0.84, 6.66, 11.15, 0.2, { fontSize: 12.5, color: colors.muted, align: "center" });
+}
+
+function renderStateProjection(slide, item, language) {
+  const nodes = [
+    { x: 0.8, y: 3.05, w: 2.15, label: localized(item.source, language) },
+    { x: 4.05, y: 3.05, w: 2.75, label: localized(item.functionName, language) },
+    { x: 8.15, y: 2.35, w: 3.6, label: localized(item.targets[0], language) },
+    { x: 8.15, y: 4.15, w: 3.6, label: localized(item.targets[1], language) }
+  ];
+  nodes.forEach((node, index) => {
+    slide.addShape("rect", { x: node.x, y: node.y, w: node.w, h: 0.98, fill: { color: index === 1 ? "EAF3F7" : colors.panel }, line: { color: index === 1 ? "9DCCDD" : colors.line, pt: 0.8 } });
+    addText(slide, node.label, node.x + 0.15, node.y + 0.25, node.w - 0.3, 0.42, { fontFace: index < 2 ? fonts.mono : fonts.body, fontSize: 16, color: colors.navy, bold: true, align: "center" });
+  });
+  slide.addShape("chevron", { x: 3.35, y: 3.38, w: 0.25, h: 0.3, fill: { color: colors.blue }, line: { color: colors.blue } });
+  slide.addShape("line", { x: 7.18, y: 3.54, w: 0.62, h: -0.68, line: { color: colors.blue, pt: 1 } });
+  slide.addShape("line", { x: 7.18, y: 3.54, w: 0.62, h: 1.08, line: { color: colors.blue, pt: 1 } });
+  addText(slide, localized(item.note, language), 0.9, 5.65, 11.0, 0.55, { fontSize: 17, color: colors.muted, align: "center" });
+}
+
+function renderCodeColumns(slide, item, language) {
+  const left = localized(item.leftCode, language);
+  const right = localized(item.rightCode, language);
+  addCodePanel(slide, 0.7, 1.92, 5.95, 4.86, localized(item.leftLabel, language), left, codeFontSize(left, 13.2));
+  addCodePanel(slide, 6.82, 1.92, 5.82, 4.86, localized(item.rightLabel, language), right, codeFontSize(right, 13.2));
+}
+
+function renderGuiSequence(slide, item, language) {
+  const gap = 0.28;
+  const w = 2.78;
+  item.steps.forEach((step, index) => {
+    const x = 0.72 + index * (w + gap);
+    addText(slide, `${index + 1}. ${localized(step.label, language)}`, x, 1.93, w, 0.34, { fontSize: 12.5, color: colors.navy, bold: true, align: "center" });
+    drawTodoWindow(slide, step.state, language, x, 2.38, w, 2.75);
+    addText(slide, localized(step.data, language), x, 5.45, w, 0.52, { fontFace: fonts.mono, fontSize: 10.5, color: colors.muted, align: "center", valign: "top" });
+    if (index < item.steps.length - 1) slide.addShape("chevron", { x: x + w + 0.05, y: 3.55, w: 0.16, h: 0.26, fill: { color: colors.blue }, line: { color: colors.blue } });
+  });
+}
+
+function renderGuiQuestion(slide, item, language) {
+  drawTodoWindow(slide, item.state, language, 0.76, 2.0, 5.45, 4.52);
+  item.questions.forEach((question, index) => {
+    const y = 2.02 + index * 1.48;
+    addText(slide, `${index + 1}`, 6.72, y + 0.03, 0.38, 0.36, { fontFace: fonts.mono, fontSize: 13, color: colors.blue, bold: true, align: "center" });
+    addText(slide, localized(question.q, language), 7.2, y, 5.15, 0.43, { fontSize: 15.2, color: colors.navy, bold: true, valign: "top" });
+    addText(slide, localized(question.a, language), 7.2, y + 0.58, 5.15, 0.38, { fontSize: 14.2, color: colors.muted, valign: "top" });
+    if (index < item.questions.length - 1) slide.addShape("line", { x: 7.2, y: y + 1.2, w: 5.0, h: 0, line: { color: colors.line, pt: 0.6 } });
+  });
+}
+
 function renderSlide(pptx, item, index, language) {
   const slide = pptx.addSlide();
   slide.background = { color: colors.paper };
@@ -952,8 +1215,9 @@ function renderSlide(pptx, item, index, language) {
     slide.addShape("rect", { x: 0, y: 0, w: 0.22, h: page.height, fill: { color: colors.blue }, line: { color: colors.blue } });
     addText(slide, language === "sk" ? "PROGRAMOVANIE V PYTHONE" : "PROGRAMMING IN PYTHON", 0.82, 0.75, 5.4, 0.25, { fontSize: 9.5, color: colors.blue, bold: true, charSpacing: 0.8 });
     addText(slide, language === "sk" ? `PREDNÁŠKA ${number}` : `LECTURE ${number}`, 10.75, 0.75, 1.85, 0.24, { fontSize: 9.2, color: colors.muted, bold: true, fontFace: fonts.mono, align: "right" });
-    addText(slide, title, 0.82, 2.26, 10.85, 1.06, { fontFace: fonts.display, fontSize: 42, color: colors.navy, bold: true, valign: "top" });
-    if (item.subtitle) addText(slide, value(item.subtitle, language), 0.86, 3.58, 9.3, 0.46, { fontSize: 19.5, color: colors.muted, valign: "top" });
+    addText(slide, title, 0.82, item.gui ? 1.8 : 2.26, item.gui ? 5.75 : 10.85, item.gui ? 1.45 : 1.06, { fontFace: fonts.display, fontSize: item.gui ? 35 : 42, color: colors.navy, bold: true, valign: "top" });
+    if (item.subtitle) addText(slide, value(item.subtitle, language), 0.86, item.gui ? 3.45 : 3.58, item.gui ? 5.5 : 9.3, item.gui ? 0.8 : 0.46, { fontSize: item.gui ? 17.5 : 19.5, color: colors.muted, valign: "top" });
+    if (item.gui) drawTodoWindow(slide, item.gui, language, 7.18, 1.48, 5.18, 4.82);
     slide.addShape("rect", { x: 0.82, y: 5.7, w: 2.45, h: 0.1, fill: { color: colors.accent }, line: { color: colors.accent } });
     addText(slide, "TUKE FEI", 0.82, 6.02, 2.0, 0.2, { fontSize: 9.5, color: colors.muted, bold: true });
     addText(slide, `${String(index).padStart(2, "0")} / ${String(deck.length).padStart(2, "0")}`, 11.68, 6.84, 0.9, 0.2, { fontSize: 8, color: colors.muted, fontFace: fonts.mono, align: "right" });
@@ -979,6 +1243,46 @@ function renderSlide(pptx, item, index, language) {
   }
 
   addHeading(slide, title);
+  if (item.kind === "guiTransitions") {
+    renderGuiTransitions(slide, item, language);
+    return;
+  }
+  if (item.kind === "guiStates") {
+    renderGuiStates(slide, item, language);
+    return;
+  }
+  if (item.kind === "codeGui") {
+    renderCodeGui(slide, item, language);
+    return;
+  }
+  if (item.kind === "choiceMap") {
+    renderChoiceMap(slide, item, language);
+    return;
+  }
+  if (item.kind === "gridLayout") {
+    renderGridLayout(slide, item, language);
+    return;
+  }
+  if (item.kind === "dataGui") {
+    renderDataGui(slide, item, language);
+    return;
+  }
+  if (item.kind === "stateProjection") {
+    renderStateProjection(slide, item, language);
+    return;
+  }
+  if (item.kind === "codeColumns") {
+    renderCodeColumns(slide, item, language);
+    return;
+  }
+  if (item.kind === "guiSequence") {
+    renderGuiSequence(slide, item, language);
+    return;
+  }
+  if (item.kind === "guiQuestion") {
+    renderGuiQuestion(slide, item, language);
+    return;
+  }
   if (item.kind === "areasGrid") {
     const areas = [
       ["AUTOMATIZÁCIA", "pathlib · subprocess · scripts"],
@@ -1216,8 +1520,8 @@ function renderSlide(pptx, item, index, language) {
     return;
   }
   if (item.kind === "beforeAfter") {
-    addCodePanel(slide, 0.72, 2.0, 5.68, 3.56, value(item.leftLabel, language), item.leftCode, 16.2);
-    addCodePanel(slide, 6.93, 2.0, 5.68, 3.56, value(item.rightLabel, language), item.rightCode, 16.2);
+    addCodePanel(slide, 0.72, 2.0, 5.68, 3.56, value(item.leftLabel, language), value(item.leftCode, language), 16.2);
+    addCodePanel(slide, 6.93, 2.0, 5.68, 3.56, value(item.rightLabel, language), value(item.rightCode, language), 16.2);
     addText(slide, value(item.note, language), 0.82, 6.0, 11.3, 0.45, { fontSize: 18, color: colors.muted, valign: "top" });
     return;
   }
@@ -1266,31 +1570,34 @@ function renderSlide(pptx, item, index, language) {
     return;
   }
   if (item.kind === "code") {
-    addCode(slide, item.label, item.code, value(item.note, language), item.output ? value(item.output, language) : undefined);
+    addCode(slide, value(item.label, language), value(item.code, language), value(item.note, language), item.output ? value(item.output, language) : undefined);
     return;
   }
   if (item.kind === "codeFull") {
+    const code = value(item.code, language);
     slide.addShape("rect", { x: 0.72, y: 1.92, w: 11.92, h: 4.48, fill: { color: colors.code }, line: { color: "243242", pt: 0.6 } });
     slide.addShape("rect", { x: 0.72, y: 1.92, w: 11.92, h: 0.38, fill: { color: "223044" }, line: { color: "223044", pt: 0 } });
-    addText(slide, item.label, 0.98, 2.05, 10.9, 0.16, { fontFace: fonts.mono, fontSize: 8.2, color: "8FD3FF", bold: true, charSpacing: 0.35 });
-    addText(slide, item.code, 0.98, 2.52, 10.85, 3.42, { fontFace: fonts.mono, fontSize: codeFontSize(item.code, 17.0), color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
+    addText(slide, value(item.label, language), 0.98, 2.05, 10.9, 0.16, { fontFace: fonts.mono, fontSize: 8.2, color: "8FD3FF", bold: true, charSpacing: 0.35 });
+    addText(slide, code, 0.98, 2.52, 10.85, 3.42, { fontFace: fonts.mono, fontSize: codeFontSize(code, 17.0), color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
     addText(slide, value(item.note, language), 0.84, 6.62, 10.85, 0.28, { fontSize: 15.2, color: colors.muted, valign: "top" });
     return;
   }
   if (item.kind === "splitCode") {
+    const code = value(item.code, language);
     addBullets(slide, item.items, language, 0.82, 2.1, 4.55, 16.5);
     slide.addShape("rect", { x: 5.92, y: 1.96, w: 6.48, h: 4.55, fill: { color: colors.code }, line: { color: "243242", pt: 0.6 } });
     slide.addShape("rect", { x: 5.92, y: 1.96, w: 6.48, h: 0.36, fill: { color: "223044" }, line: { color: "223044", pt: 0 } });
-    addText(slide, item.label, 6.17, 2.08, 5.9, 0.16, { fontFace: fonts.mono, fontSize: 8.1, color: "8FD3FF", bold: true, charSpacing: 0.35 });
-    addText(slide, item.code, 6.17, 2.55, 5.84, 3.48, { fontFace: fonts.mono, fontSize: codeFontSize(item.code, 15.2), color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
+    addText(slide, value(item.label, language), 6.17, 2.08, 5.9, 0.16, { fontFace: fonts.mono, fontSize: 8.1, color: "8FD3FF", bold: true, charSpacing: 0.35 });
+    addText(slide, code, 6.17, 2.55, 5.84, 3.48, { fontFace: fonts.mono, fontSize: codeFontSize(code, 15.2), color: colors.codeText, valign: "top", margin: 0, fit: "shrink" });
     return;
   }
   if (item.kind === "question") {
+    const code = value(item.code, language);
     addText(slide, value(item.prompt, language), 0.76, 1.87, 10.1, 0.5, { fontSize: 20, color: colors.muted, valign: "top" });
     slide.addShape("rect", { x: 0.72, y: 2.65, w: 8.6, h: 3.45, fill: { color: colors.panel }, line: { color: colors.line, pt: 0.75 } });
     slide.addShape("rect", { x: 0.72, y: 2.65, w: 8.6, h: 0.38, fill: { color: "E7EEF4" }, line: { color: "E7EEF4", pt: 0 } });
-    addText(slide, item.label, 0.98, 2.78, 7.8, 0.16, { fontFace: fonts.mono, fontSize: 8.2, color: colors.blue, bold: true });
-    addText(slide, item.code, 0.98, 3.25, 7.8, 2.35, { fontFace: fonts.mono, fontSize: codeFontSize(item.code, 17.0), color: colors.ink, valign: "top", margin: 0, fit: "shrink" });
+    addText(slide, value(item.label, language), 0.98, 2.78, 7.8, 0.16, { fontFace: fonts.mono, fontSize: 8.2, color: colors.blue, bold: true });
+    addText(slide, code, 0.98, 3.25, 7.8, 2.35, { fontFace: fonts.mono, fontSize: codeFontSize(code, 17.0), color: colors.ink, valign: "top", margin: 0, fit: "shrink" });
     addText(slide, language === "sk" ? "Najprv si odpoveď zdôvodnite. Potom kód spustite." : "Justify your answer first. Then run the code.", 9.75, 3.1, 2.2, 1.42, { fontSize: 16.5, color: colors.muted, valign: "top" });
     return;
   }
