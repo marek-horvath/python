@@ -1,0 +1,15 @@
+{
+  "timezone": "Europe/Bratislava",
+  "current_units": {
+    "time": "iso8601",
+    "interval": "seconds",
+    "temperature_2m": "°C",
+    "wind_speed_10m": "km/h"
+  },
+  "current": {
+    "time": "2026-10-01T15:00",
+    "interval": 900,
+    "temperature_2m": 22.8,
+    "wind_speed_10m": 9.7
+  }
+}

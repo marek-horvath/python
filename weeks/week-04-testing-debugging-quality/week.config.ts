@@ -7,9 +7,10 @@ const config = {
   title: "Testovanie, debugging a kvalita kódu",
   shortTitle: "Testovanie",
   description:
-    "Praktiky, ktoré pomáhajú písať udržiavateľný Python: testy, debugging, typy, linting a čitateľná štruktúra.",
+    "Systematické hľadanie chyby v TODO aplikácii, automatické testy cez unittest a oddelenie dátovej logiky od GUI.",
   status: "published",
   lectureAvailable: true,
+  lectureDuration: "90 minút",
   exerciseAvailable: true,
   materials: [
     {
@@ -26,22 +27,22 @@ const config = {
     }
   ],
   plannedFocus: [
-    "manuálne skúšanie verzus reprodukovateľný test",
-    "pytest, assert, test discovery a výstup testov",
-    "edge cases, parametrizované testy, exceptions a fixtures",
-    "testovanie súborových operácií cez tmp_path",
-    "oddelenie GUI logiky od testovateľnej business logiky",
-    "debugger, traceback a logging",
-    "Ruff, formatting, linting a stručný static type checking"
+    "reprodukovateľný opis chyby, expected a actual výsledok",
+    "rozdiel medzi výnimkou a logickou chybou",
+    "diagnostika cez print, traceback, breakpoint a pdb",
+    "automatické testy cez unittest a TestCase",
+    "hraničné prípady a izolácia testov cez setUp",
+    "testovanie pridania, prepnutia a odstránenia úlohy",
+    "oddelenie dátových pravidiel od Tkinter callbackov"
   ],
   learningOutcomes: [
-    "napísať jednoduchý pytest test s assert",
-    "navrhnúť viac testovacích prípadov vrátane edge cases",
-    "použiť pytest.raises, parametrize a jednoduchú fixture",
-    "otestovať funkciu pracujúcu so súborom cez tmp_path",
-    "čítať základný traceback a určiť miesto chyby",
-    "rozlíšiť print debugging, debugger a logging",
-    "vysvetliť rozdiel medzi formatterom, linterom, type checkerom a testami"
+    "zapísať presný a reprodukovateľný bug report",
+    "čítať traceback a preskúmať stav programu v pdb",
+    "napísať a spustiť unittest test s konkrétnym očakávaním",
+    "navrhnúť testy pre bežné aj hraničné vstupy",
+    "overiť, že neplatný index nemení dáta",
+    "vysvetliť význam izolácie testov a metódy setUp",
+    "oddeliť testovateľné funkcie nad dátami od GUI vrstvy"
   ]
 } satisfies WeekConfig;
 

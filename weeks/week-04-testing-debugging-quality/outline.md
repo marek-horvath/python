@@ -1,64 +1,57 @@
 # Týždeň 04 - Testovanie, debugging a kvalita kódu
 
-Stav: rozpracované ako kompletná webová prednáška.
+Stav: publikovaná 90-minútová prednáška so 44 slajdmi.
 
-## Cieľ prednášky
+## Hlavná otázka
 
-Prednáška odpovedá na otázku: ako vieme, že program funguje a že sme ho ďalšou zmenou nepokazili? Dôraz je na praktické overovanie funkcií, skriptov a oddelenej aplikačnej logiky z GUI.
+Ako prejdeme od pozorovania „počítadlo v TODO aplikácii ukazuje 2 namiesto 1“ k oprave, o ktorej vieme, že funguje a nepoškodila ostatné správanie?
+
+Celá prednáška pracuje s jednou Tkinter TODO aplikáciou z predchádzajúceho týždňa. V zozname sú úlohy „Poslať zadanie“ a „Pripraviť slidy“; jedna je hotová a druhá nie. Správny údaj je `Nesplnené: 1`.
 
 ## Learning outcomes
 
 Po prednáške má študent vedieť:
 
-- rozlíšiť manuálne skúšanie a reprodukovateľný automatický test;
-- napísať jednoduchý pytest test s `assert`;
-- vysvetliť input, expected output, actual output a assertion;
-- použiť viac testovacích prípadov a rozpoznať edge cases;
-- použiť `pytest.mark.parametrize`, `pytest.raises` a jednoduchú fixture;
-- testovať funkciu pracujúcu so súbormi cez `tmp_path`;
-- vysvetliť mocking ako náhradu externej závislosti v teste;
-- čítať základný traceback;
-- použiť debugger a rozumieť breakpoint, step over, step into, variables a call stack;
-- rozlíšiť `print`, `logging`, `assert`, input validation, formatter, linter, type checker a tests.
+- zapísať reprodukčný postup, expected a actual výsledok;
+- rozlíšiť výnimku od logickej chyby;
+- použiť diagnostický výpis, traceback, `breakpoint()` a základné príkazy `pdb`;
+- vytvoriť test cez `unittest.TestCase` a `self.assertEqual()`;
+- overiť, že test s chybnou implementáciou najprv zlyhá;
+- navrhnúť bežné, hraničné a regresné testy;
+- izolovať mutable stav medzi testmi cez `setUp()`;
+- oddeliť funkcie nad dátami od Tkinter callbackov;
+- pomenovať, čo automatické testy dokazujú a čo musí zostať manuálnou GUI kontrolou.
 
 ## Narrative flow
 
-1. Začíname situáciou „funguje to u mňa“ a ukazujeme jej limity.
-2. Definujeme test cez očakávaný a skutočný výsledok.
-3. Predstavíme pytest, test discovery, výstup a zlyhanie testu.
-4. Rozšírime testovanie o edge cases, parametrizáciu, exceptions a fixtures.
-5. Prepojíme testovateľnosť s prednáškami 02 a 03: súbory cez `tmp_path`, GUI logika cez oddelené funkcie.
-6. Vysvetlíme regression testy.
-7. Prejdeme k debuggingu, tracebacku a loggingu.
-8. Záver patrí formatteru, linteru, type checkeru, Ruffu a jednoduchej quality pipeline.
+1. Chybu presne pozorujeme a reprodukujeme.
+2. Preskúmame skutočný stav dát cez výpis, traceback a debugger.
+3. Výpočet oddelíme do funkcie a chybu zachytíme zlyhávajúcim testom.
+4. Opravíme počet nesplnených a doplníme hraničné prípady.
+5. Rovnakým spôsobom otestujeme pridanie, prepnutie a odstránenie úlohy.
+6. Z testovateľnosti odvodíme kvalitnejšie rozdelenie GUI a dátovej logiky.
+7. Spustíme celú desaťtestovú sadu a pomenujeme jej limity.
 
 ## Časti prednášky
 
-- A - Čo je test a prečo manuálne skúšanie nestačí
-- B - pytest: assert, discovery, edge cases, parametrizácia, exceptions, fixtures
-- C - Testovanie súborov, GUI logiky, mocking a regression testy
-- D - Debugging, debugger a traceback
-- E - Logging a assertions v aplikačnom kóde
-- F - Formatter, linter, type checker, Ruff a quality pipeline
-- G - Live demo a záver
+- A - Od symptómu k reprodukovateľnému opisu chyby
+- B - Preskúmanie dát, traceback a debugger
+- C - Prvý zlyhávajúci test a oprava počítadla
+- D - Testy operácií nad úlohami a hraničné prípady
+- E - Testovateľný návrh a kvalita kódu
+- F - Celá sada, limity testov a záverečná predikcia
 
-## Približný rozsah
+## Rozsah
 
-- 43 slajdov
-- 50-60 minút
-- približne 5 otázok/interakcií
-- 1 live demo checkpoint na 5-8 minút
+- 44 slajdov
+- 90 minút
+- jeden súvislý príklad TODO aplikácie
+- automatické testy iba zo štandardnej knižnice cez `unittest`
+- desať spustiteľných testov v `examples/test_ulohy.py`
 
-## Live demo
+## Demo checkpointy
 
-Názov: Od bugu k regression testu.
-
-Postup:
-
-1. ukázať jednoduchú chybnú funkciu;
-2. reprodukovať chybu manuálne;
-3. napísať test;
-4. spustiť test, ktorý zlyhá;
-5. opraviť implementáciu;
-6. spustiť test znova;
-7. ukázať `ruff check .` alebo `ruff format .`, ak je dostupný.
+1. Zopakovať chybu počítadla v GUI.
+2. Zastaviť výpočet cez `breakpoint()` a prezrieť `ulohy`.
+3. Spustiť regresný test najprv s chybnou a potom s opravenou implementáciou.
+4. Na záver spustiť celú testovaciu sadu cez `python -m unittest -v test_ulohy.py`.

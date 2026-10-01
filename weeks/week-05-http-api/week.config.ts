@@ -7,9 +7,10 @@ const config = {
   title: "Internet, HTTP a API",
   shortTitle: "HTTP a API",
   description:
-    "Ako Python komunikuje so službami cez HTTP, ako čítať API dokumentáciu a ako spracovať odpovede bezpečne a prakticky.",
+    "Od URL a HTTP požiadavky k programu, ktorý cez dve Open-Meteo API nájde mesto a zobrazí aktuálne počasie.",
   status: "published",
   lectureAvailable: true,
+  lectureDuration: "90 minút",
   exerciseAvailable: true,
   materials: [
     {
@@ -26,25 +27,26 @@ const config = {
     }
   ],
   plannedFocus: [
-    "Python program ako HTTP client",
-    "client-server model, URL, request a response",
-    "HTTP methods a status codes",
-    "JSON ako bežný formát API odpovedí",
-    "HTTPX: GET, params, headers, POST a Client",
-    "error handling, timeout, connection problems a rate limiting",
-    "API keys cez environment variables",
-    "REST, dokumentácia API, pagination a async teaser",
-    "API verzus web scraping"
+    "internet, web a client-server model",
+    "URL, HTTP request, response, hlavičky a status codes",
+    "GET požiadavky cez knižnicu requests",
+    "query parameters, timeout a raise_for_status()",
+    "JSON odpoveď a mapovanie na Python objekty",
+    "geocoding mesta cez Open-Meteo Geocoding API",
+    "prepojenie geocoding a weather API",
+    "ošetrenie prázdnych dát, HTTP a sieťových chýb",
+    "rozdiel medzi GET a POST"
   ],
   learningOutcomes: [
-    "vysvetliť základný HTTP request/response model",
+    "vysvetliť client-server model a priebeh HTTP komunikácie",
     "rozložiť URL na scheme, host, path a query parameters",
-    "zavolať REST API cez HTTPX a spracovať JSON odpoveď",
-    "použiť query params, headers a JSON body",
-    "ošetriť status code, HTTP chyby a timeout",
-    "rozlíšiť HTTP chybu od connection problému",
-    "vysvetliť API key, rate limit, pagination a základ REST",
-    "rozhodnúť, kedy použiť API namiesto web scrapingu"
+    "rozlíšiť status, hlavičky a telo HTTP odpovede",
+    "odoslať GET požiadavku cez requests s params a timeout",
+    "skontrolovať status cez raise_for_status()",
+    "spracovať JSON odpoveď a bezpečne čítať vnorené hodnoty",
+    "prepojiť výstup jedného API so vstupom druhého",
+    "rozlíšiť nenájdené dáta, HTTP chybu a problém siete",
+    "čítať API dokumentáciu podľa endpointu, parametrov a odpovede"
   ]
 } satisfies WeekConfig;
 

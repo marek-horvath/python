@@ -1,5 +1,7 @@
 import path from "node:path";
 import pptxgen from "pptxgenjs";
+import { lecture04Detailed } from "../weeks/week-04-testing-debugging-quality/deck.mjs";
+import { lecture05Weather } from "../weeks/week-05-http-api/deck.mjs";
 
 const outputDirectory = path.resolve("presentations");
 
@@ -919,8 +921,8 @@ const lecture = {
   "01": lecture01Revised,
   "02": lecture02Technical,
   "03": lecture03Revised,
-  "04": lecture04Revised,
-  "05": lecture05Reworked,
+  "04": lecture04Detailed,
+  "05": lecture05Weather,
   "06": lecture06Reworked,
   "07": lecture07Reworked,
   "08": lecture08Reworked,
@@ -1018,7 +1020,7 @@ function drawTodoWindow(slide, state, language, x, y, w, h) {
   const deleteLabel = language === "sk" ? "Odstrániť" : "Delete";
   const countLabel = language === "sk" ? "Nesplnené" : "Incomplete";
   const tasks = state.tasks ?? [];
-  const remaining = tasks.filter((task) => !task.done).length;
+  const remaining = state.countOverride ?? tasks.filter((task) => !task.done).length;
   const input = localized(state.input, language);
 
   slide.addShape("rect", { x, y, w, h, fill: { color: "FFFFFF" }, line: { color: "95A3B3", pt: 0.8 } });

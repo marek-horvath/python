@@ -1,15 +1,20 @@
 # Zdroje a doplnkové materiály - Prednáška 04
 
-## Dokumentácia
+## Oficiálna dokumentácia
 
-- pytest documentation: https://docs.pytest.org/
-- Python `unittest.mock`: https://docs.python.org/3/library/unittest.mock.html
-- Python `logging`: https://docs.python.org/3/library/logging.html
-- Python `pdb`: https://docs.python.org/3/library/pdb.html
-- Ruff documentation: https://docs.astral.sh/ruff/
-- mypy documentation: https://mypy.readthedocs.io/
-- Pyright documentation: https://microsoft.github.io/pyright/
+- Python `unittest`: https://docs.python.org/3/library/unittest.html
+- Python chyby a výnimky: https://docs.python.org/3/tutorial/errors.html
+- Python debugger `pdb`: https://docs.python.org/3/library/pdb.html
+- Python `tkinter`: https://docs.python.org/3/library/tkinter.html
+
+## Príkazy použité na prednáške
+
+```bash
+python -m unittest -v test_ulohy.py
+```
+
+V debuggeri používame najmä `p expression`, `next`, `step` a `continue`.
 
 ## Poznámka k použitiu
 
-Materiály používaj ako referenciu pri konkrétnom probléme. Cieľ prednášky nie je ovládať všetky možnosti pytestu alebo Ruffu, ale vedieť napísať jednoduchý reprodukovateľný test a čítať výstup nástrojov.
+Cieľom nie je naučiť sa celé API `unittest` alebo `pdb`. Dôležité je vedieť presne reprodukovať chybu, preskúmať skutočný stav programu, zachytiť požadované správanie testom a až potom urobiť malú overiteľnú opravu.
