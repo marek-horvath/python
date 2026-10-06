@@ -8,7 +8,7 @@ export const courseConfig = {
   language: "slovenčina",
   lectureLength: "50-60 minút",
   mainTeachingWeeks: 10,
-  currentWeek: 3,
+    currentWeek: 4,
   unlockAll: false,
   timezone: "Europe/Bratislava",
   lecturer: {

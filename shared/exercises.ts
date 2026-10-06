@@ -98,7 +98,7 @@ export const exercises: Exercise[] = [
     slug: "04-testovanie-debugging-kvalita",
     title: "Cvičenie 04",
     subtitle: "Testovanie, debugging a kvalita kódu",
-    description: "Malý starter projekt s úmyselnými chybami: pytest, edge cases, regression testy, tmp_path, logging a Ruff.",
+    description: "Audit kalkulačky zásielok: unittest, hraničné prípady, regression testy, debugger a práca so súbormi.",
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/04-testovanie-debugging-kvalita/",
@@ -109,7 +109,7 @@ export const exercises: Exercise[] = [
       en: {
         title: "Exercise 04",
         subtitle: "Testing, Debugging and Code Quality",
-        description: "A small starter project with intentional bugs: pytest, edge cases, regression tests, tmp_path, logging and Ruff.",
+        description: "An audit of a parcel calculator: unittest, boundary cases, regression tests, debugging and file handling.",
         duration: "approximately 90 min"
       }
     }

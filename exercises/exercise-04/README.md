@@ -1,23 +1,17 @@
-# Cvičenie 04 - Testovanie, debugging a kvalita kódu
+# Exercise 04 - Parcel calculator quality audit
 
-Inštalácia nástrojov:
+The starter project contains intentional defects. Follow the worksheet tasks in order: reproduce a defect, capture it with a failing test, and only then change the implementation.
 
-```bash
-python -m pip install pytest ruff
-```
-
-Spustenie testov:
+Run the full test suite with:
 
 ```bash
-python -m pytest
+python -m unittest discover -s tests -v
 ```
 
-Kontrola štýlu:
+Check that all application files compile with:
 
 ```bash
-ruff check .
-ruff format .
+python -m compileall app
 ```
 
-V projekte sú úmyselné chyby a niekoľko lint problémov. Opravujte ich postupne podľa zadania.
-
+Use only the Python standard library. Create test modules in `tests/` and name them `test_*.py` so test discovery can find them.
