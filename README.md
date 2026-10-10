@@ -20,6 +20,35 @@ npm run dev
 
 Lokálny web beží štandardne na `http://127.0.0.1:4321/`.
 
+## Spustenie cez Docker
+
+Na Windows stačí mať nainštalovaný a spustený Docker Desktop. Po dvojkliku na
+`start.bat` sa zostaví obraz, spustí web, počká sa na jeho pripravenosť a otvorí
+sa `http://localhost:4321/`. Prvé spustenie trvá dlhšie, pretože kontajner
+nainštaluje nástroje a vyrenderuje prezentácie. Aplikáciu zastaví `stop.bat`;
+vygenerované slajdy pritom zostanú v persistentnom Docker volume.
+
+Rovnaké príkazy možno spustiť aj ručne:
+
+```bash
+docker compose up -d --build
+docker compose down
+```
+
+Zdrojové adresáre sú pripojené cez bind mounts a Astro sleduje zmeny, takže
+bežné úpravy webu nevyžadujú nový build obrazu. Po zmene PPTX použite
+`docker compose restart web`, aby sa prezentácie znovu vyrenderovali. Po zmene
+`package.json`, `package-lock.json` alebo `Dockerfile` znova spustite
+`docker compose up -d --build`.
+
+Port sa dá zmeniť skopírovaním `.env.example` na lokálny `.env` a úpravou
+`APP_PORT`. Súbor `.env` je ignorovaný Gitom a nesmie obsahovať zverejnené
+heslá. Hlavný projekt je statický Astro web a nepotrebuje databázu. Súkromná
+analytická služba v ignorovanom `local-analytics/` zostáva samostatná a táto
+prenositeľná konfigurácia ju zámerne nespúšťa.
+
+Pôvodné spúšťanie cez `npm install` a `npm run dev` zostáva nezmenené.
+
 ## Hlavné príkazy
 
 ```bash

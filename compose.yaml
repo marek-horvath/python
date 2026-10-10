@@ -1,0 +1,23 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    ports:
+      - "${APP_PORT:-4321}:4321"
+    environment:
+      NODE_ENV: development
+      PUBLIC_BASE_PATH: /
+      PUBLIC_ANALYTICS_API_URL: ""
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./web:/app/web
+      - ./shared:/app/shared:ro
+      - ./weeks:/app/weeks:ro
+      - ./presentations:/app/presentations:ro
+      - ./scripts:/app/scripts:ro
+      - presentation_slides:/app/web/static/generated
+
+volumes:
+  presentation_slides:
