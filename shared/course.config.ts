@@ -48,55 +48,55 @@ export const courseConfig = {
       number: 2,
       title: "Skriptovanie a automatizácia",
       slug: "02-skriptovanie-automatizacia",
-      lectureAt: null
+      lectureAt: "2026-09-28T09:10:00+02:00"
     },
     {
       number: 3,
       title: "GUI a event-driven programovanie",
       slug: "03-gui-event-driven",
-      lectureAt: null
+      lectureAt: "2026-10-05T09:10:00+02:00"
     },
     {
       number: 4,
       title: "Testovanie, debugging a kvalita kódu",
       slug: "04-testovanie-debugging-kvalita",
-      lectureAt: null
+      lectureAt: "2026-10-12T09:10:00+02:00"
     },
     {
       number: 5,
       title: "Internet, HTTP a API",
       slug: "05-http-api",
-      lectureAt: null
+      lectureAt: "2026-10-19T09:10:00+02:00"
     },
     {
       number: 6,
       title: "Databázy v Pythone",
       slug: "06-databazy",
-      lectureAt: null
+      lectureAt: "2026-10-26T09:10:00+01:00"
     },
     {
       number: 7,
       title: "Data Science v Pythone",
       slug: "07-data-science",
-      lectureAt: null
+      lectureAt: "2026-11-02T09:10:00+01:00"
     },
     {
       number: 8,
       title: "Web scraping a automatizácia prehliadača",
       slug: "08-web-scraping-browser",
-      lectureAt: null
+      lectureAt: "2026-11-09T09:10:00+01:00"
     },
     {
       number: 9,
       title: "Bezpečné programovanie v Pythone",
       slug: "09-bezpecne-programovanie",
-      lectureAt: null
+      lectureAt: "2026-11-16T09:10:00+01:00"
     },
     {
       number: 10,
       title: "Web backend v Pythone",
       slug: "10-web-backend",
-      lectureAt: null
+      lectureAt: "2026-11-23T09:10:00+01:00"
     }
   ],
   academicResources: [

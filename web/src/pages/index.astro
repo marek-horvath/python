@@ -17,6 +17,7 @@ const activeWeekTitles = activeWeek
   ? weekTitleTranslations[activeWeek.number] ?? { sk: activeWeek.title, en: activeWeek.title }
   : { sk: "", en: "" };
 const firstScheduledWeek = weeks.find((week) => week.lectureAt);
+const announcementEndpoint = import.meta.env.PUBLIC_ANALYTICS_API_URL ?? (process.env.GITHUB_PAGES === "true" ? "" : "/api/analytics");
 const lectureSchedule = weeks.map((week) => ({
   number: week.number,
   titles: weekTitleTranslations[week.number] ?? { sk: week.title, en: week.title }
@@ -89,6 +90,24 @@ const homeTranslations = {
         <p class="next-lecture__empty" data-no-next data-i18n-key="home.noNext" hidden>Ďalší termín bude doplnený.</p>
       </aside>
     </section>
+
+    <aside
+      class="course-announcement"
+      data-course-announcement
+      data-announcement-endpoint={announcementEndpoint}
+      aria-labelledby="course-announcement-title"
+    >
+      <strong id="course-announcement-title">
+        <span data-lang="sk">Oznam</span>
+        <span data-lang="en" hidden>Notice</span>
+      </strong>
+      <p data-lang="sk" data-announcement-sk>
+        Od tohto týždňa sú vám k dispozícii mentori. Komunikujte s nimi priebežne; počas cvičení môžete svoje otázky konzultovať v jednotlivých tímových kanáloch.
+      </p>
+      <p data-lang="en" data-announcement-en hidden>
+        Mentors are available from this week. Keep in touch with them; during exercise sessions, you can discuss your questions in the individual team channels.
+      </p>
+    </aside>
 
     <section class="semester-band" aria-labelledby="semester-title">
       <div class="semester-layout">
@@ -368,5 +387,41 @@ const homeTranslations = {
     window.setInterval(renderCountdown, 60000);
     window.addEventListener("python-course-language-change", renderCountdown);
     window.addEventListener("python-course-language-applied", renderCountdown);
+  </script>
+
+  <script>
+    type Announcement = {
+      enabled?: boolean;
+      message_sk?: string;
+      message_en?: string;
+    };
+
+    const announcement = document.querySelector<HTMLElement>("[data-course-announcement]");
+    const endpoint = announcement?.dataset.announcementEndpoint?.replace(/\/$/, "");
+
+    async function loadAnnouncement() {
+      if (!announcement || !endpoint) return;
+
+      try {
+        const response = await fetch(`${endpoint}/announcement`, {
+          credentials: "omit",
+          cache: "no-store"
+        });
+        if (!response.ok) return;
+
+        const settings = await response.json() as Announcement;
+        announcement.hidden = settings.enabled === false;
+        if (settings.enabled === false) return;
+
+        const slovak = announcement.querySelector<HTMLElement>("[data-announcement-sk]");
+        const english = announcement.querySelector<HTMLElement>("[data-announcement-en]");
+        if (slovak && settings.message_sk) slovak.textContent = settings.message_sk;
+        if (english && settings.message_en) english.textContent = settings.message_en;
+      } catch {
+        // The default notice remains visible when the optional backend is unavailable.
+      }
+    }
+
+    void loadAnnouncement();
   </script>
 </BaseLayout>

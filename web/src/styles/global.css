@@ -466,6 +466,28 @@ p {
   font-size: 1rem;
 }
 
+.course-announcement {
+  width: min(var(--max-page), calc(100% - 40px));
+  margin: -34px auto 48px;
+  padding: 18px 22px;
+  border-left: 4px solid #d5a300;
+  background: #fff7d6;
+}
+
+.course-announcement strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #5f4800;
+  font-size: 0.9rem;
+}
+
+.course-announcement p {
+  margin: 0;
+  color: #443a1b;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
 .semester-band {
   background: var(--surface);
   padding: 74px 0 82px;
@@ -2146,6 +2168,12 @@ html.viewer-html body {
     width: min(100% - 24px, var(--max-page));
     margin-bottom: 56px;
     gap: 36px;
+  }
+
+  .course-announcement {
+    width: min(100% - 24px, var(--max-page));
+    margin: -18px auto 38px;
+    padding: 16px 18px;
   }
 
   .home-opening h1 {
