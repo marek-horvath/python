@@ -120,7 +120,7 @@ export const exercises: Exercise[] = [
     slug: "05-http-api",
     title: "Cvičenie 05",
     subtitle: "Internet, HTTP a API",
-    description: "HTTPX klient pre verejné API, query params, JSON, dataclass, timeout a error handling.",
+    description: "Task Report klient nad JSONPlaceholder: users, todos, skladanie endpointov, zápis dát a odolnosť voči chybám.",
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/05-http-api/",
@@ -131,7 +131,7 @@ export const exercises: Exercise[] = [
       en: {
         title: "Exercise 05",
         subtitle: "Internet, HTTP and APIs",
-        description: "An HTTPX client for a public API, query params, JSON, dataclass, timeout and error handling.",
+        description: "A Task Report client for JSONPlaceholder: users, todos, endpoint composition, data writes and resilient error handling.",
         duration: "approximately 90 min"
       }
     }

@@ -25,33 +25,41 @@ const descriptionEn = exercise.translations?.en?.description ?? exercise.descrip
     <section class="worksheet-section">
       <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
       <div data-lang="sk">
+        <p>Vytvoríte konzolový <strong>Task Report</strong>, ktorý spojí používateľov a ich úlohy z verejného testovacieho API.</p>
         <pre class="expected-output"><code>{`Python 3.x
 Dependency: httpx
-API: Open-Meteo Forecast + Geocoding
-Odovzdávaný súbor: weather_cli.py`}</code></pre>
+API: JSONPlaceholder
+Odovzdávaný súbor: task_report.py`}</code></pre>
       </div>
       <div data-lang="en" hidden>
+        <p>You will build a console <strong>Task Report</strong> that combines users and their tasks from a public testing API.</p>
         <pre class="expected-output"><code>{`Python 3.x
 Dependency: httpx
-API: Open-Meteo Forecast + Geocoding
-Submitted file: weather_cli.py`}</code></pre>
+API: JSONPlaceholder
+Submitted file: task_report.py`}</code></pre>
       </div>
-      <pre class="worksheet-code"><code>{`python -m pip install httpx`}</code></pre>
+      <pre class="worksheet-code"><code>{`python -m pip install httpx
+python task_report.py --help`}</code></pre>
+      <p><a href="/downloads/exercise-05-starter.zip" download><LocalizedText sk="Stiahnuť starter ZIP" en="Download starter ZIP" /></a></p>
+      <p data-lang="sk">Starter obsahuje iba dátové modely, signatúry funkcií a offline fixtures. Spôsob implementácie si zvoľte sami.</p>
+      <p data-lang="en" hidden>The starter contains only data models, function signatures and offline fixtures. Choose the implementation yourself.</p>
     </section>
 
     <section class="worksheet-section">
       <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
       <ul data-lang="sk">
-        <li>čítať API dokumentáciu a preložiť ju na request cez <code>httpx</code>;</li>
-        <li>pracovať s query parameters, headers, status codes a JSON;</li>
-        <li>oddeliť request, parsing, model a výpis;</li>
-        <li>riešiť timeout, HTTP chyby, network chyby a neplatný vstup.</li>
+        <li>čítať dokumentáciu cudzieho REST API a zostaviť request;</li>
+        <li>rozlíšiť kolekciu, jeden resource a vnorený endpoint;</li>
+        <li>spájať údaje z endpointov <code>/users</code> a <code>/todos</code>;</li>
+        <li>pracovať s GET, POST, PATCH a DELETE bez zamieňania ich významu;</li>
+        <li>navrhnúť klienta, ktorý má timeout, zrozumiteľné chyby a offline režim.</li>
       </ul>
       <ul data-lang="en" hidden>
-        <li>read API documentation and translate it into requests with <code>httpx</code>;</li>
-        <li>work with query parameters, headers, status codes and JSON;</li>
-        <li>separate request code, parsing, model and output;</li>
-        <li>handle timeouts, HTTP errors, network errors and invalid input.</li>
+        <li>read third-party REST API documentation and construct a request;</li>
+        <li>distinguish a collection, one resource and a nested endpoint;</li>
+        <li>combine data from the <code>/users</code> and <code>/todos</code> endpoints;</li>
+        <li>work with GET, POST, PATCH and DELETE without confusing their meaning;</li>
+        <li>design a client with a timeout, readable errors and an offline mode.</li>
       </ul>
     </section>
 
@@ -60,422 +68,197 @@ Submitted file: weather_cli.py`}</code></pre>
     </section>
 
     <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 1 — API probe" en="Task 1 — API Probe" /></h2>
+      <h2><LocalizedText sk="Úloha 1 — Preskúmanie cudzieho API" en="Task 1 — Explore an Unfamiliar API" /></h2>
       <div data-lang="sk">
-        <p>Vytvorte skript <code>api_probe.py</code>, ktorý zavolá Open-Meteo forecast endpoint pre pevne zadané súradnice Košíc.</p>
+        <p>Bez kopírovania hotového Python riešenia si v dokumentácii JSONPlaceholder nájdite endpointy pre používateľov a úlohy.</p>
+        <p>Do súboru <code>README.md</code> zapíšte:</p>
+        <ul>
+          <li>base URL;</li>
+          <li>endpoint kolekcie používateľov;</li>
+          <li>endpoint jedného používateľa;</li>
+          <li>dva rôzne spôsoby získania úloh používateľa s ID 1;</li>
+          <li>očakávané typy top-level JSON hodnôt pre každý request.</li>
+        </ul>
+        <p>Každý endpoint overte krátkym requestom a vypíšte finálnu URL, status a <code>Content-Type</code>.</p>
       </div>
       <div data-lang="en" hidden>
-        <p>Create a script <code>api_probe.py</code> that calls the Open-Meteo forecast endpoint for fixed Košice coordinates.</p>
+        <p>Without copying a finished Python solution, use the JSONPlaceholder documentation to find the endpoints for users and tasks.</p>
+        <p>Record the base URL, collection and single-user endpoints, two ways to obtain user 1's tasks, and the expected top-level JSON types in <code>README.md</code>. Verify each endpoint and print the final URL, status and <code>Content-Type</code>.</p>
       </div>
-      <pre class="worksheet-code"><code>{`import httpx
-
-url = "https://api.open-meteo.com/v1/forecast"
-params = {
-    "latitude": 48.7164,
-    "longitude": 21.2611,
-    "current": "temperature_2m,wind_speed_10m",
-}
-
-response = httpx.get(url, params=params, timeout=5.0)
-response.raise_for_status()`}</code></pre>
-      <div data-lang="sk">
-        <p>Vypíšte:</p>
-        <ul>
-          <li>finálnu URL, ktorú HTTPX zostavil;</li>
-          <li>status code;</li>
-          <li>content type;</li>
-          <li>top-level JSON kľúče;</li>
-          <li>hodnotu <code>current.temperature_2m</code>, ak existuje.</li>
-        </ul>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Print:</p>
-        <ul>
-          <li>the final URL built by HTTPX;</li>
-          <li>status code;</li>
-          <li>content type;</li>
-          <li>top-level JSON keys;</li>
-          <li>the value of <code>current.temperature_2m</code>, if present.</li>
-        </ul>
-      </div>
-      <pre class="expected-output"><code>{`Status: 200
-Content-Type: application/json
-Keys: latitude, longitude, generationtime_ms, utc_offset_seconds, timezone, current_units, current
-Temperature: 18.7 °C`}</code></pre>
-    </section>
-
-    <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 2 — Query parameters bez ručného URL stringu" en="Task 2 — Query Parameters Without Manual URL Strings" /></h2>
-      <div data-lang="sk">
-        <p>Rozšírte request tak, aby sa všetky meniteľné hodnoty posielali cez <code>params</code>.</p>
-        <p>Požadované parametre:</p>
-        <ul>
-          <li><code>latitude</code>;</li>
-          <li><code>longitude</code>;</li>
-          <li><code>current</code> s teplotou, vetrom a relatívnou vlhkosťou;</li>
-          <li><code>timezone</code> nastavený na <code>Europe/Bratislava</code>.</li>
-        </ul>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Extend the request so that all variable values are passed through <code>params</code>.</p>
-        <p>Required parameters:</p>
-        <ul>
-          <li><code>latitude</code>;</li>
-          <li><code>longitude</code>;</li>
-          <li><code>current</code> with temperature, wind and relative humidity;</li>
-          <li><code>timezone</code> set to <code>Europe/Bratislava</code>.</li>
-        </ul>
-      </div>
-      <pre class="worksheet-code"><code>{`params = {
-    "latitude": latitude,
-    "longitude": longitude,
-    "current": "temperature_2m,wind_speed_10m,relative_humidity_2m",
-    "timezone": "Europe/Bratislava",
-}`}</code></pre>
-      <p data-lang="sk">Overte request pre Košice, Bratislavu a Prahu. Súradnice uložte do dictionary, nie do troch samostatných premenných.</p>
-      <p data-lang="en" hidden>Check the request for Košice, Bratislava and Prague. Store coordinates in a dictionary, not in three separate variables.</p>
-      <pre class="expected-output"><code>{`Košice      48.7164  21.2611
-Bratislava  48.1486  17.1077
-Prague      50.0755  14.4378`}</code></pre>
-    </section>
-
-    <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 3 — Parsing nested JSON" en="Task 3 — Parsing Nested JSON" /></h2>
-      <div data-lang="sk">
-        <p>Nevypisujte celú JSON odpoveď. Vytvorte funkciu, ktorá z odpovede vyberie iba údaje potrebné pre textový report.</p>
-        <p>Report má obsahovať:</p>
-        <ul>
-          <li>mesto;</li>
-          <li>čas merania;</li>
-          <li>teplotu;</li>
-          <li>rýchlosť vetra;</li>
-          <li>relatívnu vlhkosť;</li>
-          <li>jednotky načítané z <code>current_units</code>.</li>
-        </ul>
-        <pre class="expected-output"><code>{`Košice
-Čas: 2026-09-21T13:30
-Teplota: 18.7 °C
-Vietor: 9.4 km/h
-Vlhkosť: 62 %`}</code></pre>
-        <p>Ak odpoveď neobsahuje očakávaný kľúč, vyhoďte vlastnú zrozumiteľnú chybu, napríklad <code>ValueError</code>.</p>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Do not print the whole JSON response. Create a function that extracts only the data needed for a text report.</p>
-        <p>The report should include:</p>
-        <ul>
-          <li>city;</li>
-          <li>measurement time;</li>
-          <li>temperature;</li>
-          <li>wind speed;</li>
-          <li>relative humidity;</li>
-          <li>units loaded from <code>current_units</code>.</li>
-        </ul>
-        <pre class="expected-output"><code>{`Košice
-Time: 2026-09-21T13:30
-Temperature: 18.7 °C
-Wind: 9.4 km/h
-Humidity: 62 %`}</code></pre>
-        <p>If the response does not contain an expected key, raise your own readable error, for example <code>ValueError</code>.</p>
-      </div>
-    </section>
-
-    <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 4 — Dataclass model odpovede" en="Task 4 — Dataclass Response Model" /></h2>
-      <div data-lang="sk">
-        <p>Preložte vybrané dáta z API do Python objektu.</p>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Translate selected API data into a Python object.</p>
-      </div>
-      <pre class="worksheet-code"><code>{`from dataclasses import dataclass
-
-
-@dataclass
-class Weather:
-    city: str
-    time: str
-    temperature: float
-    temperature_unit: str
-    wind_speed: float
-    wind_unit: str
-    humidity: int
-    humidity_unit: str`}</code></pre>
-      <div data-lang="sk">
-        <p>Implementujte funkcie:</p>
-        <ul>
-          <li><code>fetch_weather(latitude: float, longitude: float) -> dict</code>;</li>
-          <li><code>parse_weather(city: str, data: dict) -> Weather</code>;</li>
-          <li><code>format_weather(weather: Weather) -> str</code>.</li>
-        </ul>
-        <p>HTTP request, parsing a výpis nemajú byť v jednej päťdesiatriadkovej funkcii.</p>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Implement these functions:</p>
-        <ul>
-          <li><code>fetch_weather(latitude: float, longitude: float) -> dict</code>;</li>
-          <li><code>parse_weather(city: str, data: dict) -> Weather</code>;</li>
-          <li><code>format_weather(weather: Weather) -> str</code>.</li>
-        </ul>
-        <p>The HTTP request, parsing and output should not live in one fifty-line function.</p>
-      </div>
-    </section>
-
-    <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 5 — Geocoding search" en="Task 5 — Geocoding Search" /></h2>
-      <div data-lang="sk">
-        <p>Namiesto pevne zadaných súradníc pridajte vyhľadanie mesta cez Open-Meteo Geocoding API.</p>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Instead of fixed coordinates, add city lookup through the Open-Meteo Geocoding API.</p>
-      </div>
-      <pre class="worksheet-code"><code>{`url = "https://geocoding-api.open-meteo.com/v1/search"
-params = {
-    "name": "Kosice",
-    "count": 5,
-    "language": "en",
-    "format": "json",
-}`}</code></pre>
-      <div data-lang="sk">
-        <p>Funkcia <code>search_locations(query: str) -> list[Location]</code> má vrátiť zoznam kandidátov.</p>
-        <p>Každý kandidát má obsahovať:</p>
-        <ul>
-          <li>názov;</li>
-          <li>krajinu;</li>
-          <li>latitude;</li>
-          <li>longitude;</li>
-          <li>timezone, ak je v odpovedi dostupný.</li>
-        </ul>
-        <pre class="expected-output"><code>{`1. Košice, Slovakia        48.7164  21.2611
-2. Košice-okolie, Slovakia 48.7000  21.3333`}</code></pre>
-        <p>Ak API nevráti žiadne výsledky, program má vypísať stručnú správu a neskončiť náhodným <code>IndexError</code>.</p>
-      </div>
-      <div data-lang="en" hidden>
-        <p>The function <code>search_locations(query: str) -> list[Location]</code> should return a list of candidates.</p>
-        <p>Each candidate should contain:</p>
-        <ul>
-          <li>name;</li>
-          <li>country;</li>
-          <li>latitude;</li>
-          <li>longitude;</li>
-          <li>timezone, if available in the response.</li>
-        </ul>
-        <pre class="expected-output"><code>{`1. Košice, Slovakia        48.7164  21.2611
-2. Košice-okolie, Slovakia 48.7000  21.3333`}</code></pre>
-        <p>If the API returns no results, the program should print a short message and not end with an accidental <code>IndexError</code>.</p>
-      </div>
-    </section>
-
-    <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 6 — Error handling a timeout" en="Task 6 — Error Handling and Timeout" /></h2>
-      <div data-lang="sk">
-        <p>Všetky requesty musia mať timeout a zrozumiteľné spracovanie chýb.</p>
-      </div>
-      <div data-lang="en" hidden>
-        <p>All requests must have a timeout and readable error handling.</p>
-      </div>
-      <pre class="worksheet-code"><code>{`try:
-    response = httpx.get(url, params=params, timeout=5.0)
-    response.raise_for_status()
-except httpx.TimeoutException:
-    ...
-except httpx.HTTPStatusError:
-    ...
-except httpx.NetworkError:
-    ...`}</code></pre>
-      <div data-lang="sk">
-        <p>Požiadavky:</p>
-        <ul>
-          <li>timeout nastavte explicitne;</li>
-          <li>pri 4xx/5xx zobrazte status code;</li>
-          <li>pri network chybe zobrazte, že služba alebo sieť nie je dostupná;</li>
-          <li>nepoužívajte <code>except: pass</code>;</li>
-          <li>do README alebo komentára dopíšte jednu vetu, prečo timeout patrí do sieťového requestu.</li>
-        </ul>
-        <pre class="expected-output"><code>{`Chyba: Open-Meteo neodpovedalo do 5.0 s.
-Chyba: API vrátilo status 400.
-Chyba: sieťové spojenie zlyhalo.`}</code></pre>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Requirements:</p>
-        <ul>
-          <li>set the timeout explicitly;</li>
-          <li>for 4xx/5xx responses, show the status code;</li>
-          <li>for a network error, show that the service or network is unavailable;</li>
-          <li>do not use <code>except: pass</code>;</li>
-          <li>add one sentence to README or a comment explaining why network requests need a timeout.</li>
-        </ul>
-        <pre class="expected-output"><code>{`Error: Open-Meteo did not respond within 5.0 s.
-Error: API returned status 400.
-Error: network connection failed.`}</code></pre>
-      </div>
-    </section>
-
-    <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 7 — Headers a základná diagnostika" en="Task 7 — Headers and Basic Diagnostics" /></h2>
-      <div data-lang="sk">
-        <p>Doplňte jednoduchú diagnostiku requestu a odpovede.</p>
-        <p>Program má voliteľne pri argumente <code>--verbose</code> vypísať:</p>
-        <ul>
-          <li>HTTP method;</li>
-          <li>URL bez ručného skladania query stringu;</li>
-          <li>status code;</li>
-          <li>content type;</li>
-          <li>dĺžku response body;</li>
-          <li>čas requestu, ak ho viete rozumne zmerať.</li>
-        </ul>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Add simple diagnostics for the request and response.</p>
-        <p>When the optional argument <code>--verbose</code> is used, the program should print:</p>
-        <ul>
-          <li>HTTP method;</li>
-          <li>URL without manually building the query string;</li>
-          <li>status code;</li>
-          <li>content type;</li>
-          <li>response body length;</li>
-          <li>request time, if you can measure it reasonably.</li>
-        </ul>
-      </div>
-      <pre class="worksheet-code"><code>{`headers = {
-    "User-Agent": "python-course-weather-cli/1.0",
-}`}</code></pre>
-      <pre class="expected-output"><code>{`GET https://api.open-meteo.com/v1/forecast?latitude=48.7164&...
+      <pre class="expected-output"><code>{`GET https://jsonplaceholder.typicode.com/...
 Status: 200
-Content-Type: application/json
-Body size: 812 bytes`}</code></pre>
-      <p data-lang="sk">Diagnostika má pomôcť pri debugovaní, ale bežný výstup programu má ostať krátky.</p>
-      <p data-lang="en" hidden>Diagnostics should help debugging, but the normal program output should remain short.</p>
+Content-Type: application/json; charset=utf-8
+Top-level JSON: list`}</code></pre>
     </section>
 
     <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 8 — Viac výsledkov a výber lokality" en="Task 8 — Multiple Results and Location Selection" /></h2>
+      <h2><LocalizedText sk="Úloha 2 — Modely User a Todo" en="Task 2 — User and Todo Models" /></h2>
       <div data-lang="sk">
-        <p>Geocoding API môže vrátiť viac lokalít s podobným názvom. Program nemá slepo zobrať prvý záznam bez kontroly.</p>
-        <p>Implementujte jednu z možností:</p>
+        <p>Doplňte parsovanie JSON do pripravených dataclass modelov. Nepreberajte automaticky všetky polia z API.</p>
         <ul>
-          <li>argument <code>--country</code>, ktorý obmedzí výsledky podľa krajiny;</li>
-          <li>výpis kandidátov a výber cez číslo;</li>
-          <li>automatický výber iba vtedy, keď je výsledok jednoznačný.</li>
+          <li><code>User</code>: <code>id</code>, <code>name</code>, <code>username</code>, <code>email</code>;</li>
+          <li><code>Todo</code>: <code>id</code>, <code>user_id</code>, <code>title</code>, <code>completed</code>.</li>
+        </ul>
+        <p>Parser musí odmietnuť chýbajúci identifikátor a nesprávny typ <code>completed</code> vlastnou zrozumiteľnou výnimkou. Overte ho najprv nad offline fixtures.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Complete JSON parsing into the prepared dataclass models. Keep only the fields the program uses. Reject a missing identifier and an invalid <code>completed</code> type with a readable exception. Test the parser against the offline fixtures first.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`def parse_user(data: dict) -> User:
+    ...
+
+
+def parse_todo(data: dict) -> Todo:
+    ...`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 3 — Vyhľadanie používateľa" en="Task 3 — Find a User" /></h2>
+      <div data-lang="sk">
+        <p>Implementujte vyhľadanie bez rozlišovania veľkých a malých písmen podľa <code>username</code> alebo e-mailu.</p>
+        <ul>
+          <li>žiadna zhoda nesmie skončiť náhodným <code>IndexError</code>;</li>
+          <li>viac zhôd musí program oznámiť a nesmie svojvoľne vybrať prvú;</li>
+          <li>sieťový request a lokálne vyhľadávanie majú byť oddelené funkcie.</li>
         </ul>
       </div>
       <div data-lang="en" hidden>
-        <p>The Geocoding API may return multiple locations with similar names. The program should not blindly take the first record without checking it.</p>
-        <p>Implement one of these options:</p>
-        <ul>
-          <li>a <code>--country</code> argument that restricts results by country;</li>
-          <li>print candidates and let the user select by number;</li>
-          <li>select automatically only when the result is unambiguous.</li>
-        </ul>
+        <p>Implement a case-insensitive lookup by <code>username</code> or email. A missing match must not end in an accidental <code>IndexError</code>, multiple matches must be reported, and network access must remain separate from local searching.</p>
       </div>
-      <pre class="worksheet-code"><code>{`python weather_cli.py "Kosice" --country Slovakia
-python weather_cli.py "Paris" --count 5`}</code></pre>
-      <div data-lang="sk">
-        <pre class="expected-output"><code>{`Nájdené lokality:
-1. Paris, France
-2. Paris, United States
-3. Paris, Canada
+      <pre class="expected-output"><code>{`Hľadanie: Bret
+Nájdené: Leanne Graham (@Bret)
+E-mail: Sincere@april.biz`}</code></pre>
+    </section>
 
-Vyberte číslo lokality: 1`}</code></pre>
-        <p>Neplatný výber ošetrite zrozumiteľnou správou.</p>
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 4 — Dve cesty k rovnakým dátam" en="Task 4 — Two Routes to the Same Data" /></h2>
+      <div data-lang="sk">
+        <p>Načítajte úlohy jedného používateľa dvoma spôsobmi:</p>
+        <ul>
+          <li>filtrovaním kolekcie cez query parameter;</li>
+          <li>vnoreným endpointom používateľa.</li>
+        </ul>
+        <p>Porovnajte množiny ID. Ak sa výsledky líšia, vypíšte rozdiel. Do README jednou vetou vysvetlite, kedy je čitateľnejší query parameter a kedy nested route.</p>
       </div>
       <div data-lang="en" hidden>
-        <pre class="expected-output"><code>{`Found locations:
-1. Paris, France
-2. Paris, United States
-3. Paris, Canada
+        <p>Load one user's tasks in two ways: by filtering the collection with a query parameter and through the user's nested endpoint. Compare the sets of IDs and print any difference. Explain when each URL style is clearer.</p>
+      </div>
+      <pre class="expected-output"><code>{`Query route: 20 úloh
+Nested route: 20 úloh
+Rovnaké ID: áno`}</code></pre>
+    </section>
 
-Select location number: 1`}</code></pre>
-        <p>Handle invalid selections with a readable message.</p>
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 5 — Report z dvoch endpointov" en="Task 5 — A Report from Two Endpoints" /></h2>
+      <div data-lang="sk">
+        <p>Spojte používateľa s jeho úlohami a vytvorte report. Výpočet štatistiky nesmie vykonávať HTTP request.</p>
+        <p>Report obsahuje meno, username, počet hotových a otvorených úloh, percento dokončenia a najviac tri otvorené názvy. Prázdny zoznam úloh nesmie viesť k deleniu nulou.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Combine a user with their tasks and build a report. The statistics function must not perform an HTTP request. Include completed and open counts, completion percentage and at most three open titles. Handle an empty task list without division by zero.</p>
+      </div>
+      <pre class="expected-output"><code>{`Leanne Graham (@Bret)
+Hotové: 11 / 20 (55.0 %)
+Otvorené: 9
+  - delectus aut autem
+  - quis ut nam facilis et officia qui
+  - fugiat veniam minus`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 6 — Jeden HTTP klient, nie request všade" en="Task 6 — One HTTP Client, Not Requests Everywhere" /></h2>
+      <div data-lang="sk">
+        <p>Presuňte sieťové operácie za malé rozhranie <code>ApiClient</code>. Všetky requesty musia používať spoločný <code>httpx.Client</code>, base URL, hlavičku <code>User-Agent</code> a explicitný timeout.</p>
+        <p>Volajúci kód nemá poznať detaily skladania URL ani volať <code>raise_for_status()</code> na viacerých miestach.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Move network operations behind a small <code>ApiClient</code> interface. All requests must share one <code>httpx.Client</code>, base URL, <code>User-Agent</code> and explicit timeout. Calling code should not assemble URLs or repeat <code>raise_for_status()</code>.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`class ApiClient:
+    def get_users(self) -> list[User]: ...
+    def get_user_todos(self, user_id: int) -> list[Todo]: ...
+    def create_todo(self, user_id: int, title: str) -> Todo: ...`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 7 — Chyby, ktoré majú odlišný význam" en="Task 7 — Failures with Different Meanings" /></h2>
+      <div data-lang="sk">
+        <p>Program musí rozlíšiť aspoň tieto situácie:</p>
+        <ul>
+          <li>timeout;</li>
+          <li>chybu spojenia alebo DNS;</li>
+          <li>HTTP 404 pre neexistujúci resource;</li>
+          <li>odpoveď, ktorá nie je platný JSON;</li>
+          <li>platný JSON s neočakávanou štruktúrou.</li>
+        </ul>
+        <p>Nepoužívajte holé <code>except</code>. Na overenie 404 použite neexistujúce ID; ostatné scenáre môžete overiť malou lokálnou funkciou alebo upravenou fixture bez poškodenia produkčnej URL.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>Distinguish timeout, connection or DNS failure, HTTP 404, invalid JSON and valid JSON with an unexpected structure. Do not use a bare <code>except</code>. Use a missing ID for 404 and controlled local inputs for the remaining cases.</p>
+      </div>
+      <pre class="expected-output"><code>{`Chyba API: používateľ 9999 neexistuje (HTTP 404).
+Chyba siete: služba momentálne nie je dostupná.
+Chyba dát: odpoveď nemá očakávanú štruktúru.`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 8 — POST a význam statusu 201" en="Task 8 — POST and the Meaning of Status 201" /></h2>
+      <div data-lang="sk">
+        <p>Pošlite novú úlohu cez POST ako JSON. Názov musí byť po <code>strip()</code> neprázdny a <code>userId</code> musí patriť existujúcemu používateľovi.</p>
+        <ul>
+          <li>overte status <code>201 Created</code>;</li>
+          <li>spracujte vrátený objekt ako <code>Todo</code>;</li>
+          <li>následným GET overte, či resource naozaj zostal uložený;</li>
+          <li>do reportu jasne napíšte zistenie o perzistencii testovacieho API.</li>
+        </ul>
+      </div>
+      <div data-lang="en" hidden>
+        <p>POST a new task as JSON. Validate its title and user first, expect <code>201 Created</code>, parse the returned object and use a later GET to determine whether the testing API actually persists the resource.</p>
+      </div>
+      <pre class="worksheet-code"><code>{`payload = {
+    "userId": user_id,
+    "title": title,
+    "completed": False,
+}`}</code></pre>
+    </section>
+
+    <section class="worksheet-task">
+      <h2><LocalizedText sk="Úloha 9 — PATCH, DELETE a pozorovanie kontraktu" en="Task 9 — PATCH, DELETE and Contract Observation" /></h2>
+      <div data-lang="sk">
+        <p>Na existujúcom todo vykonajte dve samostatné operácie:</p>
+        <ul>
+          <li>PATCH, ktorý mení iba <code>completed</code>;</li>
+          <li>DELETE toho istého resource.</li>
+        </ul>
+        <p>Predpokladaný status si najprv zapíšte podľa dokumentácie, až potom spustite request. Porovnajte request body, response body a následný GET. Vysvetlite rozdiel medzi úspešnou HTTP odpoveďou a trvalou zmenou dát.</p>
+      </div>
+      <div data-lang="en" hidden>
+        <p>PATCH an existing todo by changing only <code>completed</code>, then DELETE it. Predict the statuses from the documentation before running the requests. Compare request body, response body and a later GET, then explain the difference between an HTTP success and persistent state.</p>
       </div>
     </section>
 
     <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 9 — API composition" en="Task 9 — API Composition" /></h2>
+      <h2><LocalizedText sk="Úloha 10 — Kompletný Task Report CLI" en="Task 10 — Complete Task Report CLI" /></h2>
       <div data-lang="sk">
-        <p>Spojte geocoding endpoint a forecast endpoint do jedného workflow.</p>
-        <p>Funkcia <code>get_weather_for_city(city: str) -> Weather</code> má:</p>
-        <ul>
-          <li>vyhľadať lokalitu;</li>
-          <li>získať súradnice;</li>
-          <li>zavolať forecast endpoint;</li>
-          <li>spracovať JSON;</li>
-          <li>vrátiť <code>Weather</code> objekt;</li>
-          <li>pri chybe vyhodiť alebo vrátiť zmysluplne popísaný problém.</li>
-        </ul>
-        <pre class="expected-output"><code>{`Košice, Slovakia
-Teplota: 18.7 °C
-Vietor: 9.4 km/h
-Vlhkosť: 62 %
-Zdroj: Open-Meteo`}</code></pre>
-        <p>Táto úloha má otestovať, či máte request, parsing a model rozdelené tak, aby sa dali kombinovať bez kopírovania kódu.</p>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Combine the geocoding endpoint and forecast endpoint into one workflow.</p>
-        <p>The function <code>get_weather_for_city(city: str) -> Weather</code> should:</p>
-        <ul>
-          <li>search for a location;</li>
-          <li>obtain coordinates;</li>
-          <li>call the forecast endpoint;</li>
-          <li>process JSON;</li>
-          <li>return a <code>Weather</code> object;</li>
-          <li>raise or return a meaningfully described problem on error.</li>
-        </ul>
-        <pre class="expected-output"><code>{`Košice, Slovakia
-Temperature: 18.7 °C
-Wind: 9.4 km/h
-Humidity: 62 %
-Source: Open-Meteo`}</code></pre>
-        <p>This task checks whether request code, parsing and the model are separated well enough to combine them without copying code.</p>
-      </div>
-    </section>
-
-    <section class="worksheet-task">
-      <h2><LocalizedText sk="Úloha 10 — Kompletný CLI API client" en="Task 10 — Complete CLI API Client" /></h2>
-      <div data-lang="sk">
-        <p>Dokončite <code>weather_cli.py</code> ako použiteľný command-line nástroj.</p>
-      </div>
-      <div data-lang="en" hidden>
-        <p>Finish <code>weather_cli.py</code> as a usable command-line tool.</p>
-      </div>
-      <pre class="worksheet-code"><code>{`python weather_cli.py Kosice
-python weather_cli.py Kosice --country Slovakia
-python weather_cli.py Kosice Bratislava Praha --verbose
-python weather_cli.py --lat 48.7164 --lon 21.2611 --name Košice`}</code></pre>
-      <div data-lang="sk">
+        <p>Dokončite <code>task_report.py</code> ako jeden použiteľný nástroj.</p>
+        <pre class="worksheet-code"><code>{`python task_report.py report Bret
+python task_report.py report Sincere@april.biz
+python task_report.py create Bret "Prečítať API dokumentáciu"
+python task_report.py complete 1
+python task_report.py report Bret --offline`}</code></pre>
         <p>Minimálne požiadavky:</p>
         <ul>
-          <li>argumenty cez <code>argparse</code>;</li>
-          <li>podpora mesta aj priamych súradníc;</li>
-          <li>viac miest v jednom spustení;</li>
-          <li>requesty cez <code>httpx</code> s timeoutom;</li>
-          <li>geocoding + forecast workflow;</li>
-          <li>dataclass modely pre lokalitu a počasie;</li>
-          <li>čitateľný textový report;</li>
-          <li>zrozumiteľné chybové správy;</li>
-          <li>bez vypisovania celého JSON na používateľa.</li>
+          <li>subcommands cez <code>argparse</code>;</li>
+          <li>modely <code>User</code> a <code>Todo</code>;</li>
+          <li>jeden zdieľaný HTTP klient s timeoutom;</li>
+          <li>oddelené requesty, parsing, výpočty a formátovanie;</li>
+          <li>zrozumiteľné chyby bez tracebacku pri očakávanom probléme;</li>
+          <li><code>--offline</code> načíta priložené fixtures bez sieťového requestu;</li>
+          <li>klient sa po použití korektne zatvorí.</li>
         </ul>
-        <pre class="expected-output"><code>{`Košice, Slovakia     18.7 °C   vietor  9.4 km/h   vlhkosť 62 %
-Bratislava, Slovakia 20.1 °C   vietor 12.0 km/h   vlhkosť 58 %
-Praha, Czechia       17.9 °C   vietor  8.8 km/h   vlhkosť 65 %`}</code></pre>
-        <p>Async nepoužívajte. Dôležitejšie je správne rozdelenie kódu, chybové stavy a práca s API odpoveďou.</p>
       </div>
       <div data-lang="en" hidden>
-        <p>Minimum requirements:</p>
-        <ul>
-          <li>arguments through <code>argparse</code>;</li>
-          <li>support both city names and direct coordinates;</li>
-          <li>multiple cities in one run;</li>
-          <li>requests through <code>httpx</code> with a timeout;</li>
-          <li>geocoding + forecast workflow;</li>
-          <li>dataclass models for location and weather;</li>
-          <li>readable text report;</li>
-          <li>clear error messages;</li>
-          <li>do not print the whole JSON response to the user.</li>
-        </ul>
-        <pre class="expected-output"><code>{`Košice, Slovakia     18.7 °C   wind  9.4 km/h   humidity 62 %
-Bratislava, Slovakia 20.1 °C   wind 12.0 km/h   humidity 58 %
-Prague, Czechia      17.9 °C   wind  8.8 km/h   humidity 65 %`}</code></pre>
-        <p>Do not use async. Correct code separation, error states and working with the API response are more important here.</p>
+        <p>Finish <code>task_report.py</code> as a usable CLI with argparse subcommands, <code>User</code> and <code>Todo</code> models, one shared HTTP client, separated request/parsing/calculation/formatting code, readable expected errors and an offline mode based on the supplied fixtures.</p>
       </div>
     </section>
 
@@ -483,8 +266,8 @@ Prague, Czechia      17.9 °C   wind  8.8 km/h   humidity 65 %`}</code></pre>
       <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
       <ul>
         <li><a href="https://www.python-httpx.org/" target="_blank" rel="noreferrer">HTTPX</a></li>
-        <li><a href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer">Open-Meteo Forecast API</a></li>
-        <li><a href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noreferrer">Open-Meteo Geocoding API</a></li>
+        <li><a href="https://jsonplaceholder.typicode.com/" target="_blank" rel="noreferrer">JSONPlaceholder Guide</a></li>
+        <li><a href="https://www.python-httpx.org/exceptions/" target="_blank" rel="noreferrer">HTTPX exceptions</a></li>
       </ul>
     </section>
   </main>

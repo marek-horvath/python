@@ -22,3 +22,6 @@ presentations/*-commented.pptx
 
 # Private local analytics service (database, credentials and admin UI)
 /local-analytics/
+
+# Private student records and mentor grading workbooks
+/prezencky/

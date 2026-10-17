@@ -16,6 +16,11 @@ const activeWeek = weeks.find((week) => week.number === courseConfig.currentWeek
 const activeWeekTitles = activeWeek
   ? weekTitleTranslations[activeWeek.number] ?? { sk: activeWeek.title, en: activeWeek.title }
   : { sk: "", en: "" };
+const firstScheduledWeek = weeks.find((week) => week.lectureAt);
+const lectureSchedule = weeks.map((week) => ({
+  number: week.number,
+  titles: weekTitleTranslations[week.number] ?? { sk: week.title, en: week.title }
+}));
 
 const homeTranslations = {
   "home.lead": {
@@ -60,8 +65,9 @@ const homeTranslations = {
       <aside
         class="next-lecture"
         data-next-lecture
-        data-week-number={activeWeek?.number ?? ""}
-        data-week-titles={JSON.stringify(activeWeekTitles)}
+        data-first-lecture-at={firstScheduledWeek?.lectureAt ?? ""}
+        data-first-week-number={firstScheduledWeek?.number ?? ""}
+        data-week-schedule={JSON.stringify(lectureSchedule)}
         data-timezone={courseConfig.timezone}
         aria-label={translate(homeTranslations, "home.nextAria", "sk")}
         data-i18n-aria-label="home.nextAria"
@@ -181,8 +187,12 @@ const homeTranslations = {
     const countdown = root?.querySelector<HTMLElement>("[data-countdown]");
     const empty = root?.querySelector<HTMLElement>("[data-no-next]");
     const timezone = root?.getAttribute("data-timezone") ?? "Europe/Bratislava";
-    const weekNumber = Number(root?.getAttribute("data-week-number") ?? "0");
-    const weekTitles = JSON.parse(root?.getAttribute("data-week-titles") ?? "{}") as Partial<Record<Language, string>>;
+    const firstLectureAt = root?.getAttribute("data-first-lecture-at") ?? "";
+    const firstWeekNumber = Number(root?.getAttribute("data-first-week-number") ?? "0");
+    const schedule = JSON.parse(root?.getAttribute("data-week-schedule") ?? "[]") as Array<{
+      number: number;
+      titles: Partial<Record<Language, string>>;
+    }>;
 
     function i18n() {
       return (window as Window & { pythonCourseI18n?: I18nApi }).pythonCourseI18n;
@@ -261,31 +271,33 @@ const homeTranslations = {
 
     function findNextLecture() {
       const now = new Date();
-      const localNow = zonedParts(now);
-      const weekdayName = new Intl.DateTimeFormat("en-US", { timeZone: timezone, weekday: "short" }).format(now);
-      const weekday = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 }[weekdayName] ?? 1;
-      const daysUntilMonday = (8 - weekday) % 7;
-      const localTarget = new Date(Date.UTC(localNow.year, localNow.month - 1, localNow.day + daysUntilMonday));
-      let date = dateAtTimezone(
-        localTarget.getUTCFullYear(),
-        localTarget.getUTCMonth() + 1,
-        localTarget.getUTCDate(),
-        9,
-        10
-      );
+      const firstDate = new Date(firstLectureAt);
+      if (!firstWeekNumber || !Number.isFinite(firstDate.getTime())) return null;
 
-      if (date.getTime() <= now.getTime()) {
-        localTarget.setUTCDate(localTarget.getUTCDate() + 7);
-        date = dateAtTimezone(
+      const firstLocal = zonedParts(firstDate);
+      for (const item of schedule) {
+        const offset = item.number - firstWeekNumber;
+        if (offset < 0) continue;
+
+        const localTarget = new Date(Date.UTC(
+          firstLocal.year,
+          firstLocal.month - 1,
+          firstLocal.day + offset * 7
+        ));
+        const date = dateAtTimezone(
           localTarget.getUTCFullYear(),
           localTarget.getUTCMonth() + 1,
           localTarget.getUTCDate(),
-          9,
-          10
+          firstLocal.hour,
+          firstLocal.minute
         );
+
+        if (date.getTime() > now.getTime()) {
+          return { number: item.number, titles: item.titles, date };
+        }
       }
 
-      return { number: weekNumber, titles: weekTitles, date };
+      return null;
     }
 
     function plural(value: number, one: string, many: string) {

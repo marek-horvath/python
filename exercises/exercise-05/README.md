@@ -1,16 +1,23 @@
 # Cvičenie 05 - Internet, HTTP a API
 
-Inštalácia:
+Vytvoríte konzolový Task Report nad verejným testovacím API JSONPlaceholder.
+Presné požiadavky a desať úloh nájdete na stránke cvičenia.
+
+## Inštalácia
 
 ```bash
 python -m pip install httpx
 ```
 
-Spustenie starter súboru:
+## Spustenie
 
 ```bash
-python weather_cli.py
+python task_report.py --help
 ```
 
-Ak internet alebo API počas cvičenia nefunguje, použite `sample_response.json` na úlohy so spracovaním JSON.
+Starter obsahuje dátové modely a signatúry, nie hotové riešenie. Pri práci bez
+internetu použite `sample_users.json` a `sample_todos.json`; offline a online
+dáta musia prechádzať rovnakými parsermi.
+
+Dokumentácia API: https://jsonplaceholder.typicode.com/
 
