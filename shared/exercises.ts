@@ -142,7 +142,7 @@ export const exercises: Exercise[] = [
     slug: "06-databazy",
     title: "Cvičenie 06",
     subtitle: "Databázy v Pythone",
-    description: "SQLite databáza, parametrizované dotazy, JOIN, transakcie a základný SQLAlchemy ORM model.",
+    description: "Databáza požičovne techniky: návrh schémy, parametrizované dotazy, reporty, transakcie a SQLAlchemy.",
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/06-databazy/",
@@ -153,7 +153,7 @@ export const exercises: Exercise[] = [
       en: {
         title: "Exercise 06",
         subtitle: "Databases in Python",
-        description: "SQLite database, parameterized queries, JOIN, transactions and a basic SQLAlchemy ORM model.",
+        description: "An equipment rental database: schema design, parameterized queries, reports, transactions and SQLAlchemy.",
         duration: "approximately 90 min"
       }
     }

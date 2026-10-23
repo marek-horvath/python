@@ -1,20 +1,14 @@
-STUDENTS = [
-    ("Anna", "anna@example.com"),
-    ("Peter", "peter@example.com"),
-    ("Lucia", "lucia@example.com"),
-    ("Martin", "martin@example.com"),
+EQUIPMENT = [
+    ("MIC-01", "USB microphone", "audio", 6.0, 4),
+    ("REC-01", "Field recorder", "audio", 13.0, 2),
+    ("CAM-01", "DSLR camera", "camera", 20.0, 2),
+    ("CAM-02", "Mirrorless camera", "camera", 25.0, 1),
+    ("LGT-01", "LED panel", "light", 8.0, 4),
 ]
 
-COURSES = [
-    ("Python",),
-    ("Databázy",),
-    ("Web backend",),
-]
-
-RESULTS = [
-    ("anna@example.com", "Python", 92),
-    ("peter@example.com", "Python", 67),
-    ("lucia@example.com", "Python", 81),
-    ("anna@example.com", "Databázy", 85),
-    ("martin@example.com", "Databázy", 58),
+CUSTOMERS = [
+    ("Anna Horváthová", "anna@example.com", False),
+    ("Peter Novák", "peter@example.com", False),
+    ("Lucia Kováčová", "lucia@example.com", False),
+    ("Martin Varga", "martin@example.com", True),
 ]

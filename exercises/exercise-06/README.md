@@ -1,15 +1,15 @@
 # Cvičenie 06 — Databázy v Pythone
 
-Starter súbory k cvičeniu o SQLite, `sqlite3` a SQLAlchemy.
+Starter pre dátovú vrstvu univerzitnej požičovne techniky.
 
 Odporúčaný postup:
 
-1. prejdite zadanie na stránke `/cvicenia/06-databazy/`;
-2. začnite súborom `database_tasks.py`;
-3. SQLAlchemy čas riešte v `orm_tasks.py`;
-4. bonusový import používa `import_results.csv`.
+1. navrhnite tabuľky v `schema.sql` podľa zadania na webe;
+2. doplňte priame SQL operácie v `equipment_db.py`;
+3. použite vstupné dáta zo `seed_data.py`;
+4. ORM časť riešte samostatne v `orm_tasks.py`.
 
-Inštalácia pre ORM čas:
+Starter neobsahuje hotové SQL dotazy ani ORM modely. Inštalácia pre ORM časť:
 
 ```bash
 python -m pip install sqlalchemy
