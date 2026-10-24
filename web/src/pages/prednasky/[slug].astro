@@ -5,6 +5,7 @@ import { presentations } from "@shared/presentations";
 import { isMaterialReleased } from "@shared/publication";
 import type { Presentation } from "@shared/presentations";
 import AnalyticsClient from "../../components/AnalyticsClient.astro";
+import PlausibleAnalytics from "../../components/PlausibleAnalytics.astro";
 import I18nController from "../../components/I18nController.astro";
 import LanguageBoot from "../../components/LanguageBoot.astro";
 import LectureViewer from "../../components/LectureViewer.astro";
@@ -66,6 +67,7 @@ const next = nextPresentation
     <meta name="description" content={presentation.description} />
     <title>{presentation.title} | {localizedCourse.title.sk}</title>
     <LanguageBoot />
+    <PlausibleAnalytics />
   </head>
   <body>
     {
