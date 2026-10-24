@@ -12,14 +12,24 @@ const userDataDir = path.join(os.tmpdir(), `python-course-visual-audit-${process
 const logDir = path.join(process.cwd(), ".logs");
 const screenshots = [
   { name: "home-desktop-cdp", url: "/", width: 1440, height: 1200, mobile: false },
+  { name: "home-tablet-cdp", url: "/", width: 768, height: 1200, mobile: true },
   { name: "home-mobile-cdp", url: "/", width: 390, height: 1200, mobile: true },
+  { name: "home-mobile-320-cdp", url: "/", width: 320, height: 1200, mobile: true },
   { name: "prednasky-mobile-cdp", url: "/prednasky/", width: 390, height: 1200, mobile: true },
+  { name: "prednasky-mobile-320-cdp", url: "/prednasky/", width: 320, height: 1200, mobile: true },
   { name: "cvicenia-mobile-cdp", url: "/cvicenia/", width: 390, height: 1200, mobile: true },
   { name: "cvicenie-01-desktop-cdp", url: "/cvicenia/01-uvod-ku-pythonu-v-praxi/", width: 1440, height: 1400, mobile: false },
   { name: "cvicenie-01-mobile-cdp", url: "/cvicenia/01-uvod-ku-pythonu-v-praxi/", width: 390, height: 1400, mobile: true },
-  { name: "projekt-mobile-cdp", url: "/projekt/", width: 390, height: 900, mobile: true },
+  { name: "cvicenie-06-mobile-320-cdp", url: "/cvicenia/06-databazy/", width: 320, height: 1400, mobile: true },
+  { name: "projekt-mobile-cdp", url: "/projekt/", width: 390, height: 1400, mobile: true },
+  { name: "projekt-tablet-cdp", url: "/projekt/", width: 768, height: 1400, mobile: true },
+  { name: "projekt-mobile-320-cdp", url: "/projekt/", width: 320, height: 1400, mobile: true },
+  { name: "navody-mobile-cdp", url: "/navody/", width: 390, height: 1400, mobile: true },
+  { name: "tahak-mobile-cdp", url: "/cheatsheet/", width: 390, height: 1400, mobile: true },
+  { name: "404-mobile-320-cdp", url: "/stranka-ktora-neexistuje/", width: 320, height: 900, mobile: true },
   { name: "slide-21-desktop-cdp", url: "/prednasky/01-uvod-ku-pythonu/#21", width: 1440, height: 900, mobile: false },
   { name: "slide-21-mobile-cdp", url: "/prednasky/01-uvod-ku-pythonu/#21", width: 390, height: 900, mobile: true },
+  { name: "slide-21-mobile-320-cdp", url: "/prednasky/01-uvod-ku-pythonu/#21", width: 320, height: 720, mobile: true },
   { name: "slide-27-lecture-02-desktop-cdp", url: "/prednasky/02-skriptovanie-automatizacia/#27", width: 1440, height: 900, mobile: false },
   { name: "slide-44-lecture-02-desktop-cdp", url: "/prednasky/02-skriptovanie-automatizacia/#44", width: 1440, height: 900, mobile: false },
   { name: "slide-44-lecture-02-mobile-cdp", url: "/prednasky/02-skriptovanie-automatizacia/#44", width: 390, height: 900, mobile: true }
@@ -80,6 +90,9 @@ async function main() {
       }
       if (result.visibleSlides !== null && result.visibleSlides !== 1) {
         failures.push(`${result.name}: viditeľných slajdov ${result.visibleSlides}`);
+      }
+      if (result.suspiciousNarrowText.length > 0) {
+        failures.push(`${result.name}: podozrivo stlačený text ${result.suspiciousNarrowText.join(", ")}`);
       }
     }
 
@@ -161,6 +174,15 @@ async function readPageMetrics(tab) {
       innerWidth: window.innerWidth,
       scrollWidth: Math.max(doc.scrollWidth, body.scrollWidth),
       horizontalOverflow: Math.max(doc.scrollWidth, body.scrollWidth) - window.innerWidth,
+      suspiciousNarrowText: [...document.querySelectorAll("h1, h2, h3, a, button")]
+        .filter((element) => {
+          const rect = element.getBoundingClientRect();
+          const style = getComputedStyle(element);
+          const text = element.textContent?.trim() ?? "";
+          return text.length > 8 && rect.width > 0 && rect.width < 24 && rect.height > 0 && style.visibility !== "hidden";
+        })
+        .slice(0, 5)
+        .map((element) => '"' + (element.textContent?.trim() ?? "").slice(0, 24) + '"'),
       visibleSlides: document.querySelector("[data-slide]") ? visibleSlides : null
     };
   })()`);

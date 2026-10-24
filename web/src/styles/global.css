@@ -38,10 +38,15 @@ html {
 
 body {
   margin: 0;
-  min-width: 320px;
-  overflow-x: hidden;
+  min-width: 0;
   background: var(--bg);
   text-rendering: optimizeLegibility;
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
 }
 
 a {
@@ -681,20 +686,15 @@ p {
     margin-top: 60px;
   }
 
-  .project-page,
   .guide-page {
     width: min(100% - 32px, var(--max-wide));
   }
 
-  .project-layout,
-  .cheat-layout,
   .guide-layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 34px;
   }
 
-  .project-toc,
-  .cheat-toc,
   .guide-toc {
     position: static;
     display: flex;
@@ -702,36 +702,6 @@ p {
     gap: 8px 16px;
     padding: 14px 16px;
     background: var(--surface);
-  }
-
-  .project-hero,
-  .project-section__heading,
-  .project-split,
-  .project-topic-grid,
-  .technology-list,
-  .documentation-list,
-  .project-reminders {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .project-hero {
-    gap: 36px;
-  }
-
-  .project-inline-metrics {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .project-section__heading {
-    gap: 10px;
-  }
-
-  .cheat-page {
-    width: min(100% - 32px, var(--max-wide));
-  }
-
-  .cheat-grid {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -2099,30 +2069,101 @@ html.viewer-html body {
   background: var(--accent);
 }
 
-@media (max-width: 720px) {
-  .site-header__inner {
-    min-height: auto;
-    padding: 14px 0;
-    align-items: flex-start;
-    flex-direction: column;
+/* These page styles are declared after the first tablet breakpoint above. */
+@media (max-width: 960px) {
+  .project-page,
+  .cheat-page {
+    width: min(100% - 32px, var(--max-wide));
+  }
+
+  .project-layout,
+  .cheat-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 34px;
+  }
+
+  .project-toc,
+  .cheat-toc {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 14px 16px;
+    background: var(--surface);
+  }
+
+  .project-hero,
+  .project-section__heading,
+  .project-split,
+  .project-topic-grid,
+  .technology-list,
+  .documentation-list,
+  .project-reminders {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-hero {
+    gap: 36px;
+  }
+
+  .project-inline-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .project-section__heading {
     gap: 10px;
   }
 
+  .cheat-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .site-header__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: auto;
+    padding: 12px 0 10px;
+    align-items: center;
+    gap: 7px 12px;
+  }
+
   .brand {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    font-size: 0.96rem;
     white-space: normal;
   }
 
   .site-header__tools {
-    width: 100%;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
+    display: contents;
   }
 
   .top-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: 100%;
-    overflow-x: auto;
-    padding-bottom: 2px;
+    gap: 0 8px;
+    font-size: 0.88rem;
+  }
+
+  .top-nav a {
+    display: flex;
+    min-width: 0;
+    min-height: 34px;
+    padding: 7px 2px 5px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .language-switcher {
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .page {
@@ -2280,6 +2321,18 @@ html.viewer-html body {
     padding-top: 34px;
   }
 
+  .project-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .project-hero > *,
+  .project-content,
+  .cheat-content,
+  .guide-content {
+    min-width: 0;
+  }
+
   .project-hero h1 {
     font-size: 2.4rem;
   }
@@ -2298,6 +2351,13 @@ html.viewer-html body {
   .project-toc {
     margin-bottom: 52px;
     padding: 14px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+  }
+
+  .project-toc a {
+    flex: 0 0 auto;
   }
 
   .project-section {
@@ -2368,6 +2428,10 @@ html.viewer-html body {
     font-size: 0.86rem;
   }
 
+  .copy-code__copy {
+    min-height: 34px;
+  }
+
   .copy-code .code-line {
     padding-left: 3.1rem;
   }
@@ -2379,17 +2443,22 @@ html.viewer-html body {
   }
 
   .exercise-task__header {
+    display: flex;
     grid-template-columns: minmax(0, 1fr);
+    flex-direction: column;
     gap: 8px;
   }
 
   .exercise-task__check {
+    order: 2;
     min-height: auto;
     width: fit-content;
+    margin: 0 0 0 48px;
     padding: 8px 10px;
   }
 
   .exercise-task__toggle {
+    order: 1;
     grid-template-columns: 36px minmax(0, 1fr) 20px;
     gap: 8px 12px;
     min-height: 48px;
@@ -2419,12 +2488,29 @@ html.viewer-html body {
 
   .content-table {
     display: block;
+    max-width: 100%;
     overflow-x: auto;
     white-space: normal;
+    -webkit-overflow-scrolling: touch;
   }
 
   .assignment-toc {
     position: static;
+  }
+
+  .worksheet-page ul,
+  .worksheet-page ol,
+  .project-section ul,
+  .project-section ol,
+  .assignment-section ul,
+  .assignment-section ol,
+  .guide-section ul,
+  .guide-section ol {
+    padding-left: 1.35rem;
+  }
+
+  :not(pre) > code {
+    overflow-wrap: anywhere;
   }
 }
 
@@ -2564,11 +2650,11 @@ html {
 
 @media (max-width: 720px) {
   html {
-    scroll-padding-top: 118px;
+    scroll-padding-top: 20px;
   }
 
   :where(.worksheet-task, .project-section, .cheat-section, .guide-section, .assignment-section, h2[id], h3[id]) {
-    scroll-margin-top: 118px;
+    scroll-margin-top: 20px;
   }
 
   .exercise-progress__actions {
@@ -2577,7 +2663,9 @@ html {
 
   .viewer-neighbors {
     right: 18px;
+    bottom: 50px;
     grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
   }
 
   .viewer-neighbor--next {
@@ -2596,6 +2684,135 @@ html {
 
   .adjacent-nav__link--next {
     text-align: left;
+  }
+}
+
+@media (max-width: 420px) {
+  .site-header__inner,
+  .page,
+  .home-opening,
+  .course-announcement,
+  .semester-layout,
+  .home-bottom,
+  .project-page,
+  .cheat-page,
+  .guide-page {
+    width: calc(100% - 24px);
+  }
+
+  .brand {
+    font-size: 0.92rem;
+  }
+
+  .top-nav {
+    gap: 0 4px;
+    font-size: 0.84rem;
+  }
+
+  .top-nav a {
+    padding-inline: 0;
+  }
+
+  h1 {
+    font-size: 1.72rem;
+  }
+
+  .home-opening h1 {
+    font-size: 2.08rem;
+  }
+
+  .project-hero h1,
+  .cheat-header h1,
+  .guide-header h1 {
+    font-size: 2.05rem;
+  }
+
+  .next-lecture__topic {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .semester-item,
+  .lecture-list .lecture-row,
+  .simple-list .simple-row {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .semester-item__number {
+    font-size: 1.28rem;
+  }
+
+  .lecture-list .lecture-row,
+  .simple-list .simple-row {
+    padding-inline: 12px;
+  }
+
+  .project-section--surface {
+    margin-inline: -12px;
+  }
+
+  .project-note,
+  .project-plain-block,
+  .project-reminders {
+    padding: 16px;
+  }
+
+  .project-score-strip {
+    display: grid;
+    gap: 10px;
+  }
+
+  .copy-code pre {
+    padding-inline: 10px;
+    font-size: 0.8rem;
+  }
+
+  .copy-code .code-line {
+    padding-left: 2.7rem;
+  }
+
+  .copy-code .code-line::before {
+    width: 1.8rem;
+  }
+
+  .exercise-task__check {
+    margin-left: 42px;
+  }
+
+  .exercise-task__title {
+    font-size: 1.08rem;
+  }
+
+  .viewer-control {
+    font-size: 0.72rem;
+  }
+
+  .back-link {
+    left: 10px;
+  }
+
+  .fullscreen-button {
+    right: 10px;
+  }
+
+  .viewer-language {
+    top: 7px;
+  }
+
+  .viewer-language .language-switcher__option {
+    min-width: 28px;
+    padding-inline: 5px;
+    font-size: 0.72rem;
+  }
+
+  .viewer-neighbors {
+    left: 10px;
+    right: 10px;
+  }
+
+  .progress {
+    right: 10px;
   }
 }
 

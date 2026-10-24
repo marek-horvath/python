@@ -25,3 +25,6 @@ presentations/*-commented.pptx
 
 # Private student records and mentor grading workbooks
 /prezencky/
+
+# Local research paper and generated publication files
+/paper/
