@@ -1,0 +1,335 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CopyCodeBlock from "../components/CopyCodeBlock.astro";
+import LocalizedText from "../components/LocalizedText.astro";
+---
+
+<BaseLayout
+  title="OOP v Pythone — triedy a objekty"
+  titleEn="OOP in Python — Classes and Objects"
+  description="Doplnkový praktický materiál o triedach, objektoch, metódach, dedičnosti a kompozícii v Pythone."
+  descriptionEn="Supplementary practical material about Python classes, objects, methods, inheritance and composition."
+>
+  <main class="page text-page oop-page">
+    <header class="oop-header">
+      <p class="clean-code-kicker"><LocalizedText sk="DOPLŇUJÚCI MATERIÁL · PYTHON QUICK REFERENCE" en="SUPPLEMENTARY MATERIAL · PYTHON QUICK REFERENCE" /></p>
+      <h1><LocalizedText sk="OOP v Pythone: triedy a objekty" en="OOP in Python: Classes and Objects" /></h1>
+      <p class="oop-lead"><LocalizedText
+        sk="Praktický sprievodca objektovo orientovaným programovaním. Naučíš sa vytvoriť triedu, inicializovať objekty, písať metódy a rozlíšiť dedičnosť od kompozície."
+        en="A practical guide to object-oriented programming. Learn to define a class, initialize objects, write methods, and distinguish inheritance from composition."
+      /></p>
+      <div class="clean-code-actions oop-actions">
+        <a href="/cheatsheet/"><LocalizedText sk="← Späť na Python ťahák" en="← Back to Python cheatsheet" /></a>
+        <a href="/best-practices/"><LocalizedText sk="Best Practices / Clean Code →" en="Best Practices / Clean Code →" /></a>
+        <button type="button" id="oop-print"><LocalizedText sk="Exportovať PDF" en="Export PDF" /></button>
+        <a class="oop-download" href="/downloads/oop-practice.py" download><LocalizedText sk="Stiahnuť príklad .py" en="Download example .py" /></a>
+      </div>
+    </header>
+
+    <aside class="oop-callout" aria-label="Learning goals">
+      <h2><LocalizedText sk="Po tejto téme by si mal vedieť" en="After this topic, you should be able to" /></h2>
+      <ul>
+        <li><LocalizedText sk="vysvetliť rozdiel medzi triedou a objektom;" en="explain the difference between a class and an object;" /></li>
+        <li><LocalizedText sk="použiť __init__, self, atribúty a metódy;" en="use __init__, self, attributes, and methods;" /></li>
+        <li><LocalizedText sk="vytvoriť jednoduchú podtriedu pomocou super();" en="create a simple subclass with super();" /></li>
+        <li><LocalizedText sk="rozhodnúť sa, kedy použiť dedičnosť a kedy kompozíciu." en="decide when inheritance or composition is appropriate." /></li>
+      </ul>
+    </aside>
+
+    <nav class="oop-toc" aria-label="Obsah témy">
+      <strong><LocalizedText sk="Obsah" en="On this page" /></strong>
+      <a href="#class-object"><LocalizedText sk="Trieda a objekt" en="Class and object" /></a>
+      <a href="#init-self"><code>__init__</code> <LocalizedText sk="a" en="and" /> <code>self</code></a>
+      <a href="#attributes-methods"><LocalizedText sk="Atribúty a metódy" en="Attributes and methods" /></a>
+      <a href="#inheritance"><LocalizedText sk="Dedičnosť" en="Inheritance" /></a>
+      <a href="#composition"><LocalizedText sk="Kompozícia" en="Composition" /></a>
+      <a href="#mistakes"><LocalizedText sk="Typické chyby" en="Common mistakes" /></a>
+      <a href="#practice"><LocalizedText sk="Úloha na precvičenie" en="Practice task" /></a>
+    </nav>
+
+    <section class="oop-section" id="class-object">
+      <h2>1. <LocalizedText sk="Čo je trieda a objekt?" en="What are a class and an object?" /></h2>
+      <p><LocalizedText
+        sk="Trieda (class) je predpis, ktorý určuje, aké údaje a správanie budú mať jej objekty. Objekt je konkrétna inštancia triedy. Z jednej triedy môžeš vytvoriť veľa objektov s rôznymi hodnotami."
+        en="A class is a blueprint that defines the data and behavior its objects have. An object is a particular instance of that class. One class can create many objects with different values."
+      /></p>
+      <div class="oop-concept-grid">
+        <article class="oop-concept-card">
+          <h3><LocalizedText sk="Trieda" en="Class" /></h3>
+          <p><LocalizedText sk="Opisuje spoločné vlastnosti a operácie, napríklad názov a schopnosť hovoriť." en="Describes shared properties and operations, such as a name and the ability to speak." /></p>
+        </article>
+        <article class="oop-concept-card">
+          <h3><LocalizedText sk="Objekt" en="Object" /></h3>
+          <p><LocalizedText sk="Konkrétny prípad triedy, napríklad pes s menom Rex." en="A particular instance of a class, such as a dog named Rex." /></p>
+        </article>
+      </div>
+      <CopyCodeBlock code={`class Dog:
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def speak(self) -> str:
+        return f"{self.name} says woof"
+
+
+first_dog = Dog("Rex")
+second_dog = Dog("Luna")
+
+print(first_dog.speak())
+print(second_dog.speak())`} />
+      <div class="oop-output">
+        <strong><LocalizedText sk="Výstup" en="Output" /></strong>
+        <pre>Rex says woof
+Luna says woof</pre>
+      </div>
+      <p class="oop-note"><LocalizedText sk="first_dog a second_dog sú dva rôzne objekty rovnakej triedy Dog. Každý má vlastnú hodnotu atribútu name." en="first_dog and second_dog are two different objects of the same Dog class. Each has its own name attribute value." /></p>
+    </section>
+
+    <section class="oop-section" id="init-self">
+      <h2>2. <code>__init__</code> <LocalizedText sk="a" en="and" /> <code>self</code></h2>
+      <p><LocalizedText sk="__init__ sa automaticky zavolá pri vytváraní novej inštancie a nastaví jej počiatočný stav. Parameter self odkazuje na konkrétny objekt, s ktorým metóda pracuje. Pri vytváraní objektu triedy Dog parameter self nepíšeš ručne — Python ho odovzdá automaticky." en="__init__ is called when a new instance is created and sets its initial state. The self parameter refers to the particular object the method works with. When creating a Dog object, you do not pass self manually — Python supplies it automatically." /></p>
+      <CopyCodeBlock code={`class User:
+    def __init__(self, username: str, active: bool = True) -> None:
+        self.username = username
+        self.active = active
+
+
+user = User("daniel")
+print(user.username)
+print(user.active)`} />
+      <div class="oop-output">
+        <strong><LocalizedText sk="Výstup" en="Output" /></strong>
+        <pre>daniel
+True</pre>
+      </div>
+      <p class="oop-note"><LocalizedText sk="Názov __init__ začína aj končí dvoma podčiarkovníkmi. Je to špeciálna metóda Pythonu, nie bežná funkcia, ktorú treba volať samostatne." en="The name __init__ starts and ends with two underscores. It is a special Python method, not a regular function you should call separately." /></p>
+    </section>
+
+    <section class="oop-section" id="attributes-methods">
+      <h2>3. <LocalizedText sk="Atribúty a metódy" en="Attributes and methods" /></h2>
+      <p><LocalizedText sk="Atribúty uchovávajú stav objektu. Metódy definujú správanie, ktoré súvisí s týmto stavom. Atribút vytvorený cez self v __init__ je zvyčajne atribútom inštancie — každý objekt má svoju hodnotu." en="Attributes store an object's state. Methods define behavior related to that state. An attribute assigned through self in __init__ is usually an instance attribute, so each object has its own value." /></p>
+      <CopyCodeBlock code={`class Counter:
+    def __init__(self, start: int = 0) -> None:
+        self.value = start
+
+    def increment(self) -> None:
+        self.value += 1
+
+    def reset(self) -> None:
+        self.value = 0
+
+
+counter_a = Counter()
+counter_b = Counter(10)
+counter_a.increment()
+print(counter_a.value)
+print(counter_b.value)`} />
+      <div class="oop-output">
+        <strong><LocalizedText sk="Výstup" en="Output" /></strong>
+        <pre>1
+10</pre>
+      </div>
+      <h3><LocalizedText sk="Atribút inštancie a atribút triedy" en="Instance attribute and class attribute" /></h3>
+      <p><LocalizedText sk="Atribút triedy sa definuje priamo v triede a zdieľajú ho inštancie, pokiaľ ho neprekryjú vlastným atribútom. Je vhodný napríklad pre konštantu. Zdieľaný meniteľný zoznam však býva častou chybou." en="A class attribute is defined on the class and is shared by instances unless an instance shadows it. It can be useful for a constant. A shared mutable list, however, is a common bug." /></p>
+      <CopyCodeBlock code={`class Team:
+    # Shared constant: suitable as a class attribute.
+    sport = "football"
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.members: list[str] = []  # A separate list per object.`} />
+      <p class="oop-note"><LocalizedText sk="Ak sa má zoznam meniť nezávisle pre každý objekt, vytvor ho v __init__ pomocou self.members = []. Nedefinuj ho ako members = [] priamo v tele triedy." en="If the list must change independently for each object, create it in __init__ using self.members = []. Do not define it as members = [] directly in the class body." /></p>
+    </section>
+
+    <section class="oop-section" id="inheritance">
+      <h2>4. <LocalizedText sk="Dedičnosť a super()" en="Inheritance and super()" /></h2>
+      <p><LocalizedText sk="Dedičnosť vyjadruje vzťah „je typom“ (is-a). Podtrieda preberá rozhranie a správanie nadradenej triedy a môže ho rozšíriť alebo upraviť. super() umožňuje zavolať implementáciu nadradenej triedy bez pevného pomenovania jej názvu." en="Inheritance represents an “is-a” relationship. A subclass reuses the parent class interface and behavior and can extend or override it. super() calls the parent implementation without hard-coding its name." /></p>
+      <CopyCodeBlock code={`class Person:
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def introduce(self) -> str:
+        return f"My name is {self.name}."
+
+
+class Student(Person):
+    def __init__(self, name: str, student_id: str) -> None:
+        super().__init__(name)
+        self.student_id = student_id
+
+    def introduce(self) -> str:
+        base_intro = super().introduce()
+        return f"{base_intro} Student ID: {self.student_id}."
+
+
+student = Student("Anna", "B123")
+print(student.introduce())`} />
+      <div class="oop-output">
+        <strong><LocalizedText sk="Výstup" en="Output" /></strong>
+        <pre>My name is Anna. Student ID: B123.</pre>
+      </div>
+      <p class="oop-note"><LocalizedText sk="Dedičnosť použi vtedy, keď podtrieda naozaj predstavuje špecializovaný typ nadradenej triedy. Nevytváraj dedičnosť len preto, aby si zdieľal niekoľko riadkov kódu." en="Use inheritance when the subclass genuinely is a specialized type of the parent. Do not introduce inheritance just to share a few lines of code." /></p>
+    </section>
+
+    <section class="oop-section" id="composition">
+      <h2>5. <LocalizedText sk="Kompozícia: objekt používa iný objekt" en="Composition: an object uses another object" /></h2>
+      <p><LocalizedText sk="Kompozícia vyjadruje vzťah „má“ (has-a). Trieda obsahuje alebo používa iné objekty namiesto toho, aby od nich dedila. Kurz napríklad obsahuje zoznam študentov; kurz nie je typom študenta." en="Composition represents a “has-a” relationship. A class contains or uses other objects instead of inheriting from them. A course, for example, contains a list of students; a course is not a type of student." /></p>
+      <CopyCodeBlock code={`class Course:
+    def __init__(self, title: str) -> None:
+        self.title = title
+        self.students: list[Student] = []
+
+    def enroll(self, student: Student) -> None:
+        self.students.append(student)
+
+    def student_count(self) -> int:
+        return len(self.students)
+
+
+# Reuse the Student class from the inheritance example above.
+course = Course("Python Basics")
+course.enroll(Student("Anna", "B123"))
+course.enroll(Student("Peter", "B124"))
+print(course.title)
+print(course.student_count())`} />
+      <div class="oop-output">
+        <strong><LocalizedText sk="Výstup" en="Output" /></strong>
+        <pre>Python Basics
+2</pre>
+      </div>
+      <div class="oop-comparison-table-wrap">
+        <table class="oop-comparison-table">
+          <thead><tr><th><LocalizedText sk="Dedičnosť" en="Inheritance" /></th><th><LocalizedText sk="Kompozícia" en="Composition" /></th></tr></thead>
+          <tbody>
+            <tr><td><LocalizedText sk="„Je typom“ — Student je Person." en="“Is-a” — a Student is a Person." /></td><td><LocalizedText sk="„Má“ — Course má študentov." en="“Has-a” — a Course has students." /></td></tr>
+            <tr><td><LocalizedText sk="Použi na špecializáciu existujúceho typu." en="Use to specialize an existing type." /></td><td><LocalizedText sk="Použi na skladanie správania z spolupracujúcich objektov." en="Use to compose behavior from collaborating objects." /></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="oop-section" id="mistakes">
+      <h2>6. <LocalizedText sk="Typické chyby" en="Common mistakes" /></h2>
+      <div class="oop-mistake">
+        <h3><LocalizedText sk="Chyba 1: zabudnutý self" en="Mistake 1: missing self" /></h3>
+        <CopyCodeBlock code={`class Greeter:
+    def greet():
+        return "Hello"
+
+# greet expects no instance parameter, but Python supplies one:
+# Greeter().greet() raises TypeError.`} />
+        <p><LocalizedText sk="Oprava: pri bežnej inštančnej metóde uveď self ako prvý parameter." en="Fix: include self as the first parameter of a normal instance method." /></p>
+        <CopyCodeBlock code={`class Greeter:
+    def greet(self) -> str:
+        return "Hello"
+
+print(Greeter().greet())`} />
+      </div>
+      <div class="oop-mistake">
+        <h3><LocalizedText sk="Chyba 2: zdieľaný meniteľný atribút" en="Mistake 2: shared mutable attribute" /></h3>
+        <CopyCodeBlock code={`class Group:
+    members: list[str] = []  # Shared by all instances!`} />
+        <p><LocalizedText sk="Oprava: inicializuj zoznam v __init__, aby mal každý objekt vlastný zoznam." en="Fix: initialize the list in __init__ so every object gets its own list." /></p>
+        <CopyCodeBlock code={`class Group:
+    def __init__(self) -> None:
+        self.members: list[str] = []`} />
+      </div>
+      <div class="oop-mistake">
+        <h3><LocalizedText sk="Chyba 3: podtrieda neinicializuje nadradenú časť" en="Mistake 3: subclass skips parent initialization" /></h3>
+        <p><LocalizedText sk="Ak nadradená trieda nastavuje potrebné atribúty v __init__, podtrieda má spravidla zavolať super().__init__(...). Inak môžu atribúty chýbať alebo objekt nebude inicializovaný podľa očakávania." en="If a parent class sets required attributes in __init__, the subclass should usually call super().__init__(...). Otherwise, attributes may be missing or the object may not be initialized as expected." /></p>
+      </div>
+    </section>
+
+    <section class="oop-section" id="practice">
+      <h2>7. <LocalizedText sk="Úloha na precvičenie" en="Practice task" /></h2>
+      <div class="oop-task-card">
+        <p><LocalizedText sk="Vytvor triedu Book s atribútmi title, author a pages. Pridaj metódu summary(), ktorá vráti krátky opis knihy, a metódu is_long(), ktorá vráti True, ak má kniha aspoň 300 strán. Vytvor dva objekty a vypíš ich opisy aj výsledok is_long()." en="Create a Book class with title, author, and pages attributes. Add a summary() method that returns a short description and an is_long() method that returns True when the book has at least 300 pages. Create two objects and print their summaries and is_long() results." /></p>
+        <p><strong><LocalizedText sk="Najprv to skús samostatne. Riešenie si otvor až potom." en="Try it yourself first. Open the solution only afterwards." /></strong></p>
+        <details class="oop-solution">
+          <summary><LocalizedText sk="Zobraziť vzorové riešenie" en="Show sample solution" /></summary>
+          <CopyCodeBlock code={`class Book:
+    def __init__(self, title: str, author: str, pages: int) -> None:
+        if pages <= 0:
+            raise ValueError("pages must be positive")
+        self.title = title
+        self.author = author
+        self.pages = pages
+
+    def summary(self) -> str:
+        return f"{self.title} by {self.author} ({self.pages} pages)"
+
+    def is_long(self) -> bool:
+        return self.pages >= 300
+
+
+book_a = Book("Clean Code", "Robert C. Martin", 464)
+book_b = Book("Small Python Guide", "A. Novak", 120)
+print(book_a.summary())
+print(book_a.is_long())
+print(book_b.summary())
+print(book_b.is_long())`} />
+          <div class="oop-output">
+            <strong><LocalizedText sk="Očakávaný výstup" en="Expected output" /></strong>
+            <pre>Clean Code by Robert C. Martin (464 pages)
+True
+Small Python Guide by A. Novak (120 pages)
+False</pre>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="oop-section oop-self-check" id="self-check">
+      <h2><LocalizedText sk="Rýchla kontrola porozumenia" en="Quick self-check" /></h2>
+      <details>
+        <summary><LocalizedText sk="1. Aký je rozdiel medzi triedou a objektom?" en="1. What is the difference between a class and an object?" /></summary>
+        <p><LocalizedText sk="Trieda je definícia typu; objekt je konkrétna inštancia tejto triedy." en="A class defines a type; an object is a particular instance of that class." /></p>
+      </details>
+      <details>
+        <summary><LocalizedText sk="2. Prečo je self prvým parametrom inštančnej metódy?" en="2. Why is self the first parameter of an instance method?" /></summary>
+        <p><LocalizedText sk="Odkazuje na objekt, na ktorom sa metóda volá, takže metóda vie čítať a meniť jeho atribúty." en="It refers to the object the method is called on, allowing the method to read and change that object's attributes." /></p>
+      </details>
+      <details>
+        <summary><LocalizedText sk="3. Kedy je vhodnejšia kompozícia než dedičnosť?" en="3. When is composition preferable to inheritance?" /></summary>
+        <p><LocalizedText sk="Keď objekt používa alebo obsahuje iný objekt („má“), ale nie je jeho špecializovaným typom („je“)." en="When an object uses or contains another object (“has-a”) but is not a specialized type of it (“is-a”)." /></p>
+      </details>
+    </section>
+
+    <footer class="oop-footer-note">
+      <p><strong><LocalizedText sk="Poznámka k rozsahu materiálu" en="Note about the scope" /></strong></p>
+      <p><LocalizedText sk="Toto je doplňujúca pracovná verzia materiálu OOP pre študentov. Pred označením za finálny výstup ju treba nechať skontrolovať vyučujúcim. Nenahrádza existujúcu prednášku 4 predmetu, ktorá sa venuje testovaniu, debuggingu a kvalite kódu." en="This is a supplementary working draft of OOP material for students. It should be reviewed by the lecturer before being treated as final. It does not replace course Lecture 4, which covers testing, debugging, and code quality." /></p>
+      <p><a href="https://docs.python.org/3/tutorial/classes.html" target="_blank" rel="noreferrer"><LocalizedText sk="Oficiálna dokumentácia Pythonu: Triedy" en="Official Python documentation: Classes" /></a></p>
+    </footer>
+  </main>
+</BaseLayout>
+
+<script>
+  // Include answers hidden in <details> when exporting the page to PDF.
+  // Restore the user's original open/closed states after the print dialog closes.
+  let previousDetailsState: Array<{ element: HTMLDetailsElement; wasOpen: boolean }> | null = null;
+
+  const openDetailsForPrint = () => {
+    const details = Array.from(document.querySelectorAll<HTMLDetailsElement>(".oop-page details"));
+    previousDetailsState = details.map((element) => ({
+      element,
+      wasOpen: element.open,
+    }));
+    details.forEach((element) => {
+      element.open = true;
+    });
+  };
+
+  const restoreDetailsAfterPrint = () => {
+    if (!previousDetailsState) return;
+    previousDetailsState.forEach(({ element, wasOpen }) => {
+      element.open = wasOpen;
+    });
+    previousDetailsState = null;
+  };
+
+  window.addEventListener("beforeprint", openDetailsForPrint);
+  window.addEventListener("afterprint", restoreDetailsAfterPrint);
+
+  document.querySelector<HTMLButtonElement>("#oop-print")?.addEventListener("click", () => {
+    window.print();
+  });
+</script>

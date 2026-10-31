@@ -23,6 +23,7 @@ export const courseConfig = {
     { label: "Cvičenia", href: "/cvicenia/" },
     { label: "Projekt", href: "/projekt/" },
     { label: "Návody", href: "/navody/" },
+    { label: "OOP", href: "/oop/" },
     { label: "Cheatsheet", href: "/cheatsheet/" }
   ],
   learningAreas: [

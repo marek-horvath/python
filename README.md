@@ -136,7 +136,9 @@ Existujúce URL sa nemenia. Prepnutie jazyka zachová aktuálnu stránku, hash a
 - `/projekt/` - semestrálny projekt;
 - `/navody/` - praktické návody;
 - `/cheatsheet/` - Python cheatsheet.
+- `/best-practices/` - praktické odporúčania Clean Code.
+- `/oop/` - doplňujúci OOP materiál (pracovná verzia na kontrolu vyučujúcim).
 
 ## Stav obsahu
 
-Skeleton existuje pre 10 týždňov predmetu. Pripravené sú prednášky 01-10, cvičenia 01-10, semestrálny projekt, návody a cheatsheet. Web má hotový dvojjazyčný režim SK/EN pre shared UI, homepage, Projekt, Návody, Cheatsheet, prednášky aj cvičenia.
+Skeleton existuje pre 10 týždňov predmetu. Pripravené sú prednášky 01-10, cvičenia 01-10, semestrálny projekt, návody a cheatsheet. Web má hotový dvojjazyčný režim SK/EN pre shared UI, homepage, Projekt, Návody, OOP, Cheatsheet, Best Practices, prednášky aj cvičenia.

@@ -1,0 +1,5 @@
+# Meno;Predmet;Body
+Anna;Programovanie v Pythone;92
+Peter;Databázy;78
+Lucia;Objektovo orientované programovanie;88
+Mária;Práca so súbormi;95

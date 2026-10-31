@@ -7,7 +7,7 @@ const pathname = Astro.url.pathname;
 
 const activeAliases: Record<string, string[]> = {
   "/projekt/": ["/zadania/"],
-  "/cheatsheet/": ["/tahak/"]
+  "/cheatsheet/": ["/tahak/", "/best-practices/"]
 };
 
 const navigationKeys: Record<string, string> = {
@@ -16,6 +16,7 @@ const navigationKeys: Record<string, string> = {
   "/cvicenia/": "nav.exercises",
   "/projekt/": "nav.project",
   "/navody/": "nav.guides",
+  "/oop/": "nav.oop",
   "/cheatsheet/": "nav.cheatsheet"
 };
 

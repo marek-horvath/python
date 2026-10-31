@@ -1,0 +1,143 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CopyCodeBlock from "../components/CopyCodeBlock.astro";
+import LocalizedText from "../components/LocalizedText.astro";
+---
+
+<BaseLayout
+  title="Best Practices / Clean Code"
+  titleEn="Best Practices / Clean Code"
+  description="Praktické pravidlá pre čitateľný a udržiavateľný Python kód."
+  descriptionEn="Practical guidelines for readable and maintainable Python code."
+>
+  <main class="page text-page clean-code-page">
+    <header class="clean-code-header">
+      <p class="clean-code-kicker"><LocalizedText sk="PYTHON QUICK REFERENCE" en="PYTHON QUICK REFERENCE" /></p>
+      <h1>Best Practices / Clean Code</h1>
+      <p><LocalizedText
+        sk="Praktické pravidlá, ktoré pomáhajú písať kód, v ktorom sa dá ľahko vyznať, testovať ho a neskôr meniť. Každé pravidlo je doplnené krátkou ukážkou."
+        en="Practical guidelines for code that is easier to understand, test and change. Each guideline includes a short example."
+      /></p>
+      <div class="clean-code-actions">
+        <a href="/cheatsheet/"><LocalizedText sk="← Späť na Python ťahák" en="← Back to Python cheatsheet" /></a>
+        <button type="button" id="clean-code-print"><LocalizedText sk="Exportovať PDF" en="Export PDF" /></button>
+      </div>
+    </header>
+
+    <section class="clean-code-section" id="naming">
+      <h2><LocalizedText sk="1. Používaj zmysluplné názvy" en="1. Choose meaningful names" /></h2>
+      <p><LocalizedText sk="Názov premennej alebo funkcie má vysvetliť jej účel. Vďaka tomu netreba lúštiť zámer z každého riadka." en="A variable or function name should explain its purpose, so readers do not have to guess the intent from every line." /></p>
+      <div class="clean-code-comparison">
+        <div><h3><LocalizedText sk="Menej zrozumiteľné" en="Less clear" /></h3><CopyCodeBlock code={`x = len(students)
+y = x > 25`} /></div>
+        <div><h3><LocalizedText sk="Zrozumiteľnejšie" en="Clearer" /></h3><CopyCodeBlock code={`student_count = len(students)
+is_large_group = student_count > 25`} /></div>
+      </div>
+    </section>
+
+    <section class="clean-code-section" id="functions">
+      <h2><LocalizedText sk="2. Jedna funkcia, jedna zodpovednosť" en="2. Give a function one clear responsibility" /></h2>
+      <p><LocalizedText sk="Ak jedna funkcia načítava súbor, spracúva dáta, vypisuje výsledok aj ukladá report, je ťažšie ju testovať. Rozdeľ kroky, ktoré majú samostatný význam." en="A function that reads a file, transforms data, prints output and writes a report is harder to test. Separate steps that have distinct responsibilities." /></p>
+      <div class="clean-code-comparison">
+        <div><h3><LocalizedText sk="Príliš veľa v jednej funkcii" en="Too much in one function" /></h3><CopyCodeBlock code={`from pathlib import Path
+
+def process_students(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    names = [line.strip() for line in text.splitlines()]
+    print("Students:", len(names))
+    Path("report.txt").write_text("\\n".join(names), encoding="utf-8")`} /></div>
+        <div><h3><LocalizedText sk="Oddelené kroky" en="Separated steps" /></h3><CopyCodeBlock code={`from pathlib import Path
+
+def read_names(path: Path) -> list[str]:
+    text = path.read_text(encoding="utf-8")
+    return [line.strip() for line in text.splitlines()]
+
+def write_report(path: Path, names: list[str]) -> None:
+    path.write_text("\\n".join(names), encoding="utf-8")`} /></div>
+      </div>
+      <div class="clean-code-usage">
+        <h3><LocalizedText sk="Použitie oddelených funkcií" en="Using the separate functions" /></h3>
+        <p><LocalizedText sk="Po definovaní read_names() a write_report() môže hlavná funkcia jednoducho koordinovať jednotlivé kroky." en="After defining read_names() and write_report(), the main function can coordinate the steps." /></p>
+        <CopyCodeBlock code={`def main() -> None:
+    input_path = Path("students.txt")
+    output_path = Path("report.txt")
+    names = read_names(input_path)
+    write_report(output_path, names)
+    print(f"Saved {len(names)} names to {output_path}")
+
+if __name__ == "__main__":
+    main()`} />
+        <p class="clean-code-note"><LocalizedText sk="Ukážka predpokladá, že Path, read_names() a write_report() sú už importované alebo definované vyššie v súbore." en="This snippet assumes Path, read_names() and write_report() have already been imported or defined earlier in the file." /></p>
+      </div>
+      <p class="clean-code-note"><LocalizedText sk="Rozdelenie má zmysel vtedy, keď jednotlivé kroky možno samostatne pochopiť alebo testovať; netreba rozdeľovať každý dvojriadkový blok." en="Split code when the steps can be understood or tested independently; not every two-line block needs its own function." /></p>
+    </section>
+
+    <section class="clean-code-section" id="duplication">
+      <h2><LocalizedText sk="3. Obmedzuj duplicitný kód" en="3. Reduce duplicated code" /></h2>
+      <p><LocalizedText sk="Ak sa tá istá logika opakuje na viacerých miestach, oprava sa musí robiť viackrát. Spoločnú logiku môžeš pomenovať funkciou." en="When the same logic is repeated, a fix must be applied in multiple places. A function can represent the shared logic." /></p>
+      <div class="clean-code-comparison">
+        <div><h3><LocalizedText sk="Opakovanie" en="Repeated logic" /></h3><CopyCodeBlock code={`price_a = 10 * 1.2
+price_b = 15 * 1.2
+price_c = 22 * 1.2`} /></div>
+        <div><h3><LocalizedText sk="Spoločná funkcia" en="Shared function" /></h3><CopyCodeBlock code={`def with_tax(price):
+    return price * 1.2
+
+price_a = with_tax(10)
+price_b = with_tax(15)
+price_c = with_tax(22)`} /></div>
+      </div>
+    </section>
+
+    <section class="clean-code-section" id="errors">
+      <h2><LocalizedText sk="4. Spracuj chyby zmysluplne" en="4. Handle errors meaningfully" /></h2>
+      <p><LocalizedText sk="Zachytávaj len chyby, s ktorými vieš niečo urobiť. Tiché ignorovanie výnimky môže zakryť poškodené dáta alebo skutočný problém." en="Catch errors you can handle. Silently ignoring an exception can hide damaged data or a real problem." /></p>
+      <div class="clean-code-comparison">
+        <div><h3><LocalizedText sk="Nevhodné" en="Avoid" /></h3><CopyCodeBlock code={`try:
+    points = int(user_input)
+except:
+    pass`} /></div>
+        <div><h3><LocalizedText sk="Konkrétna chyba" en="Specific error" /></h3><CopyCodeBlock code={`try:
+    points = int(user_input)
+except ValueError:
+    print("Enter a whole number.")`} /></div>
+      </div>
+    </section>
+
+    <section class="clean-code-section" id="comments">
+      <h2><LocalizedText sk="5. Komentuj dôvod, nie očividný riadok" en="5. Comment on why, not the obvious line" /></h2>
+      <p><LocalizedText sk="Komentár má doplniť kontext alebo vysvetliť rozhodnutie, ktoré zo samotného kódu nie je jasné. Nemá iba prepisovať príkaz slovami." en="A comment should add context or explain a decision that is not clear from the code itself, rather than restating the command." /></p>
+      <div class="clean-code-comparison">
+        <div><h3><LocalizedText sk="Komentár bez pridanej hodnoty" en="A comment that adds little" /></h3><CopyCodeBlock code={`# Increase attempts by one
+attempts += 1`} /></div>
+        <div><h3><LocalizedText sk="Komentár vysvetľuje dôvod" en="A comment that explains why" /></h3><CopyCodeBlock code={`# Allow one retry after a temporary network failure.
+attempts += 1`} /></div>
+      </div>
+    </section>
+
+    <section class="clean-code-section" id="structure">
+      <h2><LocalizedText sk="6. Oddeľuj nezávislé časti programu" en="6. Separate independent parts of a program" /></h2>
+      <p><LocalizedText sk="Keď projekt rastie, rozdeľ logiku do modulov podľa ich účelu. Používateľské rozhranie, práca so súbormi a výpočty nemusia byť všetky v jednom súbore." en="As a project grows, group logic into modules by responsibility. User interface, file operations and calculations do not all need to live in one file." /></p>
+      <CopyCodeBlock code={`project/
+    main.py          # program entry point
+    file_reader.py   # reading input files
+    calculations.py  # calculation logic
+    report.py        # formatting the output`} />
+      <p class="clean-code-note"><LocalizedText sk="Ide o príklad možného rozdelenia, nie povinnú štruktúru pre každý malý program. Štruktúra má zodpovedať rozsahu projektu." en="This is one possible layout, not a requirement for every small script. Structure should match the project's size." /></p>
+    </section>
+
+    <section class="clean-code-section" id="type-hints">
+      <h2><LocalizedText sk="7. Používaj type hints tam, kde zlepšujú čitateľnosť" en="7. Use type hints where they improve clarity" /></h2>
+      <p><LocalizedText sk="Typové anotácie dokumentujú očakávané vstupy a výstupy. Samy osebe však za behu programu automaticky nekontrolujú hodnoty." en="Type annotations document expected inputs and outputs. They do not automatically validate values at runtime." /></p>
+      <CopyCodeBlock code={`def calculate_average(values: list[float]) -> float:
+    if not values:
+        raise ValueError("values must not be empty")
+    return sum(values) / len(values)`} />
+    </section>
+
+    <p class="clean-code-footnote"><LocalizedText sk="Tieto pravidlá sú odporúčania, nie mechanické zákazy. Vyberaj ich podľa problému a dodržiavaj konzistentný štýl v celom projekte." en="These are guidelines, not mechanical prohibitions. Apply them to the problem and keep a consistent style throughout the project." /></p>
+  </main>
+</BaseLayout>
+
+<script>
+  document.querySelector<HTMLButtonElement>("#clean-code-print")?.addEventListener("click", () => window.print());
+</script>
