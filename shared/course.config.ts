@@ -9,7 +9,7 @@ export const courseConfig = {
   lectureLength: "50-60 minút",
   mainTeachingWeeks: 10,
   currentWeek: 6,
-  unlockAll: false,
+  unlockAll: true,
   timezone: "Europe/Bratislava",
   lecturer: {
     name: "Ing. Marek Horváth, PhD.",

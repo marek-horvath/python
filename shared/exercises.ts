@@ -164,7 +164,7 @@ export const exercises: Exercise[] = [
     slug: "07-data-science",
     title: "Cvičenie 07",
     subtitle: "Data Science v Pythone",
-    description: "pandas workflow nad datasetom výsledkov: preskúmanie, cleaning, filtering, groupby, merge a grafy.",
+    description: "Audit syntetických výsledkov úloh: kvalita dát, identita odovzdania, úspešnosť, študijné programy a obhájiteľné grafy.",
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/07-data-science/",
@@ -175,7 +175,7 @@ export const exercises: Exercise[] = [
       en: {
         title: "Exercise 07",
         subtitle: "Data Science in Python",
-        description: "pandas workflow over a results dataset: inspection, cleaning, filtering, groupby, merge and charts.",
+        description: "An audit of synthetic assignment results: data quality, submission identity, pass rates, study programmes and defensible charts.",
         duration: "approximately 90 min"
       }
     }
@@ -186,7 +186,7 @@ export const exercises: Exercise[] = [
     slug: "08-web-scraping-browser",
     title: "Cvičenie 08",
     subtitle: "Web scraping a automatizácia prehliadača",
-    description: "Lokálny HTML katalóg, BeautifulSoup parser, pagination, HTTPX a jednoduchá Playwright interakcia.",
+    description: "Lokálny program podujatí: parsovanie časov a stavov, stránkovanie, HTTPX, dynamické vyhľadávanie a Playwright.",
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/08-web-scraping-browser/",
@@ -197,7 +197,7 @@ export const exercises: Exercise[] = [
       en: {
         title: "Exercise 08",
         subtitle: "Web Scraping and Browser Automation",
-        description: "A local HTML catalog, BeautifulSoup parser, pagination, HTTPX and a simple Playwright interaction.",
+        description: "A local event programme: times and statuses, pagination, HTTPX, dynamic search and Playwright.",
         duration: "approximately 90 min"
       }
     }
@@ -208,7 +208,7 @@ export const exercises: Exercise[] = [
     slug: "09-bezpecne-programovanie",
     title: "Cvičenie 09",
     subtitle: "Bezpečné programovanie v Pythone",
-    description: "Security cleanup problematického Python projektu: SQL, subprocess, secrets, paths, pickle a Bandit.",
+    description: "Obranná revízia registrácie dobrovoľníkov: vstupy, SQL, vlastníctvo príloh, menovky, jednorazové pozvánky a testy.",
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/09-bezpecne-programovanie/",
@@ -219,7 +219,7 @@ export const exercises: Exercise[] = [
       en: {
         title: "Exercise 09",
         subtitle: "Secure Programming in Python",
-        description: "Security cleanup of a problematic Python project: SQL, subprocess, secrets, paths, pickle and Bandit.",
+        description: "A defensive review of volunteer registration: input, SQL, attachment ownership, badges, single-use invitations and tests.",
         duration: "approximately 90 min"
       }
     }
@@ -230,7 +230,7 @@ export const exercises: Exercise[] = [
     slug: "10-web-backend",
     title: "Cvičenie 10",
     subtitle: "Web backend v Pythone",
-    description: "FastAPI Notes API s Pydantic modelmi, SQLite/SQLAlchemy, status kódmi, validáciou a API testami.",
+    description: "Notes API s jedinečnými názvami, archívom, doslovným vyhľadávaním, čiastočnými úpravami a izolovanými databázovými testami.",
     duration: "približne 90 minút",
     status: "published",
     href: "/cvicenia/10-web-backend/",
@@ -241,7 +241,7 @@ export const exercises: Exercise[] = [
       en: {
         title: "Exercise 10",
         subtitle: "Web Backends in Python",
-        description: "A FastAPI Notes API with Pydantic models, SQLite/SQLAlchemy, status codes, validation and API tests.",
+        description: "A Notes API with unique titles, archiving, literal search, partial updates and isolated database tests.",
         duration: "approximately 90 min"
       }
     }

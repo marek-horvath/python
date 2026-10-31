@@ -44,3 +44,10 @@ student_id,course,task,points,duration_minutes,attempts,submitted_at,language
 40,HTTP,api_client,33,120,4,2026-11-24,Python
 41,Databázy,sqlite,57,105,3,2026-12-01,Python
 42,GUI,callbacks,88,78,1,2026-10-27,Python
+43,Python,functions,101,40,1,2026-10-06,Python
+44,GUI,canvas,-5,60,1,2026-11-02,Python
+45,Testovanie,pytest,70,0,1,2026-11-09,Python
+46,HTTP,api_client,unknown,75,2,not-a-date,Python
+47,Python,collections,80,60,0,2026-09-28,Python
+1,Python,functions,84,57,2,2026-10-05,Python
+43,Python,collections,85,65,1,2026-09-28,Python

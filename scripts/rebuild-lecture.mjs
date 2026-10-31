@@ -1640,7 +1640,15 @@ function renderSlide(pptx, item, index, language) {
 }
 
 async function build(language) {
-  const sourceLecture = lectureId === "01" && language === "sk" ? lecture01Technical : lecture;
+  const expandedModules = {
+    "07": "../weeks/week-07-data-science/deck.mjs",
+    "08": "../weeks/week-08-web-scraping-browser/deck.mjs",
+    "09": "../weeks/week-09-security/deck.mjs",
+    "10": "../weeks/week-10-web-backend/deck.mjs"
+  };
+  const sourceLecture = language === "sk" && expandedModules[lectureId]
+    ? (await import(expandedModules[lectureId]))[`lecture${lectureId}Expanded`]
+    : lectureId === "01" && language === "sk" ? lecture01Technical : lecture;
   deck = sourceLecture.deck;
   const pptx = new pptxgen();
   pptx.layout = "LAYOUT_WIDE";

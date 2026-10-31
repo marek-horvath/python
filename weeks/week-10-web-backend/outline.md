@@ -2,7 +2,7 @@
 
 ## Hlavná myšlienka
 
-Vlastné API prirodzene spája viacero tém predmetu: typing, HTTP, JSON, validáciu, databázy, testovanie, konfiguráciu a bezpečnosť.
+Slovenská prednáška má 45 slajdov. Jedno rezervačné API prepája typing, HTTP, JSON, Pydantic 2, SQLAlchemy 2, validáciu, testovanie, konfiguráciu a bezpečnosť. Obsah pre generátor je v `deck.mjs`; verejným vizuálnym zdrojom zostáva PPTX. Anglická verzia sa nemení.
 
 ## Narrative flow
 
@@ -14,7 +14,7 @@ Vlastné API prirodzene spája viacero tém predmetu: typing, HTTP, JSON, valid�
 6. In-memory prototyp a prechod na databázu.
 7. SQLAlchemy, `Depends` a separation of concerns.
 8. OpenAPI, `/docs`, validačné chyby.
-9. Security, CORS, middleware, async, testing a deployment.
+9. Izolované testovacie SQLite, dependency override, konfigurácia, auth, CORS, async a deployment.
 10. Zhrnutie celého semestra.
 
 ## Learning outcomes
@@ -36,9 +36,13 @@ Po prednáške má študent vedieť:
 Od prázdneho súboru k API:
 
 1. `FastAPI()`;
-2. GET `/`;
+2. GET `/health`;
 3. path parameter;
 4. Pydantic model;
 5. POST endpoint;
 6. `/docs`;
-7. ak zostane čas, jednoduchý database call.
+7. pamäťový CRUD nahradiť databázovým CRUD vrátane detailu;
+8. overiť create → read v odlišných requestoch nad izolovanou databázou;
+9. overiť odmietnutie nuly hostí s inak platným vstupom.
+
+Pri prechode na SQLAlchemy sa pôvodné pamäťové routy nahrádzajú, neregistrujú duplicitne. `PATCH` v tomto kontrakte interpretuje `null` ako bez zmeny. Otvorený výučbový prototyp nie je kompletný autentifikovaný rezervačný systém ani riešenie časových kolízií.

@@ -2,19 +2,18 @@ from fastapi.testclient import TestClient
 
 from main import app
 
-client = TestClient(app)
 
-
-def test_root():
-    response = client.get("/")
+def test_root(monkeypatch):
+    monkeypatch.setattr("main.create_schema", lambda: None)
+    with TestClient(app) as client:
+        response = client.get("/")
     assert response.status_code == 200
+    assert response.json() == {"message": "Notes API"}
 
 
-def test_create_item():
-    # Úloha 9: doplňte test POST /items.
-    pass
+def test_create_then_read():
+    raise NotImplementedError("Use an isolated database and implement the scenario.")
 
 
-def test_missing_item_returns_404():
-    # Úloha 9: doplňte test GET /items/{id} pre neexistujúci objekt.
-    pass
+def test_patch_can_clear_body():
+    raise NotImplementedError("Distinguish an omitted body from explicit null.")

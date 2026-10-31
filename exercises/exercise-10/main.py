@@ -1,16 +1,23 @@
+from contextlib import asynccontextmanager
+
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
 from database import create_schema, get_session
-from models import Note
 from schemas import NoteCreate, NoteResponse, NoteUpdate
 
-app = FastAPI(title="Notes API")
 
-
-@app.on_event("startup")
-def startup() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     create_schema()
+    yield
+
+
+app = FastAPI(title="Notes API", lifespan=lifespan)
+
+
+def unfinished():
+    raise HTTPException(status_code=501, detail="Exercise implementation required")
 
 
 @app.get("/")
@@ -21,36 +28,29 @@ def root() -> dict[str, str]:
 @app.get("/items", response_model=list[NoteResponse])
 def list_items(
     limit: int = 20,
+    offset: int = 0,
+    q: str | None = None,
+    include_archived: bool = False,
     session: Session = Depends(get_session),
 ):
-    # Úloha 3 a 6: vráťte najviac limit poznámok a doplňte filtre.
-    return []
+    unfinished()
 
 
 @app.get("/items/{item_id}", response_model=NoteResponse)
 def get_item(item_id: int, session: Session = Depends(get_session)):
-    # Úloha 3: načítajte detail alebo vyhoďte HTTPException 404.
-    raise HTTPException(status_code=404, detail="Item not found")
+    unfinished()
 
 
 @app.post("/items", response_model=NoteResponse, status_code=201)
 def create_item(data: NoteCreate, session: Session = Depends(get_session)):
-    # Úloha 4: vytvorte Note a ošetrite duplicate title.
-    note = Note(title=data.title, body=data.body)
-    return note
+    unfinished()
 
 
 @app.patch("/items/{item_id}", response_model=NoteResponse)
-def update_item(
-    item_id: int,
-    data: NoteUpdate,
-    session: Session = Depends(get_session),
-):
-    # Úloha 5: upravte poznámku alebo vráťte 404.
-    raise HTTPException(status_code=404, detail="Item not found")
+def update_item(item_id: int, data: NoteUpdate, session: Session = Depends(get_session)):
+    unfinished()
 
 
 @app.delete("/items/{item_id}", status_code=204)
 def delete_item(item_id: int, session: Session = Depends(get_session)):
-    # Úloha 5: odstráňte poznámku alebo vráťte 404.
-    return None
+    unfinished()

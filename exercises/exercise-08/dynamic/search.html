@@ -1,25 +1,76 @@
 <!doctype html>
-<html lang="sk">
-  <head>
-    <meta charset="utf-8" />
-    <title>Search demo</title>
-  </head>
-  <body>
-    <main>
-      <h1>Search demo</h1>
-      <label>
-        Search
-        <input id="search" type="text" />
-      </label>
-      <button id="button">Search</button>
-      <p id="result"></p>
-    </main>
-    <script>
-      const input = document.querySelector("#search");
-      const result = document.querySelector("#result");
-      document.querySelector("#button").addEventListener("click", () => {
-        result.textContent = `Výsledok pre: ${input.value}`;
-      });
-    </script>
-  </body>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Campus event search</title></head>
+<body>
+<main>
+  <h1>Campus event search</h1>
+  <form id="search-form">
+    <label for="query">Search events</label>
+    <input id="query" name="query" type="search">
+    <button type="submit">Search</button>
+  </form>
+  <p role="status" aria-live="polite">Ready</p>
+  <section id="results" aria-label="Search results" data-state="idle"></section>
+</main>
+<script>
+  const events = [
+    { id: "e01", title: "Python workshop", start: "2026-11-03T15:00:00+01:00", room: "A101", capacity: 20, status: "open" },
+    { id: "e02", title: "Git clinic", start: "2026-11-04T10:00:00+01:00", room: "B201", capacity: 12, status: "full" },
+    { id: "e03", title: "Design review", start: "2026-11-05T13:00:00+01:00", room: null, capacity: 16, status: "open" },
+    { id: "e06", title: "Data clinic", start: "2026-11-05T09:00:00+01:00", room: "A101", capacity: 10, status: "cancelled" },
+    { id: "e08", title: "Python testing lab", start: "2026-11-03T15:00:00+01:00", room: "A101", capacity: 14, status: "open" }
+  ];
+  const results = document.querySelector("#results");
+  const status = document.querySelector('[role="status"]');
+  const button = document.querySelector("button");
+  const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+  function renderEvent(event) {
+    const article = document.createElement("article");
+    article.className = "session";
+    article.dataset.eventId = event.id;
+    article.dataset.status = event.status;
+    const heading = document.createElement("h2");
+    const link = document.createElement("a");
+    link.className = "session-title";
+    link.href = "/events/" + event.id;
+    link.textContent = event.title;
+    heading.append(link);
+    const time = document.createElement("time");
+    time.dateTime = event.start;
+    time.textContent = event.start;
+    article.append(heading, time);
+    if (event.room) {
+      const room = document.createElement("p");
+      room.className = "venue";
+      room.textContent = event.room;
+      article.append(room);
+    }
+    const seats = document.createElement("span");
+    seats.className = "seats";
+    seats.dataset.capacity = String(event.capacity);
+    seats.textContent = event.capacity + " seats";
+    article.append(seats);
+    return article;
+  }
+
+  document.querySelector("#search-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const query = document.querySelector("#query").value.trim().toLowerCase();
+    const matches = events.filter((item) => item.title.toLowerCase().includes(query));
+    button.disabled = true;
+    results.dataset.state = "loading";
+    results.replaceChildren();
+    status.textContent = "Loading";
+    await wait(80);
+    for (const item of matches) {
+      results.append(renderEvent(item));
+      await wait(120);
+    }
+    results.dataset.state = "ready";
+    status.textContent = "Results: " + matches.length;
+    button.disabled = false;
+  });
+</script>
+</body>
 </html>

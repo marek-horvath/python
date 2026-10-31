@@ -2,7 +2,7 @@
 
 ## Hlavná myšlienka
 
-Bezpečnosť nie je samostatná funkcia aplikácie. Je to spôsob práce so vstupmi, súbormi, SQL, secrets, procesmi, závislosťami, chybami a logmi.
+Slovenská prednáška má 45 slajdov a robí bezpečnostnú revíziu malého exportéra reportov. Téma nadväzuje na HTTP, SQL, subprocess a súbory z predchádzajúcich týždňov. Obsah pre generátor je v `deck.mjs`; verejným vizuálnym zdrojom zostáva PPTX. Anglická verzia sa nemení.
 
 ## Narrative flow
 
@@ -11,10 +11,10 @@ Bezpečnosť nie je samostatná funkcia aplikácie. Je to spôsob práce so vstu
 3. SQL injection a command injection.
 4. Nebezpečné vykonávanie a deserializácia: `eval`, `exec`, `pickle`, YAML.
 5. Súbory a path traversal.
-6. Secrets, `.env`, `random` vs. `secrets`.
-7. Hashing, encryption, password storage a overené crypto API.
+6. Secrets, konfigurácia, rotácia pri úniku, `random` vs. `secrets` a životnosť tokenu.
+7. Encoding, hashing, Argon2 password hashing, HMAC a overené šifrovacie API.
 8. HTTPS, dependency security, tooling, logging a error messages.
-9. Security cleanup live demo.
+9. Revízia konkrétnych hraníc exportéra a testy odmietnutých aj povolených prípadov.
 
 ## Learning outcomes
 
@@ -33,8 +33,9 @@ Po prednáške má študent vedieť:
 
 Security cleanup:
 
-1. hardcoded secret -> environment variable;
-2. SQL f-string -> parametrizovaný dotaz;
-3. `shell=True` -> argument list;
-4. `random` token -> `secrets`;
-5. broad except -> konkrétna výnimka.
+1. validovať limit a formát exportu;
+2. SQL f-string nahradiť parametrizovaným dotazom a samostatne overiť vlastníka;
+3. shellový reťazec nahradiť pevným programom a zoznamom overených argumentov;
+4. obmedziť výslednú cestu a pomenovať predpoklady ohľadom symlinkov;
+5. načítať secret z konfigurácie a vytvoriť nepredvídateľný token;
+6. overiť, že log neobsahuje citlivé hodnoty a testy kontrolujú hranice systému.

@@ -2,18 +2,19 @@
 
 ## Hlavná myšlienka
 
-Nie všetky dáta sú dostupné cez API. Ak API neexistuje alebo nestačí, dáta môžu byť v HTML dokumente alebo vzniknúť až po spustení JavaScriptu v prehliadači.
+Slovenská prednáška má 45 slajdov a sleduje produktový katalóg od HTML po štruktúrovaný export. Obsah pre generátor je v `deck.mjs`; verejný slovenský PPTX zostáva vizuálnym zdrojom. Anglická verzia sa v tejto iterácii nemení.
 
 ## Narrative flow
 
 1. API vs. webová stránka.
 2. Minimum HTML a DOM potrebné na scraping.
 3. HTTPX + BeautifulSoup pre statické HTML.
-4. Priebežný príklad katalógu produktov.
+4. Produktový model, `Decimal`, relatívne URL a neúplné karty.
 5. Oddelenie downloadu, parsingu a exportu.
-6. Pagination, duplicity a testovanie parsera.
-7. Dynamické stránky a Playwright.
-8. Etika, robots.txt, rate limiting a krehkosť scraperov.
+6. Fixture testy parsera, snapshot, pagination, allowlist hostiteľa, limity a duplicity.
+7. Dynamický DOM, DevTools Network a Playwright locators.
+8. Auto-wait, signál kompletných výsledkov, load more a virtuálne zoznamy.
+9. Diagnostika, pravidlá zdroja, rate limiting a rozdiel jednotkových a integračných testov.
 
 ## Learning outcomes
 
@@ -23,18 +24,21 @@ Po prednáške má študent vedieť:
 - stiahnuť HTML cez HTTPX;
 - použiť BeautifulSoup a CSS selectors;
 - extrahovať text a atribúty z elementov;
-- vytvoriť štruktúrovaný výstup cez `dataclass`;
+- vytvoriť štruktúrovaný výstup cez `dataclass` a parsovať cenu podľa známeho formátu;
 - pracovať s relatívnymi URL a pagination;
-- rozhodnúť, kedy použiť Playwright;
+- rozhodnúť, kedy použiť Playwright a na ktorý stav čakať;
+- otestovať parser bez internetu a odlíšiť prázdny katalóg od zlyhaného zberu;
 - vysvetliť základné etické a technické riziká scrapingu.
 
 ## Live demo
 
 Odporúčaný postup:
 
-1. stiahnuť HTML cez HTTPX;
-2. vytvoriť `BeautifulSoup`;
-3. nájsť produktové elementy cez selector;
-4. extrahovať text a link;
-5. vytvoriť `Product`;
-6. ak zostane čas, krátky Playwright click.
+1. pripraviť vlastný HTML fragment alebo povolený testovací web;
+2. stiahnuť HTML cez HTTPX a overiť odpoveď;
+3. vytvoriť `BeautifulSoup` a model `Product`;
+4. overiť cenu, názov a URL malými fixture testami;
+5. prejsť obmedzené stránkovanie a exportovať CSV;
+6. na vlastnom dynamickom deme vyplniť formulár, čakať na dohodnutý stav a použiť rovnaký parser.
+
+Adresy `example.com` sú zástupné; nepredstavujú živý katalóg s ukážkovým markupom. `results-ready` je výslovný kontrakt vlastnej testovacej stránky.

@@ -1,17 +1,20 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class NoteCreate(BaseModel):
-    title: str = Field(min_length=1, max_length=120)
+    title: str
     body: str | None = None
+    archived: bool = False
 
 
 class NoteUpdate(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=120)
+    title: str | None = None
     body: str | None = None
+    archived: bool | None = None
 
 
 class NoteResponse(BaseModel):
     id: int
     title: str
     body: str | None
+    archived: bool

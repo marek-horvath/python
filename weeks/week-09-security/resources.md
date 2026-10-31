@@ -8,5 +8,7 @@
 - Bandit — https://bandit.readthedocs.io/
 - pip-audit — https://pypi.org/project/pip-audit/
 - OWASP Cheat Sheet Series — https://cheatsheetseries.owasp.org/
+- OWASP: password storage — https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+- FastAPI: príklad `pwdlib` s Argon2 — https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/
 
 Prednáška používa zdroje ako praktické referencie. Cieľom nie je penetračné testovanie, ale bezpečné programátorské návyky.

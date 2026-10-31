@@ -1,0 +1,60 @@
+---
+import { getExerciseBySlug } from "@shared/exercises";
+import type { Worksheet } from "@shared/worksheet.types";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LocalizedText from "./LocalizedText.astro";
+
+type Props = { worksheet: Worksheet };
+const { worksheet } = Astro.props;
+const exercise = getExerciseBySlug(worksheet.slug);
+if (!exercise) throw new Error(`Unknown exercise: ${worksheet.slug}`);
+if (worksheet.tasks.length !== (exercise.taskCount ?? 10)) {
+  throw new Error(`Unexpected task count: ${worksheet.slug}`);
+}
+const english = exercise.translations?.en;
+const number = String(exercise.number).padStart(2, "0");
+const basePath = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
+
+<BaseLayout
+  title={`${exercise.title}: ${exercise.subtitle}`}
+  titleEn={`${english?.title ?? exercise.title}: ${english?.subtitle ?? exercise.subtitle}`}
+  description={exercise.description}
+  descriptionEn={english?.description ?? exercise.description}
+>
+  <main class="page worksheet-page">
+    <a class="back-inline" href={`${basePath}cvicenia/`} data-i18n-key="exercise.back">← Cvičenia</a>
+    <h1><LocalizedText sk={exercise.title} en={english?.title ?? exercise.title} /></h1>
+    <p class="course-meta"><LocalizedText sk={exercise.subtitle} en={english?.subtitle ?? exercise.subtitle} /></p>
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Príprava" en="Setup" /></h2>
+      <p><LocalizedText {...worksheet.introduction} /></p>
+      <ul>{worksheet.files.map((file) => <li><code>{file}</code></li>)}</ul>
+      <p><a href={`${basePath}downloads/exercise-${number}-starter.zip`}><LocalizedText sk="Stiahnuť štartovacie súbory (ZIP)" en="Download starter files (ZIP)" /></a></p>
+      <pre class="worksheet-code"><code>{worksheet.commands}</code></pre>
+    </section>
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Ciele" en="Goals" /></h2>
+      <ul>{worksheet.goals.map((goal) => <li><LocalizedText {...goal} /></li>)}</ul>
+    </section>
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Úlohy" en="Tasks" /></h2>
+    </section>
+    {worksheet.tasks.map((task, index) => (
+      <section class="worksheet-task">
+        <h2><LocalizedText sk={`Úloha ${index + 1} — ${task.title.sk}`} en={`Task ${index + 1} — ${task.title.en}`} /></h2>
+        <p><LocalizedText {...task.context} /></p>
+        <ul>{task.requirements.map((requirement) => <li><LocalizedText {...requirement} /></li>)}</ul>
+        {task.expected && <pre class="expected-output"><code>{task.expected}</code></pre>}
+      </section>
+    ))}
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Odovzdanie" en="Deliverables" /></h2>
+      <ul>{worksheet.deliverables.map((item) => <li><LocalizedText {...item} /></li>)}</ul>
+    </section>
+    <section class="worksheet-section">
+      <h2><LocalizedText sk="Dokumentácia" en="Documentation" /></h2>
+      <ul>{worksheet.references.map((reference) => <li><a href={reference.href} target="_blank" rel="noreferrer">{reference.title}</a></li>)}</ul>
+    </section>
+  </main>
+</BaseLayout>

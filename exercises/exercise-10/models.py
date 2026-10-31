@@ -11,3 +11,4 @@ class Note(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(unique=True)
     body: Mapped[str | None]
+    archived: Mapped[bool] = mapped_column(default=False)
