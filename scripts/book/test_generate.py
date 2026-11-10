@@ -48,7 +48,7 @@ class HtmlTests(unittest.TestCase):
     def test_table_has_real_columns_and_escaped_values(self):
         result = self.render('<table><tr><th>A</th><th>B</th></tr><tr><td>50%</td><td>x_y</td></tr></table>')
         self.assertIn(r"\begin{longtable}", result)
-        self.assertIn(r"{50\%} & {x\_y}", result)
+        self.assertIn(r"{50\%} & {x\_\allowbreak{}y}", result)
 
     def test_task_count_rejects_incomplete_worksheet(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -88,7 +88,7 @@ class EscapingTests(unittest.TestCase):
     def test_long_inline_identifiers_wrap_without_added_hyphens(self):
         self.assertIn(r"Declarative\allowbreak{}Base", inline("Use `DeclarativeBase`."))
         self.assertIn(r"model\_\allowbreak{}copy", inline("model_copy(update=...)"))
-        self.assertIn(r"copy(\allowbreak{}update=\allowbreak{}...)", inline("model_copy(update=...)"))
+        self.assertIn(r"\textit{model\_\allowbreak{}copy}(\allowbreak{}update=\allowbreak{}...)", inline("model_copy(update=...)"))
 
     def test_verbatim_cannot_be_closed_by_source(self):
         with self.assertRaises(ValueError):

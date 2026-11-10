@@ -58,6 +58,11 @@ Potrebujete Python, XeLaTeX a Biber (TeX Live/MiKTeX) spolu s nástrojmi na exis
 Výsledok je v `dist/book/author/programovanie-v-pythone.pdf`. Po zmene materiálov
 spustite rovnaký príkaz znovu. `npm run book:generate` vytvorí iba LaTeX zdroje.
 
+`npm run book:commentary` vytiahne hovorený výklad do súkromných súborov
+`book/local/commentary/01commentary.md` až `10commentary.md`. Text možno upravovať
+a umiestniť medzi pôvodné ukážky pomocou značiek `<!-- material: N -->`.
+Autorský build tieto vysvetlenia načíta automaticky a zachová ručné úpravy.
+
 Kniha sa automaticky nezverejňuje na webe. Konfiguráciu, šablónu, študentský variant
 a postup prípravy publikácie opisuje [book/README.md](book/README.md).
 

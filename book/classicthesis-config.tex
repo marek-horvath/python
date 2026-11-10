@@ -26,11 +26,15 @@
 \usepackage[a4paper,left=30mm,right=30mm,top=23mm,bottom=25mm,
   includeheadfoot,headheight=15pt,headsep=14pt,footskip=26pt,
   bindingoffset=0pt]{geometry}
-% The upstream running heads put folios outside the text block and alternate
-% sides. Keep their typography, but center both running heads and folios.
+% A stable chapter title is more useful here than the repeated section name
+% "Prednáška". All pages use the same right-aligned head and a restrained rule.
 \clearpairofpagestyles
-\KOMAoptions{headwidth=text,footwidth=text}
-\chead{\headmark}
+\KOMAoptions{headwidth=text,footwidth=text,headsepline=0.35pt}
+\automark{chapter}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
+\renewcommand{\sectionmark}[1]{}
+\setkomafont{pagehead}{\normalfont\small}
+\ohead{\normalfont\small\leftmark}
 \cfoot[\pagemark]{\pagemark}
 % Unicode equivalents of ClassicThesis' original Palatino family.
 \setmainfont{TeX Gyre Pagella}[Numbers=OldStyle]
@@ -42,8 +46,18 @@
 \titleformat{\chapter}[display]{\relax}
   {\makebox[\linewidth][r]{\smash{\color{halfgray}\chapterNumber\thechapter}}}{0pt}
   {\raggedright\spacedallcaps}[\normalsize\vspace*{.8\baselineskip}\titlerule]
-% The upstream spacing and hierarchy stay intact. Color is confined to the
-% cover and restrained syntax highlighting; normal textbook text is black.
+% Distinguish topic headings from both prose and italic technical vocabulary.
+% Keep the upstream chapter treatment; give smaller headings explicit weight.
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{0.7em}{}
+\titlespacing*{\section}{0pt}{1.6\baselineskip}{0.65\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.3\baselineskip}{0.5\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{1\baselineskip}{0.4\baselineskip}
+% Paragraphs use one consistent convention, including after headings/lists.
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45\baselineskip plus 1pt minus 0.5pt}
+% Color is confined to the cover and restrained syntax highlighting.
 \colorlet{Maroon}{black}
 \definecolor{muted}{gray}{0.4}
 \hypersetup{unicode=true,hidelinks,bookmarksnumbered=true,

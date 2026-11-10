@@ -79,6 +79,18 @@ class Table:
     source_ids: list[str]
     box: Box
     order: int
+    spanning_rows: list[int] = field(default_factory=list)
+
+
+@dataclass
+class CodeBlock:
+    id: str
+    text: str
+    caption: str
+    source_ids: list[str]
+    box: Box
+    order: int
+    output: bool = False
 
 
 @dataclass
@@ -103,7 +115,7 @@ class Diagram:
 class Slide:
     title: str
     title_id: str
-    items: list[Text | Table | Diagram]
+    items: list[Text | Table | Diagram | CodeBlock]
     excluded: dict[str, str]
     source_text: dict[str, str]
 
@@ -119,6 +131,7 @@ class Slide:
         return {"title": self.title, "objects": len(self.source_text), "converted": len(counted),
                 "excluded": self.excluded, "hashes": {key: sha256(value.encode()).hexdigest() for key, value in self.source_text.items()},
                 "tables": sum(isinstance(item, Table) for item in self.items),
+                "code_blocks": sum(isinstance(item, CodeBlock) for item in self.items),
                 "diagrams": sum(isinstance(item, Diagram) for item in self.items)}
 
 
@@ -235,14 +248,195 @@ def read_slide(archive: ZipFile, part: str) -> Slide:
     tables.extend(views)
     consumed.update(identifier for view in views for identifier in view.source_ids)
     remaining = [item for item in remaining if item.id not in consumed]
+    comparisons = literal_comparisons(remaining)
+    tables.extend(comparisons)
+    consumed.update(identifier for table in comparisons for identifier in table.source_ids)
+    remaining = [item for item in remaining if item.id not in consumed]
     diagram = build_diagram(remaining, shapes)
     if diagram:
         consumed.update(diagram.source_ids)
-    items = [item for item in texts if item.id not in consumed] + tables + ([diagram] if diagram else [])
+    remaining = [item for item in remaining if item.id not in consumed]
+    fragments = semantic_fragments(remaining)
+    consumed.update(identifier for item in fragments for identifier in item.source_ids)
+    items = [item for item in texts if item.id not in consumed] + tables + fragments + ([diagram] if diagram else [])
     items.sort(key=lambda item: item.order)
     slide = Slide(title.text.replace("\n", " "), title.id, items, excluded, source_text)
     slide.coverage()
     return slide
+
+
+def semantic_fragments(texts: list[Text]) -> list[Table | CodeBlock]:
+    """Recover relationships between small slide objects before typesetting.
+
+    These adapters use spatial alignment and source typography, not lecture
+    numbers or titles. Every label, value and code part remains accounted for.
+    """
+    result, used = [], set()
+
+    def remaining():
+        return [item for item in texts if item.id not in used]
+
+    def add_table(identifier, headers, rows, members):
+        used.update(item.id for item in members)
+        result.append(Table(identifier, headers, rows, [item.id for item in members], Box(),
+                            min(item.order for item in members)))
+
+    def bands(candidates):
+        rows = []
+        for item in sorted(candidates, key=lambda item: (item.box.y, item.box.x)):
+            row = next((row for row in rows if abs(row[0].box.cy - item.box.cy) < 0.18), None)
+            if row is None:
+                rows.append([item])
+            else:
+                row.append(item)
+        return [sorted(row, key=lambda item: item.box.x) for row in rows]
+
+    # A Tkinter grid sketch is a real grid, including its spanning title row.
+    columns = [item for item in texts if re.fullmatch(r"column \d+", item.text)]
+    cells = [item for item in texts if not item.mono and re.search(r"row=\d+,\s*column=\d+", item.text)]
+    span = next((item for item in texts if not item.mono and re.search(r"columnspan=\d+", item.text)), None)
+    if len(columns) >= 2 and cells and span and len({round(item.box.y, 1) for item in columns}) == 1:
+        columns.sort(key=lambda item: item.box.x)
+        column_numbers = [int(item.text.split()[-1]) for item in columns]
+        cell_rows = {}
+        for item in cells:
+            row, column = map(int, re.search(r"row=(\d+),\s*column=(\d+)", item.text).groups())
+            if column not in column_numbers:
+                break
+            cell_rows.setdefault(row, [""] * len(columns))[column_numbers.index(column)] = item.text
+        else:
+            members = columns + [span] + cells
+            used.update(item.id for item in members)
+            result.append(Table("layout-grid", [item.text for item in columns], [[span.text]] + [cell_rows[key] for key in sorted(cell_rows)],
+                                [item.id for item in members], Box(), min(item.order for item in members), [0]))
+
+    # Example: values above first / middle / last. Column headings carry the
+    # variable names, so no sequence of isolated values or labels survives.
+    rows = bands([item for item in remaining() if item.mono and item.role == "prose" and "\n" not in item.text])
+    for top, bottom in zip(rows, rows[1:]):
+        if len(top) < 3 or len(top) != len(bottom) or any(item.id in used for item in top + bottom):
+            continue
+        if not (0.3 < bottom[0].box.y - top[0].box.y < 1.6):
+            continue
+        if any(abs(a.box.cx - b.box.cx) > 0.2 for a, b in zip(top, bottom)):
+            continue
+        if all(re.fullmatch(r"[A-Za-z_]\w*", item.text) for item in bottom) and all(re.fullmatch(r"[\d .,+-]+", item.text) for item in top):
+            add_table("named-values", [item.text for item in bottom], [[item.text for item in top]], top + bottom)
+
+    # Multiple rows with a short expression and its result, or a requirement
+    # and its selected collection. Require stable columns across the rows.
+    candidates = [item for item in remaining() if item.role == "prose" and "\n" not in item.text and len(item.text) <= 120]
+    pairs = [row for row in bands(candidates) if len(row) == 2 and any(item.mono for item in row)
+             and row[0].box.x + row[0].box.w <= row[1].box.x + 0.1
+             and (not row[0].mono or re.search(r"[\[\]()=:+*<>]|^\d", row[0].text))]
+    groups = []
+    for pair in pairs:
+        group = next((group for group in groups if all(abs(a.box.x - b.box.x) < 0.25 for a, b in zip(group[0], pair))), None)
+        if group is None:
+            groups.append([pair])
+        else:
+            group.append(pair)
+    for group in groups:
+        if len(group) >= 2:
+            members = [item for pair in group for item in pair]
+            headers = ["Výraz", "Výsledok"] if all(pair[0].mono for pair in group) else ["Požiadavka", "Voľba"]
+            add_table("expression-results", headers, [[a.text, b.text] for a, b in group], members)
+
+    # Vertical key/meaning pairs: operators, module modes, subject areas, etc.
+    pairs, paired = [], set()
+    for key in sorted(remaining(), key=lambda item: item.order):
+        if key.id in paired or not key.mono or key.role != "prose" or "\n" in key.text or len(key.text) > 50:
+            continue
+        if not (re.fullmatch(r"[\w /+-]+", key.text) or key.text in {"==", "!=", "<", ">", "<=", ">=", "is not"}):
+            continue
+        candidates = [item for item in remaining() if item.id not in paired and not item.mono and item.role == "prose"
+                      and len(item.text) <= 250 and 0 <= item.box.y - key.box.y - key.box.h < 0.85
+                      and (abs(item.box.cx - key.box.cx) < 0.25 or abs(item.box.x - key.box.x) < 0.2)]
+        body = min(candidates, key=lambda item: item.box.y, default=None)
+        if body:
+            pairs.append((key, body))
+            paired.update([key.id, body.id])
+    if len(pairs) >= 2:
+        add_table("definitions", ["Zápis / označenie", "Význam"], [[a.text, b.text] for a, b in pairs],
+                  [item for pair in pairs for item in pair])
+
+    # Repeated numeric cells on a single line are one sequence, not six
+    # paragraphs. Preserve each cell in source order without inventing code.
+    for row in bands([item for item in remaining() if item.mono and item.role == "prose" and re.fullmatch(r"[+-]?\d+(?:\.\d+)?", item.text)]):
+        if len(row) >= 3:
+            used.update(item.id for item in row)
+            result.append(CodeBlock("sequence", "    ".join(item.text for item in row), "Hodnoty v poradí",
+                                    [item.id for item in row], row[0].box, min(item.order for item in row), True))
+
+    # A caption belongs to the code/output immediately below it. Group adjacent
+    # pieces of a single listing, including a separate opening assignment line.
+    all_remaining = remaining()
+    headings = {item.id for item in all_remaining if item.mono and item.role == "prose"
+                and item.text.isupper() and len(item.text) <= 50
+                and any(other.mono and other.role == "code" and abs(other.box.x - item.box.x) < 0.35
+                        and 0 <= other.box.y - item.box.y - item.box.h < 1.1 for other in all_remaining)}
+    bodies = [item for item in all_remaining if item.mono and item.role != "label" and item.id not in headings]
+    body_ids = {item.id for item in bodies}
+    for first in sorted(bodies, key=lambda item: item.order):
+        if first.id in used:
+            continue
+        parts = [first]
+        used.add(first.id)
+        while True:
+            previous = parts[-1]
+            candidates = [item for item in bodies if item.id not in used
+                          and abs(item.box.x - previous.box.x) < 0.15
+                          and 0 <= item.box.y - previous.box.y - previous.box.h < 0.35
+                          and item.order > previous.order]
+            following = min(candidates, key=lambda item: item.box.y, default=None)
+            if following is None:
+                break
+            # A non-code object between fragments starts another explanation.
+            if any(previous.order < item.order < following.order and not item.mono for item in remaining()):
+                break
+            parts.append(following)
+            used.add(following.id)
+        captions = [item for item in remaining() if item.id not in body_ids
+                    and item.mono and (item.role == "label" or item.id in headings) and "\n" not in item.text
+                    and abs(item.box.x - first.box.x) < 0.35
+                    and 0 <= first.box.y - item.box.y - item.box.h < 1.1]
+        caption = " / ".join(item.text for item in sorted(captions, key=lambda item: item.box.y))
+        used.update(item.id for item in captions)
+        explicit_output = any(re.search(r"\b(?:OUTPUT|VÝSTUP|RESULT)\b", item.text, re.I) for item in captions)
+        is_code = any(item.role == "code" for item in parts)
+        # Recognize an assignment whose left-hand side is an unpacking pattern.
+        is_code = is_code or bool(re.match(r"^[\w*, ]+\s*=(?!=)", first.text))
+        is_code = is_code or bool(re.fullmatch(r"[A-Za-z_]\w*(?:\.\w+)*\(.*\)", first.text, re.S))
+        result.append(CodeBlock("listing-" + first.id, "\n".join(item.text for item in parts), caption,
+                                [item.id for item in captions + parts], first.box,
+                                min(item.order for item in captions + parts), explicit_output or not is_code))
+    return result
+
+
+def literal_comparisons(texts: list[Text]) -> list[Table]:
+    """Keep short input literals and their side-by-side properties together.
+
+    Empty/space-only strings need more context than an isolated pair of quotes.
+    Adapt only the explicit literal + bullet comparison, not arbitrary columns.
+    """
+    labels = [item for item in texts if re.fullmatch(r'''"[ \t]*"|'[ \t]*' ''', item.text, re.X)]
+    pairs, used = [], set()
+    for label in sorted(labels, key=lambda item: (item.box.y, item.box.x)):
+        candidates = [item for item in texts if item.id not in used and item.id != label.id
+                      and any(paragraph.bullet for paragraph in item.paragraphs)
+                      and abs(item.box.x - label.box.x) < 0.35
+                      and 0 <= item.box.y - label.box.y - label.box.h < 1.2]
+        body = min(candidates, key=lambda item: item.box.y, default=None)
+        if body:
+            pairs.append((label, body))
+            used.update([label.id, body.id])
+    if len(pairs) < 2 or max(label.box.y for label, _ in pairs) - min(label.box.y for label, _ in pairs) > 0.3:
+        return []
+    pairs.sort(key=lambda pair: pair[0].box.x)
+    return [Table("literal-comparison", ["Vstup", "Vlastnosti a očakávané správanie"],
+                  [[label.text, body.text] for label, body in pairs],
+                  [item.id for pair in pairs for item in pair], Box(),
+                  min(item.order for pair in pairs for item in pair))]
 
 
 def view_tables(texts: list[Text], shapes: list[Shape]) -> list[Table]:
@@ -425,7 +619,11 @@ def native_table(table: Table, inline: Callable[[str], str], caption: str, label
 
     if table.headers:
         output.extend([row(table.headers), "\\midrule\n\\endfirsthead\n", row(table.headers), "\\midrule\n\\endhead\n"])
-    output.extend(row(cells) for cells in table.rows)
+    for index, cells in enumerate(table.rows):
+        if index in table.spanning_rows:
+            output.append(r"\multicolumn{" + str(count) + r"}{@{}p{\linewidth}@{}}{" + inline(" ".join(cells)) + r"} \\" + "\n")
+        else:
+            output.append(row(cells))
     output.append("\\bottomrule\n\\end{longtable}\n}\n")
     return "".join(output)
 

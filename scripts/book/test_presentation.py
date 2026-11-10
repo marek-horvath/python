@@ -3,7 +3,7 @@ import unittest
 from zipfile import ZipFile
 
 from generate import inline, table_inline, tex
-from presentation import Box, Diagram, Table, Text, native_diagram, native_table, read_slide
+from presentation import Box, CodeBlock, Diagram, Table, Text, Paragraph, native_diagram, native_table, read_slide, semantic_fragments
 
 
 PREFIX = '<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><p:cSld><p:spTree>'
@@ -26,6 +26,20 @@ def archive(content):
 
 
 class PresentationTests(unittest.TestCase):
+    def test_empty_and_whitespace_comparison_retains_inputs_and_their_properties(self):
+        content = shape("1", "Empty inputs", .7, 1, size=3200)
+        content += shape("2", '&quot;&quot;', 1, 2, w=4)
+        content += shape("3", "Zero length", 1, 2.7, w=4).replace("<a:p>", "<a:p><a:pPr><a:buChar char='•'/></a:pPr>")
+        content += shape("4", '&quot;   &quot;', 7, 2, w=4)
+        content += shape("5", "Whitespace", 7, 2.7, w=4).replace("<a:p>", "<a:p><a:pPr><a:buChar char='•'/></a:pPr>")
+        with archive(content) as source:
+            slide = read_slide(source, "ppt/slides/slide1.xml")
+        table = next(item for item in slide.items if isinstance(item, Table))
+        self.assertEqual(table.rows, [['""', 'Zero length'], ['"   "', 'Whitespace']])
+        self.assertEqual(slide.coverage()["converted"], 5)
+        rendered = native_table(table, table_inline, "Inputs", "inputs")
+        self.assertEqual(rendered.count(r"\textvisiblespace{}"), 3)
+
     def test_native_table_cells_and_separate_headers_are_all_preserved(self):
         title = shape("1", "Data model", .7, 1, size=3200)
         headers = shape("2", "Key", .8, 2.1, w=1.7) + shape("3", "Value", 2.8, 2.1, w=1.7)
@@ -60,7 +74,7 @@ class PresentationTests(unittest.TestCase):
     def test_one_line_code_result_zero_is_not_treated_as_slide_metadata(self):
         with archive(shape("1", "Result", .7, 1, size=3200) + shape("2", "00", .7, 3, mono=True)) as source:
             slide = read_slide(source, "ppt/slides/slide1.xml")
-        self.assertTrue(any(isinstance(item, Text) and item.text == "00" for item in slide.items))
+        self.assertTrue(any(isinstance(item, CodeBlock) and item.text == "00" for item in slide.items))
         self.assertEqual(slide.coverage()["objects"], 2)
 
     def test_vertical_chevrons_do_not_connect_independent_project_columns(self):
@@ -88,6 +102,79 @@ class PresentationTests(unittest.TestCase):
         table = Table("test", ["Input", "Result"], [["[1, 2]", "2"]], [], Box(), 0)
         output = native_table(table, tex, "Count", "count")
         self.assertIn("{[1, 2]} & {2}", output)
+
+
+class FragmentTests(unittest.TestCase):
+    def text(self, identifier, value, x, y, width=2, height=.3, mono=True, role="prose"):
+        return Text(identifier, [Paragraph(value)], Box(x, y, width, height), 1800, mono, False, int(identifier), role)
+
+    def test_operator_meanings_are_rows_and_the_caption_stays_with_its_code(self):
+        items = [self.text("1", "==", 1, 2), self.text("2", "porovnáva hodnoty", .5, 2.6, width=3, mono=False),
+                 self.text("3", "is", 1, 3.3), self.text("4", "porovnáva identitu", .5, 3.9, width=3, mono=False),
+                 self.text("5", "identity check", 6, 2, role="label"), self.text("6", "value is None", 6, 2.6, role="code")]
+        converted = semantic_fragments(items)
+        table = next(item for item in converted if isinstance(item, Table))
+        block = next(item for item in converted if isinstance(item, CodeBlock))
+        self.assertEqual(table.rows, [["==", "porovnáva hodnoty"], ["is", "porovnáva identitu"]])
+        self.assertEqual(block.caption, "identity check")
+        self.assertEqual(block.text, "value is None")
+        self.assertEqual(sorted(identifier for item in converted for identifier in item.source_ids), [str(n) for n in range(1, 7)])
+
+    def test_unpacking_uses_named_columns_and_one_assignment_block(self):
+        items = [self.text("1", "first, *middle, last = values", 1, 1, width=9)]
+        for index, (value, name, x, width) in enumerate([("10", "first", 1, 1), ("20   30   40   50", "middle", 3, 4), ("60", "last", 9, 1)]):
+            items.extend([self.text(str(index * 2 + 2), value, x, 3, width), self.text(str(index * 2 + 3), name, x, 4, width)])
+        converted = semantic_fragments(items)
+        table = next(item for item in converted if isinstance(item, Table))
+        block = next(item for item in converted if isinstance(item, CodeBlock))
+        self.assertEqual(table.headers, ["first", "middle", "last"])
+        self.assertEqual(table.rows, [["10", "20   30   40   50", "60"]])
+        self.assertEqual(block.text, "first, *middle, last = values")
+        self.assertFalse(block.output)
+
+    def test_subject_areas_keep_their_libraries_instead_of_pairing_two_headings(self):
+        items = [self.text("1", "AUTOMATIZÁCIA", 1, 2, width=4), self.text("2", "pathlib · subprocess", 1, 2.6, width=4, mono=False),
+                 self.text("3", "DÁTA", 7, 2, width=4), self.text("4", "NumPy · pandas", 7, 2.6, width=4, mono=False),
+                 self.text("5", "WEB", 1, 4, width=4), self.text("6", "FastAPI", 1, 4.6, width=4, mono=False),
+                 self.text("7", "DESKTOP", 7, 4, width=4), self.text("8", "Tkinter", 7, 4.6, width=4, mono=False)]
+        table = semantic_fragments(items)[0]
+        self.assertEqual(table.rows, [["AUTOMATIZÁCIA", "pathlib · subprocess"], ["DÁTA", "NumPy · pandas"], ["WEB", "FastAPI"], ["DESKTOP", "Tkinter"]])
+        self.assertEqual(len(table.source_ids), 8)
+
+    def test_expression_results_keep_each_expression_with_its_value(self):
+        items = [self.text("1", "values[:3]", 1, 2), self.text("2", "[10, 20, 30]", 4, 2, width=4),
+                 self.text("3", "values[::2]", 1, 3), self.text("4", "[10, 30, 50]", 4, 3, width=4)]
+        table = semantic_fragments(items)[0]
+        self.assertEqual(table.headers, ["Výraz", "Výsledok"])
+        self.assertEqual(table.rows[0], ["values[:3]", "[10, 20, 30]"])
+        self.assertEqual(table.rows[1], ["values[::2]", "[10, 30, 50]"])
+
+    def test_adjacent_listing_parts_keep_newlines_and_output_is_marked_separately(self):
+        items = [self.text("1", "python", 1, 1.5, height=.2, role="label"),
+                 self.text("2", "results = [", 1, 2, role="code"),
+                 self.text("3", '    Result("Anna", 92),\n]', 1, 2.5, height=.8, role="code"),
+                 self.text("4", "OUTPUT", 7, 1.5, height=.2, role="label"), self.text("5", "92", 7, 2)]
+        blocks = semantic_fragments(items)
+        source = next(item for item in blocks if item.caption == "python")
+        output = next(item for item in blocks if item.caption == "OUTPUT")
+        self.assertEqual(source.text, 'results = [\n    Result("Anna", 92),\n]')
+        self.assertFalse(source.output)
+        self.assertTrue(output.output)
+        self.assertEqual(output.text, "92")
+
+    def test_grid_sketch_does_not_consume_the_python_program_as_a_cell(self):
+        source = 'title.grid(row=0, column=0, columnspan=2)\nentry.grid(row=1, column=0)'
+        items = [self.text("1", "column 0", 1, 2, role="label"), self.text("2", "column 1", 4, 2, role="label"),
+                 self.text("3", "nadpis · columnspan=2", 1, 2.7, width=5, mono=False),
+                 self.text("4", "Entry · row=1, column=0", 1, 4, mono=False), self.text("5", "Button · row=1, column=1", 4, 4, mono=False),
+                 self.text("6", "python", 8, 2, role="label"), self.text("7", source, 8, 2.6, width=4, height=1, role="code")]
+        converted = semantic_fragments(items)
+        table = next(item for item in converted if isinstance(item, Table))
+        block = next(item for item in converted if isinstance(item, CodeBlock))
+        self.assertEqual(table.spanning_rows, [0])
+        self.assertNotIn("7", table.source_ids)
+        self.assertEqual(block.text, source)
+        self.assertIn(r"\multicolumn{2}", native_table(table, table_inline, "Grid", "grid"))
 
 
 if __name__ == "__main__":

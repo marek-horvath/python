@@ -1,8 +1,8 @@
 """Local, dependency-free course -> LaTeX pipeline. Never writes into web/static.
 
-PPTX supplies public content; matching local copies supply optional speaker notes.
+PPTX supplies public content; private Markdown supplies interleaved explanations.
 Worksheets are read from Astro's rendered HTML, not scraped from the network.
-Source files are read only. Run via npm run book:build.
+Presentation/worksheet inputs are read only; private prose imports are synced.
 """
 from __future__ import annotations
 
@@ -21,9 +21,12 @@ import sys
 from urllib.parse import urljoin, urlsplit
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
-from presentation import Text, Table, Diagram, read_slide, native_table, native_diagram
+from presentation import Text, Table, Diagram, CodeBlock, read_slide, native_table, native_diagram
+from commentary import Section, digest, initial_body, material_markers, prose_source, read as read_commentary, synchronize, render as render_commentary
+from terminology import Terminology
 
 ROOT = Path(__file__).resolve().parents[2]
+TERMS = Terminology(ROOT / "book/terms.json")
 NS = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main",
       "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
       "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships"}
@@ -44,6 +47,25 @@ def tex(value: str) -> str:
     return "".join(replacements.get(char, char) for char in str(value))
 
 
+def prose_escape(value: str) -> str:
+    escaped = tex(value).replace("/", r"/\allowbreak{}").replace(r"\_", r"\_\allowbreak{}")
+    escaped = escaped.replace("(", r"(\allowbreak{}")
+    return escaped.replace("=", r"=\allowbreak{}")
+
+
+def prose(value: str) -> str:
+    """Apply the editable lexicon to prose; preserve URLs, paths and literals."""
+    protected = re.compile(r'''https?://[^\s<>]+|(?:[\w./\\-]+\.(?:py|sql|json|csv|txt|md|toml|ya?ml|html|pptx|pdf))\b|"[ \t]*"|'[ \t]*' ''', re.X)
+    result, end = [], 0
+    for match in protected.finditer(value):
+        result.append(TERMS.render(value[end:match.start()], prose_escape))
+        token = match[0]
+        result.append(inline_code(token) if token[0] in "\"'" else prose_escape(token))
+        end = match.end()
+    result.append(TERMS.render(value[end:], prose_escape))
+    return "".join(result)
+
+
 def inline(value: str) -> str:
     """Small, escaped Markdown inline subset; no arbitrary TeX from source text."""
     pattern = r"(`[^`\n]+`|\*\*[^*\n]+\*\*|\[[^\]\n]+\]\(https?://[^)\s]+\)|https?://[^\s]+)"
@@ -52,23 +74,23 @@ def inline(value: str) -> str:
         if part.startswith("`") and part.endswith("`"):
             result.append(inline_code(part[1:-1]))
         elif part.startswith("**") and part.endswith("**"):
-            result.append(r"\textbf{" + tex(part[2:-2]) + "}")
+            result.append(r"\textbf{" + prose(part[2:-2]) + "}")
         elif match := re.fullmatch(r"\[([^]]+)\]\((https?://[^)]+)\)", part):
-            result.append(r"\href{" + tex(match[2]) + "}{" + tex(match[1]) + "}")
+            result.append(r"\href{" + tex(match[2]) + "}{" + prose(match[1]) + "}")
         elif part.startswith(("https://", "http://")):
             result.append(r"\url{" + part.replace("%", r"\%") + "}")
         else:
-            escaped = tex(part).replace("/", r"/\allowbreak{}").replace(r"\_", r"\_\allowbreak{}")
-            # Some slide prose contains API calls without Markdown backticks.
-            # Offer breaks inside their argument lists as well as at underscores.
-            escaped = re.sub(r"(?<=[A-Za-z])\(", lambda _: r"(\allowbreak{}", escaped)
-            result.append(escaped.replace("=", r"=\allowbreak{}"))
+            result.append(prose(part))
     return "".join(result)
 
 
 def inline_code(value: str) -> str:
     # Inline API names can wrap at camel-case boundaries without inserting a
     # hyphen into the identifier. Block listings retain their literal source.
+    if re.fullmatch(r'''"[ \t]*"|'[ \t]*' ''', value, re.X):
+        quote = r"\textquotedbl{}" if value[0] == '"' else r"\textquotesingle{}"
+        spaces = "".join(r"\textvisiblespace{}" if char == " " else r"\textvisiblespace{}" * 4 for char in value[1:-1])
+        return r"\texttt{" + quote + spaces + quote + "}"
     escaped = "".join((r"\allowbreak{}" if index and char.isupper() and value[index - 1].islower() else "")
                       + tex(char) + (r"\allowbreak{}" if char in ";/._,=:-?&[]{}()" else "")
                       for index, char in enumerate(value))
@@ -78,8 +100,15 @@ def inline_code(value: str) -> str:
 def table_inline(value: str) -> str:
     # Technical tokens must wrap at their actual separators rather than using
     # hyphenation intended for Slovak words (or changing straight code quotes).
-    return "".join(inline_code(token) if re.search(r"[_\[\]{}=]|^[?]|\w\.\w", token) and not token.startswith(("http://", "https://")) else inline(token)
-                   for token in re.split(r"(\s+)", value))
+    tokens = re.compile(r'''"[ \t]*"|'[ \t]*'|https?://[^\s]+|[^\s]*[_\[\]{}=][^\s]*|\?[^\s]+|\w+(?:\.\w+)+''')
+    output, end = [], 0
+    for match in tokens.finditer(value):
+        output.append(inline(value[end:match.start()]))
+        token = match[0]
+        output.append(inline(token) if token.startswith(("http://", "https://")) else inline_code(token))
+        end = match.end()
+    output.append(inline(value[end:]))
+    return "".join(output)
 
 
 def listing_language(value: str, hint: str = "") -> str:
@@ -105,7 +134,7 @@ def listing_language(value: str, hint: str = "") -> str:
     return ""
 
 
-def code(value: str, caption: str = "", label: str = "", language: str = "") -> str:
+def code(value: str, caption: str = "", label: str = "", language: str = "", numbered: bool = True) -> str:
     # Raw data belongs to a verbatim environment, never to the LaTeX parser.
     if r"\end{Code}" in value:
         raise ValueError("Zdroj obsahuje vyhradený terminátor \\end{Code}.")
@@ -113,11 +142,11 @@ def code(value: str, caption: str = "", label: str = "", language: str = "") -> 
     # actual input byte. Use an explicit label supported by portable code fonts.
     heading = ""
     if caption:
-        heading = "\n\\begingroup\n\\needspace{4\\baselineskip}\n\\captionof{listing}{" + tex(caption) + "}"
+        heading = "\n\\begingroup\n\\needspace{4\\baselineskip}\n\\captionof{listing}{" + inline(caption) + "}"
         if label:
             heading += "\\label{" + label + "}"
         heading += "\n\\nopagebreak\n"
-    options = "[language={" + listing_language(value, language) + "}]"
+    options = "[language={" + listing_language(value, language) + "}" + ("" if numbered else ",numbers=none") + "]"
     ending = "\\endgroup\n" if caption else ""
     return heading + "\n\\begin{Code}" + options + "\n" + value.rstrip().replace("␠", "[SPACE]") + "\n\\end{Code}\n" + ending
 
@@ -157,7 +186,7 @@ def markdown(value: str, level: int = 2) -> str:
             flush()
             end_list()
             command = ["section", "subsection", "subsubsection"][min(level + len(heading[1]) - 2, 2)]
-            output.append(f"\\{command}*{{{tex(heading[2])}}}\n")
+            output.append(f"\\{command}*{{{inline(heading[2])}}}\n")
         elif item := re.match(r"^\s*(?:[-*]|\d+\.)\s+(.+)$", line):
             flush()
             kind = "enumerate" if re.match(r"\s*\d+\.", line) else "itemize"
@@ -242,7 +271,8 @@ def visible_text(node: Node) -> str:
 
 def html_tex(node: Node | str, base_url: str) -> str:
     if isinstance(node, str):
-        return tex(re.sub(r"\s+", " ", node)).replace("/", r"/\allowbreak{}")
+        parts = re.split(r'''("[ \t]*"|'[ \t]*')''', node)
+        return prose("".join(part if index % 2 else re.sub(r"\s+", " ", part) for index, part in enumerate(parts)))
     if not visible(node) or "back-inline" in node.attrs.get("class", ""):
         return ""
     content = lambda: "".join(html_tex(child, base_url) for child in node.children)
@@ -251,9 +281,9 @@ def html_tex(node: Node | str, base_url: str) -> str:
     if node.tag in {"h2", "h3", "h4", "h5", "h6"}:
         if "data-book-exercise" in node.attrs:
             title = re.sub(r"^Úloha\s+\d+\s*(?:[—–-]\s*)?", "", visible_text(node).strip())
-            return "\n\\exerciseheading{" + node.attrs["data-book-exercise"] + "}{" + tex(title) + "}\n"
+            return "\n\\exerciseheading{" + node.attrs["data-book-exercise"] + "}{" + inline(title) + "}\n"
         command = "subsection" if node.tag == "h2" else "subsubsection"
-        return f"\n\\{command}*{{{tex(visible_text(node).strip())}}}\n"
+        return f"\n\\{command}*{{{inline(visible_text(node).strip())}}}\n"
     if node.tag == "pre":
         hint = node.attrs.get("aria-label", "")
         for element in [node, *node.find("code")]:
@@ -294,7 +324,7 @@ def html_tex(node: Node | str, base_url: str) -> str:
         spec = "@{}" + (r">{\raggedright\arraybackslash}p{" + width + "}") * count + "@{}"
         output = ["\n{\\small\n\\begin{longtable}{" + spec + "}\n"]
         if node.attrs.get("data-book-caption"):
-            output.append("\\caption{" + tex(node.attrs["data-book-caption"]) + "}\\label{" + node.attrs["data-book-label"] + r"}\\" + "\n")
+            output.append("\\caption{" + inline(node.attrs["data-book-caption"]) + "}\\label{" + node.attrs["data-book-label"] + r"}\\" + "\n")
         output.append("\\toprule\n")
         for index, row in enumerate(cells):
             entries = []
@@ -434,6 +464,17 @@ def visual_bytes(archive: ZipFile, name: str) -> bytes:
     return ET.tostring(doc)
 
 
+def slide_fingerprints(archive: ZipFile) -> dict[str, str]:
+    """Bind editable prose to visual content, order and shared visual resources."""
+    slides = slide_order(archive)
+    resources = ("ppt/media/", "ppt/slideLayouts/slideLayout", "ppt/slideMasters/slideMaster", "ppt/theme/")
+    context = json.dumps({"slides": slides, "resources": {
+        name: sha256(visual_bytes(archive, name)).hexdigest()
+        for name in sorted(archive.namelist()) if name.startswith(resources)
+    }}, sort_keys=True).encode()
+    return {slide: sha256(context + visual_bytes(archive, slide)).hexdigest() for slide in slides}
+
+
 class Book:
     def __init__(self, metadata: dict, config: dict, output: Path, student: bool):
         self.metadata, self.config, self.output, self.student = metadata, config, output, student
@@ -442,6 +483,7 @@ class Book:
         self.stats: list[dict] = []
         self.coverage: dict[str, dict] = {}
         self.references: dict[str, dict] = {}
+        self.commentaries: dict[int, tuple[Path, dict[int, Section]]] = {}
         self.reviews = {}
         review_path = ROOT / "book/local/review.json"
         if review_path.exists():
@@ -493,10 +535,63 @@ class Book:
                 key = "ref-" + sha256(url.encode()).hexdigest()[:16]
                 self.references.setdefault(key, {"title": title, "url": url})
 
+    def prepare_commentary(self, week: dict, presentation: dict) -> tuple[Path, dict[int, Section]]:
+        number = week["number"]
+        if number in self.commentaries:
+            return self.commentaries[number]
+        path = ROOT / presentation["source"]["sk"]
+        private_path = path.with_name(path.stem + "-commented.pptx")
+        text_path = ROOT / "book/local/commentary" / f"{number:02}commentary.md"
+        # Once extracted, the Markdown works on another computer without the
+        # private PPTX. Missing input must never erase an existing explanation.
+        if text_path.exists() and not private_path.exists():
+            result = read_commentary(text_path)[1]
+            incoming = []
+            with ZipFile(path) as public:
+                fingerprints = slide_fingerprints(public)
+                slides = slide_order(public)
+                for index, section in result.items():
+                    if index <= len(slides) and section.visual == fingerprints[slides[index - 1]]:
+                        converted = read_slide(public, slides[index - 1])
+                        if len(material_markers(section.body)) != len(converted.items):
+                            body = initial_body(prose_source(section.body), converted.items)
+                            incoming.append(Section(section.number, section.part, section.visual, section.notes,
+                                                    digest(body), section.title, body))
+                            continue
+                    incoming.append(section)
+            result, issues = synchronize(text_path, f"{number:02}: {week['title']}", incoming)
+            self.issues.extend(issues)
+        else:
+            incoming = []
+            with ZipFile(path) as public:
+                public_slides = slide_order(public)
+                public_hashes = slide_fingerprints(public)
+                private = ZipFile(private_path) if private_path.exists() else None
+                try:
+                    private_slides = slide_order(private) if private else []
+                    private_hashes = slide_fingerprints(private) if private else {}
+                    for index in range(max(len(public_slides), len(private_slides))):
+                        part = public_slides[index] if index < len(public_slides) else private_slides[index]
+                        converted = read_slide(public if index < len(public_slides) else private, part)
+                        note_part = private_slides[index] if index < len(private_slides) else None
+                        notes = speaker_notes(private, note_part) if note_part else ""
+                        # Retain even stale notes in Markdown, but their old
+                        # visual fingerprint prevents attaching them to new code.
+                        visual = private_hashes[note_part] if notes else public_hashes.get(part, private_hashes.get(part))
+                        body = initial_body(notes, converted.items)
+                        incoming.append(Section(index + 1, note_part if notes else part, visual,
+                                                digest(notes), digest(body), converted.title, body))
+                finally:
+                    if private:
+                        private.close()
+            result, issues = synchronize(text_path, f"{number:02}: {week['title']}", incoming)
+            self.issues.extend(issues)
+        self.commentaries[number] = (text_path, result)
+        return text_path, result
+
     def lecture(self, week: dict, presentation: dict) -> tuple[str, int, int]:
         path = ROOT / presentation["source"]["sk"]
         self.source(path, "presentation")
-        private_path = path.with_name(path.stem + "-commented.pptx")
         prose = ROOT / "book/local/chapters" / f"{week['number']:02}.md"
         if prose.exists():
             self.source(prose, "edited-chapter")
@@ -505,56 +600,67 @@ class Book:
                 count = len(slide_order(public))
             return markdown(prose.read_text(encoding="utf-8"), 2), count, 0
         output, notes_count = [], 0
+        commentary_path, sections = None, {}
+        if self.config.get("notes", True) and (not self.student or self.config.get("studentCommentary", True)):
+            commentary_path, sections = self.prepare_commentary(week, presentation)
+            self.source(commentary_path, "lecture-commentary")
+            private_path = path.with_name(path.stem + "-commented.pptx")
+            if private_path.exists():
+                self.source(private_path, "speaker-notes-origin")
         with ZipFile(path) as public:
             slides = slide_order(public)
-            private = None
-            matching_slides: set[str] = set()
-            if not self.student and self.config.get("notes", True):
-                if private_path.exists():
-                    candidate = ZipFile(private_path)
-                    matching_slides = matching_note_slides(public, candidate)
-                    if matching_slides:
-                        private = candidate
-                        self.source(private_path, "speaker-notes")
+            fingerprints = slide_fingerprints(public) if sections else {}
+            missing, stale = [], []
+            for index, slide in enumerate(slides, 1):
+                converted = read_slide(public, slide)
+                key = f"{week['number']:02}-{index:03}"
+                self.coverage[key] = converted.coverage()
+                output.append(r"\subsection*{" + inline(converted.title) + "}\n" + f"\\label{{slide-{week['number']:02}-{index}}}\n")
+                materials = []
+                for item_index, item in enumerate(converted.items):
+                    label = f"material-{key}-{item_index}"
+                    if isinstance(item, Table):
+                        materials.append(native_table(item, table_inline, inline(converted.title), label))
+                    elif isinstance(item, Diagram):
+                        materials.append(native_diagram(item, table_inline, inline(converted.title), label))
+                    elif isinstance(item, CodeBlock):
+                        caption = converted.title + (" — " + item.caption if item.caption else " — výstup" if item.output else "")
+                        materials.append(code(item.text, caption, label, "text" if item.output else "", not item.output))
+                    elif item.role == "code" or (item.mono and "\n" in item.text):
+                        materials.append(code(item.text, converted.title, label))
+                    elif item.role == "label":
+                        materials.append("\n{\\small\\itshape " + tex(item.text) + "}\\par\n")
+                    elif any(paragraph.bullet for paragraph in item.paragraphs):
+                        materials.append("\\begin{itemize}\n" + "".join("\\item " + inline(paragraph.text) + "\n" for paragraph in item.paragraphs if paragraph.text.strip()) + "\\end{itemize}\n")
                     else:
-                        candidate.close()
-                        self.issues.append(f"Prednáška {week['number']:02}: commented PPTX nezodpovedá verejnému decku; poznámky vynechané.")
-                else:
-                    self.issues.append(f"Prednáška {week['number']:02}: chýba lokálna commented PPTX.")
-            try:
-                for index, slide in enumerate(slides, 1):
-                    converted = read_slide(public, slide)
-                    key = f"{week['number']:02}-{index:03}"
-                    self.coverage[key] = converted.coverage()
-                    output.append(r"\subsection*{" + tex(converted.title) + "}\n" + f"\\label{{slide-{week['number']:02}-{index}}}\n")
-                    for item_index, item in enumerate(converted.items):
-                        label = f"material-{key}-{item_index}"
-                        if isinstance(item, Table):
-                            output.append(native_table(item, table_inline, tex(converted.title), label))
-                        elif isinstance(item, Diagram):
-                            output.append(native_diagram(item, table_inline, tex(converted.title), label))
-                        elif item.role == "code" or (item.mono and "\n" in item.text):
-                            output.append(code(item.text, converted.title, label))
-                        elif item.role == "label":
-                            output.append("\n{\\small\\itshape " + tex(item.text) + "}\\par\n")
-                        elif any(paragraph.bullet for paragraph in item.paragraphs):
-                            output.append("\\begin{itemize}\n")
-                            output.extend("\\item " + inline(paragraph.text) + "\n" for paragraph in item.paragraphs if paragraph.text.strip())
-                            output.append("\\end{itemize}\n")
+                        render = inline_code if item.mono else inline
+                        if item.mono:
+                            content = render(item.text).replace("\n", "\\newline{}\n")
                         else:
-                            render = inline_code if item.mono else inline
-                            output.append(render(item.text).replace("\n", "\\par\n") + "\n\n")
-                    notes = speaker_notes(private, slide) if private and slide in matching_slides else ""
-                    if notes:
+                            content = render(" ".join(item.text.splitlines()))
+                            if item.bold:
+                                content = r"\textbf{" + content + "}"
+                        materials.append(content + "\n\n")
+                section = sections.get(index)
+                if section and section.part == slide and section.visual == fingerprints[slide]:
+                    try:
+                        content, has_prose = render_commentary(section.body, materials, markdown)
+                    except ValueError as error:
+                        raise ValueError(f"{commentary_path.name}, slajd {index}: {error}") from error
+                    output.append(content)
+                    if has_prose:
                         notes_count += 1
-                        output.append("\n" + inline(notes) + "\n\n")
-                    elif private:
-                        reason = "vizuálny obsah commented snímky sa zmenil" if slide not in matching_slides else "chýbajú poznámky"
-                        self.issues.append(f"Prednáška {week['number']:02}, snímka {index}: {reason}; poznámky vynechané.")
-            finally:
-                if private:
-                    private.close()
-        paths = [path] + ([private_path] if notes_count else [])
+                    else:
+                        missing.append(index)
+                else:
+                    output.extend(materials)
+                    (stale if section else missing).append(index)
+            if commentary_path:
+                if missing:
+                    self.issues.append(f"Prednáška {week['number']:02}: chýba výklad pre slajdy {', '.join(map(str, missing))}; doplňte {commentary_path.name}.")
+                if stale:
+                    self.issues.append(f"Prednáška {week['number']:02}: výklad pre slajdy {', '.join(map(str, stale))} nezodpovedá aktuálnym snímkam; text zostal v {commentary_path.name}, do knihy sa neimportoval.")
+        paths = [path] + ([commentary_path] if commentary_path else [])
         self.reviewed(f"chapter-{week['number']:02}", paths)
         return "".join(output), len(slides), notes_count
 
@@ -637,6 +743,9 @@ class Book:
         self.source(ROOT / "shared/exercises.ts", "metadata")
         self.source(ROOT / "scripts/book/presentation.py", "generator")
         self.source(ROOT / "scripts/book/generate.py", "generator")
+        self.source(ROOT / "scripts/book/commentary.py", "generator")
+        self.source(ROOT / "scripts/book/terminology.py", "generator")
+        self.source(ROOT / "book/terms.json", "terminology")
         template = template_path.read_text(encoding="utf-8")
         vendor_path = ROOT / "book/vendor/classicthesis"
         vendor_manifest = vendor_path / "manifest.json"
@@ -648,7 +757,7 @@ class Book:
                   "UNIVERSITY": self.config.get("university", course["university"]), "FACULTY": self.config.get("faculty", course["faculty"]),
                   "SUBTITLE": self.config["subtitle"], "YEAR": self.config["year"], "PLACE": self.config["place"],
                   "EDITION": self.config["edition"], "REVISION": revision,
-                  "VARIANT": "študentský bez hovorených poznámok a riešení" if self.student else "autorský s lokálnymi poznámkami a implementáciami"}
+                  "VARIANT": "študentský bez referenčných riešení" if self.student else "autorský s lokálnym výkladom a implementáciami"}
         for key, value in values.items():
             template = template.replace(f"@@{key}@@", tex(value))
         # Keep a complete, portable typesetting source directory. The version of
@@ -670,8 +779,17 @@ class Book:
             url = reference["url"].replace("%", r"\%")
             bibliography.append(f"@online{{{key},\n  title = {{{title}}},\n  url = {{{url}}}\n}}\n")
         (self.output / "references.bib").write_text("\n".join(bibliography), encoding="utf-8")
-        template = template.replace("@@PREFACE@@", "Študentský variant obsahuje verejné podklady a zadania." if self.student else
-                                    "Autorský variant zahŕňa aj dostupné hovorené poznámky a lokálne implementácie. Je určený na redakčnú prípravu.")
+        explanation = (" Dostupný výklad z komentárov je priebežne zaradený medzi ukážky."
+                       if self.config.get("notes", True) and (not self.student or self.config.get("studentCommentary", True)) else "")
+        template = template.replace("@@PREFACE@@", ("Študentský variant obsahuje študijné podklady a zadania bez referenčných riešení." if self.student else
+                                    "Autorský variant zahŕňa aj lokálne implementácie. Je určený na redakčnú prípravu.") + explanation)
+        biography = ""
+        if biography_source := self.config.get("authorBiography"):
+            biography_path = (ROOT / biography_source).resolve()
+            self.source(biography_path, "author-biography")
+            biography = ("\\addchap{O autorovi}\n\\noindent\\textbf{" + tex(values["AUTHOR"]) + "}\\par\n"
+                         + markdown(biography_path.read_text(encoding="utf-8-sig"), 2) + "\\cleardoublepage\n")
+        template = template.replace("@@AUTHOR_BIO@@", biography)
         template = template.replace("@@CHAPTERS@@", "".join(chapters)).replace("@@APPENDICES@@", "".join(appendices))
         (self.output / "main.tex").write_text(template, encoding="utf-8")
         report = ["# Stav rukopisu\n", f"Zdrojová revízia: {revision}\n", "| Kapitola | Snímky | Poznámky | Úlohy | Súbory implementácií |", "|---|---:|---:|---:|---:|"]
@@ -685,6 +803,7 @@ class Book:
         manifest = {"revision": revision, "variant": "student" if self.student else "author", "chapters": self.stats, "sources": self.sources, "issues": self.issues,
                     "typesetting": "ClassicThesis 4.1 (f7ff17a17ab62abe24ce9434c4930b350aef91f2)",
                     "native_tables": sum(item["tables"] for item in self.coverage.values()),
+                    "native_code_blocks": sum(item["code_blocks"] for item in self.coverage.values()),
                     "native_diagrams": sum(item["diagrams"] for item in self.coverage.values()),
                     "bibliography_entries": len(self.references)}
         (self.output / "sources.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -743,6 +862,7 @@ def main() -> None:
     parser.add_argument("--config", default="book/book.config.json", type=Path)
     parser.add_argument("--student", action="store_true")
     parser.add_argument("--generate-only", action="store_true")
+    parser.add_argument("--commentary-only", action="store_true")
     parser.add_argument("--skip-web", action="store_true")
     parser.add_argument("--release", action="store_true")
     parser.add_argument("--weeks")
@@ -763,6 +883,15 @@ def main() -> None:
     book = Book(metadata, config, output, args.student)
     if config_path.is_relative_to(ROOT):
         book.source(config_path, "configuration")
+    if args.commentary_only:
+        for week in metadata["weeks"]:
+            if selected is None or week["number"] in selected:
+                presentation = next(item for item in metadata["presentations"] if item["weekNumber"] == week["number"])
+                path, sections = book.prepare_commentary(week, presentation)
+                print(f"{path.relative_to(ROOT)}: {len(sections)} sekcií.", flush=True)
+        for issue in book.issues:
+            print(f"Poznámka: {issue}", flush=True)
+        return
     book.generate(selected, args.release)
     if not args.generate_only:
         compile_pdf(output)

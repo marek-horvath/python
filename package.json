@@ -11,6 +11,7 @@
   "scripts": {
     "book:build": "tsx scripts/build-book.ts",
     "book:generate": "tsx scripts/build-book.ts --generate-only",
+    "book:commentary": "tsx scripts/build-book.ts --commentary-only",
     "book:test": "python -m unittest discover -s scripts/book -p test_*.py",
     "predev": "npm run presentations:render",
     "prebuild": "npm run presentations:render",

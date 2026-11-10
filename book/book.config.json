@@ -4,12 +4,13 @@
   "place": "Košice",
   "edition": "Pracovné vydanie",
   "language": "sk",
+  "authorBiography": "book/author.md",
   "notes": true,
+  "studentCommentary": true,
   "solutions": true,
   "presentationMode": "semantic",
   "examples": true,
   "appendices": [
-    { "route": "projekt", "title": "Semestrálny projekt" },
     { "route": "navody", "title": "Pracovné prostredie a návody" },
     { "route": "cheatsheet", "title": "Referenčný prehľad Pythonu" }
   ]
