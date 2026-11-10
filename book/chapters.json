@@ -1,0 +1,121 @@
+{
+  "1": {
+    "lectureSections": [
+      { "before": "Dynamické typovanie", "title": "Dynamické typovanie a použitie Pythonu" },
+      { "before": "Mená a objekty", "title": "Objekty, identita a kopírovanie" },
+      { "before": "Výber kolekcie", "title": "Kolekcie a spracovanie sekvencií" },
+      { "before": "Rozhranie funkcie", "title": "Návrh funkcií a dátových modelov" },
+      { "before": "Modul a main()", "title": "Moduly, prostredie a spracovanie výsledkov" }
+    ],
+    "exercise": "Úlohy na modelovanie a transformáciu dát",
+    "solutions": "Implementácie dátových transformácií a funkcií",
+    "examples": "Model študenta a experimenty s objektmi",
+    "resources": "Ďalšie čítanie o objektoch, kolekciách a funkciách"
+  },
+  "2": {
+    "lectureSections": [
+      { "before": "Jeden priečinok, jasný cieľ", "title": "Plánovanie organizácie súborov" },
+      { "before": "Relatívna cesta sa číta od aktuálneho miesta", "title": "Cesty, vstupy a pravidlá triedenia" },
+      { "before": "Prvý súvislý program: iba plán", "title": "Od plánu k bezpečnému presunu" },
+      { "before": "Funkcia pomenúva vstup aj bezpečný default", "title": "Funkčné a príkazové rozhranie organizátora" }
+    ],
+    "exercise": "Tvorba bezpečného organizátora súborov",
+    "solutions": "Realizácia triedenia a presúvania súborov",
+    "examples": "Organizácia priečinka a prevod výsledkov z CSV do JSON",
+    "resources": "Dokumentácia ciest, súborov a príkazových rozhraní"
+  },
+  "3": {
+    "lectureSections": [
+      { "before": "Čo bude aplikácia robiť", "title": "Udalosti a priebeh grafickej aplikácie" },
+      { "before": "Najmenšie okno Tkinter", "title": "Zostavenie okna a rozloženie widgetov" },
+      { "before": "Kliknutie je udalosť", "title": "Reakcie na vstup používateľa" },
+      { "before": "Úloha ako dátový záznam", "title": "Dátový stav a obnova rozhrania" },
+      { "before": "Celý program: dáta a funkcie", "title": "Zostavenie a kontrola správcu úloh" }
+    ],
+    "exercise": "Vytvorenie správcu úloh v Tkinteri",
+    "solutions": "Implementácia správcu úloh a jeho udalostí",
+    "resources": "Sprievodcovia Tkinterom a udalosťami rozhrania"
+  },
+  "4": {
+    "lectureSections": [
+      { "before": "Aplikácia ukazuje nesprávny počet", "title": "Reprodukcia chyby a hľadanie príčiny" },
+      { "before": "Najprv pomenujeme kontrakt výpočtu", "title": "Kontrakty a prvý regresný test" },
+      { "before": "Pridanie úlohy má vlastný kontrakt", "title": "Testovanie zmien dátového stavu" },
+      { "before": "Dátové testy a GUI kontrola chránia iné vrstvy", "title": "Od dátových testov ku kvalitnejšiemu návrhu" }
+    ],
+    "exercise": "Audit a oprava kalkulačky zásielok",
+    "solutions": "Dátová vrstva kalkulačky a jej testovacia sada",
+    "examples": "Doménové pravidlá správcu úloh overené testami",
+    "resources": "Nástroje na testovanie, ladenie a kontrolu kvality"
+  },
+  "5": {
+    "lectureSections": [
+      { "before": "Čo bude náš program robiť", "title": "Klient, adresa a výmena HTTP správ" },
+      { "before": "requests je externá knižnica", "title": "Požiadavky v Pythone a spracovanie JSON" },
+      { "before": "Rovnaký názov môže mať viac miest", "title": "Prepojenie geokódovania s údajmi o počasí" },
+      { "before": "Tri odlišné neúspechy", "title": "Zlyhania, obmedzenia a kontrakt API" }
+    ],
+    "exercise": "Report používateľských úloh z JSONPlaceholder API",
+    "solutions": "Klient počasia ako príklad spracovania odpovedí",
+    "examples": "Prepojenie geokódovania a predpovede počasia",
+    "resources": "HTTP, JSON a dokumentácia verejných API"
+  },
+  "6": {
+    "lectureSections": [
+      { "before": "JSON súbor je dobrý začiatok, nie databázový systém.", "title": "Od súboru k relačnému modelu" },
+      { "before": "SQLite a SQL", "title": "Dotazy a zápis údajov v SQLite" },
+      { "before": "Konzistentná zmena", "title": "Transakcie a väzby medzi tabuľkami" },
+      { "before": "ORM až po SQL", "title": "Objektový prístup k databáze cez SQLAlchemy" }
+    ],
+    "exercise": "Databázová vrstva požičovne techniky",
+    "solutions": "Databázové operácie v SQL a cez ORM",
+    "resources": "Referencie SQLite, SQL a SQLAlchemy"
+  },
+  "7": {
+    "lectureSections": [
+      { "before": "Jedna otázka, dva zdroje dát", "title": "Reprodukovateľná dátová analýza" },
+      { "before": "NumPy: operácie nad poľami", "title": "Polia, masky a vektorizácia v NumPy" },
+      { "before": "DataFrame: dáta s pomenovaným významom", "title": "Načítanie a čistenie tabuliek v pandas" },
+      { "before": "Od jednotlivých jázd ku skupinám", "title": "Agregácia a prepájanie dátových zdrojov" },
+      { "before": "Graf ako odpoveď na konkrétnu otázku", "title": "Vizualizácia, interpretácia a audit výsledkov" }
+    ],
+    "exercise": "Analýza úspešnosti a priebehu študentských úloh",
+    "solutions": "Analýza výsledkov kurzov v pandas",
+    "resources": "Príručky NumPy, pandas a vizualizácie dát"
+  },
+  "8": {
+    "lectureSections": [
+      { "before": "Čo má náš program vyrobiť?", "title": "Výber zdroja a návrh zberu dát" },
+      { "before": "Statické HTML", "title": "Parsovanie statického HTML" },
+      { "before": "Testujeme konkrétnu úspešnú extrakciu", "title": "Testovanie parsera, stránkovanie a export" },
+      { "before": "Keď HTML nestačí", "title": "Dynamické stránky a automatizácia prehliadača" },
+      { "before": "Rozumný zber rešpektuje pravidlá a kapacitu", "title": "Pravidlá zberu a overenie celého postupu" }
+    ],
+    "exercise": "Zber a vyhľadávanie programu študentských podujatí",
+    "solutions": "Zber produktového katalógu a ovládanie prehliadača",
+    "resources": "Selektory, parsovanie HTML a nástroje prehliadača"
+  },
+  "9": {
+    "lectureSections": [
+      { "before": "Fungujúci export ešte nemusí byť bezpečný", "title": "Hranice dôvery a validácia vstupov" },
+      { "before": "Dáta nesmú meniť význam príkazu", "title": "Oddelenie údajov od príkazov" },
+      { "before": "Problém: filename môže byť celá cesta", "title": "Bezpečná práca so súborovými cestami" },
+      { "before": "Secrets, kryptografia a prevádzka", "title": "Tajomstvá, tokeny a kryptografické nástroje" },
+      { "before": "HTTPS kontrolu certifikátu nevypíname", "title": "Sieťová komunikácia, závislosti a diagnostika" }
+    ],
+    "exercise": "Revízia registrácie dobrovoľníkov a ochrana príloh",
+    "solutions": "Implementácie validácie, dotazov, súborov a tokenov",
+    "resources": "Odporúčania pre bezpečné rozhrania a kryptografiu"
+  },
+  "10": {
+    "lectureSections": [
+      { "before": "Tentoraz sme na strane servera", "title": "Návrh a spustenie rezervačného API" },
+      { "before": "Validácia a verejný dátový kontrakt", "title": "Validácia dát a operácie nad rezerváciami" },
+      { "before": "Databáza nahradí dočasný stav", "title": "Perzistencia, transakcie a životný cyklus session" },
+      { "before": "Overenie a reálne spustenie", "title": "Izolované testy a prevádzkové nastavenia" }
+    ],
+    "exercise": "Vytvorenie poznámkového API s archívom a vyhľadávaním",
+    "solutions": "Poznámkové API s databázou a testami",
+    "resources": "Dokumentácia FastAPI, Pydantic a databázovej vrstvy"
+  }
+}

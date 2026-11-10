@@ -5,6 +5,7 @@
   "edition": "Pracovné vydanie",
   "language": "sk",
   "authorBiography": "book/author.md",
+  "chapterStructure": "book/chapters.json",
   "notes": true,
   "studentCommentary": true,
   "solutions": true,

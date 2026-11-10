@@ -64,6 +64,26 @@ Každý týždeň tvorí jednu kapitolu. Názvy, autor, univerzita, fakulta a v�
 
 Za predhovorom je samostatná časť **O autorovi**. Meno a tituly preberá z rovnakej centrálnej konfigurácie ako titulný list; stručný medailón sa načítava z `book/author.md`. Cestu určuje `authorBiography` v `book.config.json`. Text možno upravovať v Markdownu a pri ďalšom zostavení sa aktualizuje v oboch variantoch. Hodnota `null` túto časť vynechá. Údaje o autorovi sa nenačítavajú z externého CV priečinka ani zo siete pri každom builde; zdroj medailónu je súčasťou repozitára a jeho kontrolný súčet je v `sources.json`.
 
+### Názvy a tematické členenie kapitol
+
+Knižné členenie je v `book/chapters.json`, jeho cestu určuje `chapterStructure` v konfigurácii. Prednáškový výklad nemá opakovaný nadpis „Prednáška“: po úvode kapitoly nasledujú pomenované tematické časti. Napríklad automatizácia obsahuje plánovanie organizácie súborov, prácu s cestami, bezpečný presun a príkazové rozhranie. Názov úvodného slajdu sa nevypisuje druhýkrát, ak je zhodný s názvom kapitoly; jeho výklad a ukážky sa zachovajú.
+
+Pre každú kapitolu obsahuje profil:
+
+- `lectureSections`: tematické časti s vlastným názvom `title` a názvom prvého zdrojového slajdu `before`;
+- `exercise`: konkrétny názov pracovného listu, napríklad „Audit a oprava kalkulačky zásielok“;
+- `solutions`: pomenovanie skutočného obsahu lokálnych implementácií;
+- `examples`: názov súboru programových ukážok, ak ich kapitola obsahuje;
+- `resources`: pomenovanie príslušnej dokumentácie a ďalšieho čítania.
+
+Tematické časti vstupujú do obsahu knihy. Kotvy sa viažu na názvy slajdov, nie na poradové čísla: vloženie nového slajdu ich neposunie na inú tému. Premenovanie, odstránenie alebo nejednoznačný názov kotvy vyvolá zrozumiteľnú chybu; upravte príslušnú položku v knižnom členení. Časti musia nasledovať v poradí prezentácie. Vlastné úplné Markdown kapitoly v `book/local/chapters/` určujú svoje výkladové nadpisy samy.
+
+Na začiatku tematickej časti jej názov nahrádza samostatný podnadpis prvého slajdu: hneď pod nadpisom začína výklad alebo ukážka. Zlúčenie je evidované v `content-coverage.json` ako `heading_merged_into`; samotný text, kód a kotva slajdu zostávajú zachované. Ďalšie slajdy v téme si ponechávajú vlastné podnadpisy. Mená súborov sa nevypisujú ako ďalšie nadpisy, pretože ich identifikuje cesta a popis príslušnej ukážky. Úvodné nadpisy README a dokumentácie sa pri vložení pod knižný nadpis zlúčia; neskoršie podnadpisy oddelené obsahom sa zachovajú.
+
+V pracovných listoch sa vynechá spoločný nadpis „Úlohy“, ktorý by stál tesne nad prvou číslovanou úlohou. Všetky jednotlivé nadpisy, čísla úloh, zadania a ich vnútorné členenie zostávajú zachované. Toto pravidlo sa uplatňuje iba pri knižnom importe pracovného listu; web nemení.
+
+Názov implementácie nemusí byť rovnaký ako názov aktuálneho cvičenia. Staršie súbory napríklad obsahujú klienta počasia alebo zber produktového katalógu, zatiaľ čo pracovné listy riešia report úloh alebo program podujatí. Ich nadpis preto opisuje skutočné súbory a redakčné upozornenie o neoverených riešeniach zostáva zachované. Úvodný všeobecný titul súboru `resources.md` sa pri vložení pod konkrétny knižný nadpis vynechá; samotné odkazy a vnútorné členenie sa zachovajú.
+
 V kapitole sú:
 
 1. Text a kód zo skutočnej verejnej `.sk.pptx`, nie zo starších `lecture.ts`. Odseky a zoznamy sú priamo sadzený text, kód je označiteľný a zachováva odsadenie. Všetky blokové ukážky majú čísla riadkov a všetky pomenované ukážky majú stabilné odkazy.

@@ -151,8 +151,18 @@ def code(value: str, caption: str = "", label: str = "", language: str = "", num
     return heading + "\n\\begin{Code}" + options + "\n" + value.rstrip().replace("␠", "[SPACE]") + "\n\\end{Code}\n" + ending
 
 
-def markdown(value: str, level: int = 2) -> str:
+def markdown(value: str, level: int = 2, omit_title: bool = False, omit_intro_headings: bool = False) -> str:
     lines = value.splitlines()
+    if omit_title:
+        first = next((index for index, line in enumerate(lines) if line.strip()), None)
+        if first is not None and re.match(r"^#\s+", lines[first]):
+            del lines[first]
+    if omit_intro_headings:
+        while True:
+            first = next((index for index, line in enumerate(lines) if line.strip()), None)
+            if first is None or not re.match(r"^#{1,6}\s+", lines[first]):
+                break
+            del lines[first]
     output, paragraph, listing = [], [], []
     in_code, language, list_kind = False, "", None
 
@@ -273,7 +283,7 @@ def html_tex(node: Node | str, base_url: str) -> str:
     if isinstance(node, str):
         parts = re.split(r'''("[ \t]*"|'[ \t]*')''', node)
         return prose("".join(part if index % 2 else re.sub(r"\s+", " ", part) for index, part in enumerate(parts)))
-    if not visible(node) or "back-inline" in node.attrs.get("class", ""):
+    if not visible(node) or "back-inline" in node.attrs.get("class", "") or node.attrs.get("data-book-skip-heading") == "true":
         return ""
     content = lambda: "".join(html_tex(child, base_url) for child in node.children)
     if node.tag == "h1":
@@ -383,6 +393,12 @@ def page_content(source: Path, base_url: str, expected_tasks: int | None = None)
         tasks = [node for node in main.find("section") if "worksheet-task" in node.attrs.get("class", "").split()]
         if len(tasks) != expected_tasks:
             raise ValueError(f"{source}: očakávaných {expected_tasks} úloh, nájdených {len(tasks)}.")
+    if expected_tasks is not None:
+        # Each task already has its own numbered heading within the named
+        # practical section. A generic group heading only stacks another title.
+        for heading in main.find("h2"):
+            if "data-book-exercise" not in heading.attrs and visible_text(heading).strip() == "Úlohy":
+                heading.attrs["data-book-skip-heading"] = "true"
     return html_tex(main, base_url)
 
 
@@ -475,6 +491,28 @@ def slide_fingerprints(archive: ZipFile) -> dict[str, str]:
     return {slide: sha256(context + visual_bytes(archive, slide)).hexdigest() for slide in slides}
 
 
+def lecture_sections(profile: dict, titles: list[str]) -> dict[int, str]:
+    """Resolve editorial boundaries by unique source title, never slide number."""
+    if not isinstance(profile, dict):
+        raise ValueError("Knižné členenie kapitoly musí byť objekt.")
+    result, previous = {}, -1
+    entries = profile.get("lectureSections", [])
+    if not isinstance(entries, list):
+        raise ValueError("lectureSections musí byť zoznam tematických častí.")
+    for entry in entries:
+        if not isinstance(entry, dict) or any(not isinstance(entry.get(key), str) or not entry[key].strip() for key in ("before", "title")):
+            raise ValueError("Tematická časť potrebuje neprázdny názov a kotvu before.")
+        matches = [index for index, title in enumerate(titles) if title == entry["before"]]
+        if len(matches) != 1:
+            raise ValueError(f"Kotva tematickej časti {entry['before']!r}: očakávaná jedna snímka, nájdených {len(matches)}. Aktualizujte knižné členenie.")
+        position = matches[0]
+        if position <= previous:
+            raise ValueError("Tematické časti musia nasledovať v poradí prezentácie bez opakovania kotiev.")
+        result[position + 1] = entry["title"]
+        previous = position
+    return result
+
+
 class Book:
     def __init__(self, metadata: dict, config: dict, output: Path, student: bool):
         self.metadata, self.config, self.output, self.student = metadata, config, output, student
@@ -485,6 +523,13 @@ class Book:
         self.references: dict[str, dict] = {}
         self.commentaries: dict[int, tuple[Path, dict[int, Section]]] = {}
         self.reviews = {}
+        self.chapter_profiles = {}
+        if structure_source := config.get("chapterStructure"):
+            structure_path = (ROOT / structure_source).resolve()
+            self.source(structure_path, "chapter-structure")
+            self.chapter_profiles = json.loads(structure_path.read_text(encoding="utf-8-sig"))
+            if not isinstance(self.chapter_profiles, dict):
+                raise ValueError("Knižné členenie musí byť objekt s číslami kapitol.")
         review_path = ROOT / "book/local/review.json"
         if review_path.exists():
             self.reviews = json.loads(review_path.read_text(encoding="utf-8"))
@@ -516,10 +561,12 @@ class Book:
         result = []
         for path in paths:
             relative = self.source(path, category)
-            result.append(r"\subsection*{" + tex(path.name) + "}\n\\sourcefile{" + relative + "}\n")
+            # The path and numbered listing caption already identify the file.
+            # A separate filename heading only stacks another title above it.
+            result.append("\\sourcefile{" + relative + "}\n")
             text = path.read_text(encoding="utf-8-sig")
             label = "listing-" + sha256(relative.encode()).hexdigest()[:12]
-            result.append(markdown(text, 3) if path.suffix == ".md" else code(text, path.name, label, path.suffix.lstrip(".")))
+            result.append(markdown(text, 3, omit_intro_headings=True) if path.suffix == ".md" else code(text, path.name, label, path.suffix.lstrip(".")))
         return "".join(result)
 
     def add_references(self, text: str) -> None:
@@ -609,13 +656,27 @@ class Book:
                 self.source(private_path, "speaker-notes-origin")
         with ZipFile(path) as public:
             slides = slide_order(public)
+            converted_slides = [read_slide(public, slide) for slide in slides]
+            profile = self.chapter_profiles.get(str(week["number"]), {})
+            try:
+                boundaries = lecture_sections(profile, [slide.title for slide in converted_slides])
+            except ValueError as error:
+                raise ValueError(f"Kapitola {week['number']:02}: {error}") from error
             fingerprints = slide_fingerprints(public) if sections else {}
             missing, stale = [], []
-            for index, slide in enumerate(slides, 1):
-                converted = read_slide(public, slide)
+            for index, (slide, converted) in enumerate(zip(slides, converted_slides), 1):
                 key = f"{week['number']:02}-{index:03}"
                 self.coverage[key] = converted.coverage()
-                output.append(r"\subsection*{" + inline(converted.title) + "}\n" + f"\\label{{slide-{week['number']:02}-{index}}}\n")
+                if index in boundaries:
+                    label = sha256(converted.title.encode()).hexdigest()[:10]
+                    output.append("\\section{" + inline(boundaries[index]) + "}\n" + f"\\label{{topic-{week['number']:02}-{label}}}\n")
+                    self.coverage[key]["heading_merged_into"] = boundaries[index]
+                # The source title is already the book chapter's title. Keep
+                # its note/content and anchor, without printing it a second time.
+                duplicate_title = index == 1 and converted.title == week.get("title")
+                if not duplicate_title and index not in boundaries:
+                    output.append(r"\subsection*{" + inline(converted.title) + "}\n")
+                output.append(f"\\label{{slide-{week['number']:02}-{index}}}\n")
                 materials = []
                 for item_index, item in enumerate(converted.items):
                     label = f"material-{key}-{item_index}"
@@ -668,10 +729,24 @@ class Book:
         number = week["number"]
         presentation = next(item for item in self.metadata["presentations"] if item["weekNumber"] == number)
         exercise = next(item for item in self.metadata["exercises"] if item["weekNumber"] == number)
+        profile = self.chapter_profiles.get(str(number), {})
+        if not isinstance(profile, dict):
+            raise ValueError(f"Kapitola {number:02}: knižné členenie musí byť objekt.")
+        subtitles = {
+            "exercise": "Úlohy: " + exercise.get("subtitle", week["title"]),
+            "solutions": "Implementácie k téme: " + week["title"],
+            "examples": "Programové ukážky: " + week["title"],
+            "resources": "Čítanie k téme: " + week["title"],
+        }
+        for key, default in subtitles.items():
+            title = profile.get(key, default)
+            if not isinstance(title, str) or not title.strip():
+                raise ValueError(f"Kapitola {number:02}: nadpis {key} musí byť neprázdny text.")
+            subtitles[key] = "\\section{" + inline(title) + "}\n"
         output = ["\\chapter{" + tex(week["title"]) + "}\n", f"\\label{{chapter-{number:02}}}\n", tex(week["description"]) + "\n\n"]
         output.append("\\subsection*{Po preštudovaní kapitoly}\n\\begin{itemize}\n")
         output.extend("\\item " + inline(item) + "\n" for item in week["learningOutcomes"])
-        output.append("\\end{itemize}\n\\section{Prednáška}\n")
+        output.append("\\end{itemize}\n")
         lecture, slide_count, notes_count = self.lecture(week, presentation)
         output.append(lecture)
         html = ROOT / "dist/web/cvicenia" / exercise["slug"] / "index.html"
@@ -682,7 +757,7 @@ class Book:
         local_worksheet = ROOT / week["folder"] / "worksheet.ts"
         if local_worksheet.exists():
             self.source(local_worksheet, "worksheet-source")
-        output.extend(["\\section{Praktické cvičenie}\n", page_content(html, self.base_url, exercise.get("taskCount", 10))])
+        output.extend([subtitles["exercise"], page_content(html, self.base_url, exercise.get("taskCount", 10))])
         starter = ROOT / exercise.get("starterPath", f"exercises/exercise-{number:02}")
         for source in self.text_files(starter):
             self.source(source, "starter")
@@ -692,7 +767,7 @@ class Book:
         # These are reference materials, never executed by the generator.
         solutions = self.text_files(ROOT / exercise.get("solutionPath", f"solutions/exercise-{number:02}"))
         if not self.student and self.config.get("solutions", True):
-            output.append("\\section{Referenčné implementácie}\n")
+            output.append(subtitles["solutions"])
             if not solutions:
                 self.issues.append(f"Cvičenie {number:02}: chýbajú referenčné implementácie.")
                 output.append(r"\editorial{Referenčné riešenie zatiaľ nie je doplnené.}" + "\n")
@@ -704,11 +779,11 @@ class Book:
                 output.append(self.listings(solutions, "solution"))
         examples = self.text_files(ROOT / week["folder"] / "examples")
         if examples and self.config.get("examples", True):
-            output.extend(["\\section{Doplnkové príklady}\n", self.listings(examples, "example")])
+            output.extend([subtitles["examples"], self.listings(examples, "example")])
         resources = ROOT / week["folder"] / "resources.md"
         if resources.exists():
             self.source(resources, "references")
-            output.extend(["\\section{Zdroje a ďalšie čítanie}\n", markdown(resources.read_text(encoding="utf-8"), 3)])
+            output.extend([subtitles["resources"], markdown(resources.read_text(encoding="utf-8"), 3, omit_intro_headings=True)])
             self.add_references(resources.read_text(encoding="utf-8"))
         self.source(ROOT / week["folder"] / "outline.md", "outline")
         self.stats.append({"week": number, "slides": slide_count, "notes": notes_count,

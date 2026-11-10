@@ -231,3 +231,64 @@ Autorská verzia má 376 strán, SHA-256
 `2ce2bf7a79dd3c431f4fe8da0d7c12007d4dbb9b7bf3db2f942a9c1a6d65f5fd`;
 študentská 336 strán, SHA-256
 `4e98b85e03c4e799b3b712ed98d98b5dec0fff8888d04902db0dc957e9719250`.
+
+## Doplnenie: konkrétne názvy a tematické členenie
+
+Opakovaný nadpis „Prednáška“ bol odstránený. Výklad desiatich kapitol teraz
+obsahuje 45 tematických častí, napríklad „Objekty, identita a kopírovanie“,
+„Od plánu k bezpečnému presunu“ alebo „Perzistencia, transakcie a životný cyklus
+session“. Názvy úloh, implementácií, programových ukážok a dokumentácie opisujú
+skutočný obsah každej kapitoly. Všeobecný prvý nadpis zdrojového resources.md
+sa nezobrazuje opakovane pod novým konkrétnym nadpisom. Zhoda názvu úvodného
+slajdu a kapitoly sa sadzí iba raz; výklad a materiály úvodného slajdu sa zachovali.
+
+Členenie je v `book/chapters.json`, ukotvené na jednoznačné názvy snímok.
+Vloženie snímky neposunie hranicu na inú tému; neplatné alebo premenované kotvy
+zastavia generovanie s konkrétnou chybou. Profil je evidovaný v zdrojovom manifeste.
+Názvy starších implementácií zostali verné ich obsahu, aj keď sa ich zadanie
+odlišuje od aktuálneho pracovného listu.
+
+| Variant | Strany | Položky častí v obsahu | Presahy hbox/vbox | SHA-256 PDF |
+|---|---:|---:|---:|---|
+| Autorský | 379 | 79 | 0 | `39eabc1e447476bae2611afd69763b94f30f717de98673df8c42bb370f2943ba` |
+| Študentský | 339 | 69 | 0 | `82c44ae42ba8db8c48e36d70024d0511d9a45dc9cff88a7f5bcf0d290b7eb483` |
+
+Prešlo 59 testov vrátane posunu kotiev po vložení slajdu, odmietnutia chýbajúcich,
+duplicitných alebo nesprávne zoradených kotiev a zachovania odkazov po vynechaní
+úvodného názvu resources.md. Obe PDF sa skompilovali cez XeLaTeX a Biber bez
+presahov. Obsah ani knižné sekcie už neobsahujú pôvodných päť všeobecných názvov.
+Počty 100 úloh, výkladu k 386 aktuálnym slajdom, 336 blokov a 70 tabuliek sa nezmenili.
+
+Vizuálne bol skontrolovaný obsah na PDF strane 5, začiatok kapitoly o automatizácii
+na strane 43 a prechod k organizátoru súborov na strane 70 študentského PDF.
+Náhľady a kontrolné súčty sú v `.tmp/book-chapter-structure-audit/`.
+
+## Doplnenie: nadpisy bez obsahu medzi nimi
+
+Úvodný podnadpis slajdu bol zlúčený s tematickým nadpisom vo všetkých 45 častiach.
+Výklad sa začína priamo pod názvom témy; zdrojový titul zostáva evidovaný
+v pokrytí a pri príslušných ukážkach. Mená zdrojových súborov už netvoria
+samostatné podnadpisy nad popisom tej istej ukážky. Úvodné nadpisy README
+a dokumentácie sa zlúčili s knižným nadpisom. Osem všeobecných nadpisov „Úlohy“
+nad prvou číslovanou úlohou sa pri knižnom importe vynecháva.
+
+Pôvodná kontrola našla 54 párov bežných nadpisov; po zahrnutí makra číslovaných
+úloh ďalších osem. Konečný audit oboch variantov nenašiel žiadny bezprostredný
+pár nadpisov bez obsahu medzi nimi, vrátane číslovaných úloh a príloh.
+Všetkých 100 číslovaných úloh, 336 blokov ukážok/výstupov, 70 tabuliek a výklad
+k 386 aktuálnym slajdom zostali zachované.
+
+| Variant | Strany | Susediace nadpisy bez obsahu | Presahy hbox/vbox | SHA-256 PDF |
+|---|---:|---:|---:|---|
+| Autorský | 371 | 0 | 0 | `88135ae5a13eb3987b1ebf97d22fa54c7effc24c1cc291bd35f03c2d7aaf0acd` |
+| Študentský | 334 | 0 | 0 | `c2307537aefda014b2d21a660f9a930a8354cabf7234b830964edce579d7efeb` |
+
+Prešlo 63 testov. Nové prípady overujú jediný nadpis na začiatku témy,
+zachovanie jej výkladu a kotvy, súborových ciest, popisov, kódu, odkazov a neskorších
+podnadpisov. Samostatný test chráni číslovanie a obsah úloh po odstránení
+všeobecného nadpisu skupiny. Obe PDF sa úspešne skompilovali bez presahov.
+
+Vizuálne sa kontrolovala téma plánovania súborov na strane 42, zdrojové ukážky
+na strane 40, dokumentácia na strane 76 a prvá číslovaná úloha na strane 30
+študentského PDF. Náhľady a posledné kontrolné súčty sú v
+`.tmp/book-single-heading-audit/`.
