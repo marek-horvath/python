@@ -2,6 +2,7 @@
 import { getPresentationSummary } from "@shared/presentations";
 import { weekTitleTranslations } from "@shared/i18n";
 import { isWeekReleased } from "@shared/publication";
+import { selfStudyNotice } from "@shared/schedule";
 import LocalizedText from "../../components/LocalizedText.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
@@ -29,6 +30,7 @@ const items = getPresentationSummary();
                 <span class="number">{String(week.number).padStart(2, "0")}</span>
                 <span>
                   <strong><LocalizedText sk={week.title} en={titleEn} /></strong>
+                  {week.lectureMode === "self-study" && <small class="lecture-mode"><LocalizedText {...selfStudyNotice} /></small>}
                   {!released && <small class="availability" data-i18n-key="ui.unavailable">zatiaľ nedostupné</small>}
                 </span>
               </a>

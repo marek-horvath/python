@@ -90,6 +90,7 @@ export const courseConfig = {
       number: 9,
       title: "Bezpečné programovanie v Pythone",
       slug: "09-bezpecne-programovanie",
+      lectureMode: "self-study",
       lectureAt: "2026-11-16T09:10:00+01:00"
     },
     {

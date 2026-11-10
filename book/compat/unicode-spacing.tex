@@ -1,0 +1,5 @@
+% ClassicThesis 4.1 uses soul to space Palatino small capitals. Its byte-font
+% measurements fail on Unicode Slovak text under XeTeX. fontspec applies the
+% same upstream tracking (0.15em / 0.075em) directly to the OpenType font.
+\DeclareRobustCommand{\spacedallcaps}[1]{{\addfontfeatures{LetterSpace=15}\MakeTextUppercase{#1}}}
+\DeclareRobustCommand{\spacedlowsmallcaps}[1]{{\addfontfeatures{LetterSpace=7.5}\scshape\MakeTextLowercase{#1}}}

@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/ClassicThesis/ClassicThesis",
+  "revision": "f7ff17a17ab62abe24ce9434c4930b350aef91f2",
+  "version": "4.1",
+  "files": {
+    "classicthesis.sty": "d86c69ff1e18faec0d9faf6f0dc492dc403d6750dc04724bf0902555d9f10cdf",
+    "COPYING": "40a607e086bc23f10e2953bcccdccdf857d26ad40b8cbdc974df96c678f51afa",
+    "upstream-config.tex": "efbdf0d3f64be1312935fb30f4ff9b5c119c8b204c3ad7270812dd89b42dfdc2"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "subtitle": "Prednášky, praktické úlohy a referenčné implementácie",
+  "year": "2026",
+  "place": "Košice",
+  "edition": "Pracovné vydanie",
+  "language": "sk",
+  "notes": true,
+  "solutions": true,
+  "presentationMode": "semantic",
+  "examples": true,
+  "appendices": [
+    { "route": "projekt", "title": "Semestrálny projekt" },
+    { "route": "navody", "title": "Pracovné prostredie a návody" },
+    { "route": "cheatsheet", "title": "Referenčný prehľad Pythonu" }
+  ]
+}

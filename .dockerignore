@@ -6,6 +6,7 @@
 dist
 node_modules
 solutions
+book/local
 local-analytics
 
 .env

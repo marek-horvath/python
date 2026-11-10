@@ -1,0 +1,51 @@
+% Project configuration, based on the upstream classicthesis-config.tex.
+% Typography, headings, text block and running heads belong to ClassicThesis.
+% The vendored upstream package is deliberately not modified.
+\PassOptionsToPackage{dvipsnames}{xcolor}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{slovak}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,array,tabularx}
+\usepackage{graphicx}
+\usepackage{caption}
+\captionsetup{format=hang,font=small,labelfont=normalfont}
+\usepackage{fvextra}
+\usepackage{enumitem}
+\usepackage{needspace}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage[backend=biber,style=numeric,sorting=none,giveninits=true,maxbibnames=6]{biblatex}
+\addbibresource{references.bib}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage[eulerchapternumbers,floatperchapter,manychapters]{classicthesis}
+% Unicode equivalents of ClassicThesis' original Palatino family.
+\setmainfont{TeX Gyre Pagella}[Numbers=OldStyle]
+\setsansfont{TeX Gyre Heros}
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
+\input{unicode-spacing}
+% Monochrome publication; the upstream spacing and hierarchy stay intact.
+\colorlet{Maroon}{black}
+\definecolor{muted}{gray}{0.4}
+\hypersetup{unicode=true,hidelinks,bookmarksnumbered=true,
+  pdftitle={@@TITLE@@},pdfauthor={@@AUTHOR@@},pdfsubject={@@SUBTITLE@@}}
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{1}
+\setlist{topsep=0.4\baselineskip,itemsep=0.15\baselineskip,parsep=0pt,leftmargin=*}
+\setlength{\emergencystretch}{3em}
+\clubpenalty=10000
+\widowpenalty=10000
+\DefineVerbatimEnvironment{Code}{Verbatim}{fontsize=\small,breaklines=true,breakanywhere=true,
+  tabsize=4,numbersep=5pt,frame=none,xleftmargin=1.2em}
+\DeclareCaptionType{listing}[Ukážka][Zoznam ukážok]
+\captionsetup[listing]{hypcap=false}
+\counterwithin{listing}{chapter}
+\newcommand{\sourcefile}[1]{\par{\footnotesize\color{muted}Zdroj: \path{#1}}\par}
+\newcommand{\editorial}[1]{\par\smallskip{\small\itshape Redakčná poznámka. #1}\par\smallskip}
+\newcounter{exercise}[chapter]
+\renewcommand{\theexercise}{\thechapter.\arabic{exercise}}
+\newcommand{\exerciseheading}[2]{\refstepcounter{exercise}\label{#1}\subsection*{Úloha \theexercise\enspace #2}}
+\tikzset{book node/.style={draw=black!65,line width=0.35pt,rectangle,align=center,
+  font=\footnotesize,inner xsep=3pt,inner ysep=4pt},
+  book edge/.style={-{Stealth[length=3pt,width=3pt]},line width=0.4pt}}

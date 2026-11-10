@@ -1,0 +1,78 @@
+% ClassicThesis 4.1, pinned from the repository requested by the author.
+\RequirePackage{fix-cm}
+\documentclass[twoside,openright,titlepage,numbers=noenddot,headinclude,
+  footinclude=true,cleardoublepage=empty,BCOR=5mm,paper=a4,fontsize=11pt]{scrbook}
+\input{classicthesis-config}
+\begin{document}
+\frenchspacing
+\raggedbottom
+\frontmatter
+\pagestyle{plain}
+\begin{titlepage}
+  \begin{addmargin}[-1cm]{-3cm}
+  \begin{center}
+    \large
+    \hfill
+    \vfill
+    \begingroup
+      \spacedallcaps{@@TITLE@@}\\\bigskip
+    \endgroup
+    \spacedlowsmallcaps{@@AUTHOR@@}
+    \vfill
+    @@SUBTITLE@@\\\bigskip
+    @@UNIVERSITY@@\\\medskip
+    @@FACULTY@@\\\bigskip
+    @@PLACE@@, @@YEAR@@\\\medskip
+    @@EDITION@@
+    \vfill
+  \end{center}
+  \end{addmargin}
+\end{titlepage}
+\thispagestyle{empty}
+\noindent\spacedlowsmallcaps{@@TITLE@@}\par
+@@AUTHOR@@\par
+@@UNIVERSITY@@\\@@FACULTY@@\par
+@@PLACE@@, @@YEAR@@\par
+\vfill
+Tento súbor je automaticky zostaveným pracovným rukopisom zo zdrojov predmetu.
+Nejde o recenzovanú publikáciu. Bibliografické údaje vydavateľa, recenzentov a ISBN
+sa doplnia až pri príprave konkrétneho vydania.
+\par\smallskip
+Zdrojová revízia: \texttt{@@REVISION@@}. Variant: @@VARIANT@@.
+\cleardoublepage
+\pagestyle{scrheadings}
+\addchap{Predhovor}
+Tieto skriptá sú určené študentom informatiky, ktorí už poznajú základy programovania.
+Python predstavujú ako nástroj na automatizáciu, tvorbu aplikácií, prácu s dátami
+a webovými službami. Každá kapitola spája výklad s praktickým cvičením.
+\par
+Pri štúdiu najprv predpovedajte správanie ukážky, potom ju spustite a zmeňte vstupy.
+Úlohy riešte pred čítaním referenčných implementácií. Pri použití AI nástrojov
+musíte vedieť výsledný program vysvetliť a overiť jeho správanie.
+\par
+Kód z prednášok obsahuje aj zámerne chybné ukážky používané pri rozbore problému.
+Ich význam určujú nadpisy a sprievodný výklad. Jednotlivé fragmenty nemusia byť
+samostatne spustiteľnými programami. Vstupné dáta a štartovacie súbory zostávajú
+v adresároch cvičení a odkazuje na ne sprievodný zoznam zdrojov.
+\par
+@@PREFACE@@
+\cleardoublepage
+\pdfbookmark[0]{\contentsname}{contents}
+\tableofcontents
+\mainmatter
+@@CHAPTERS@@
+\appendix
+@@APPENDICES@@
+\backmatter
+\nocite{*}
+\printbibliography[heading=bibintoc,title={Literatúra a dokumentácia}]
+\addchap{Poznámka k zostaveniu}
+Obsah vzniká z verejných slovenských prezentácií, pracovných listov a lokálnych
+autorských podkladov. Generátor nemení vstupné súbory. Každý zahrnutý zdroj má
+kontrolný súčet v sprievodnom súbore \texttt{sources.json}. Zmenou zdroja sa pri
+ďalšej kompilácii aktualizuje príslušná kapitola.
+\par
+Text prednášok je prevzatý z výučbových materiálov; hovorené poznámky ešte vyžadujú
+redakčnú úpravu do knižného jazyka. Aktuálny stav úplnosti a revízií uvádza
+sprievodný súbor \texttt{report.md}.
+\end{document}

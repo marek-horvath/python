@@ -49,6 +49,18 @@ prenositeľná konfigurácia ju zámerne nespúšťa.
 
 Pôvodné spúšťanie cez `npm install` a `npm run dev` zostáva nezmenené.
 
+## Lokálne skriptá a kniha
+
+`npm run book:build` zostaví slovenské skriptá z desiatich prednášok, dostupných
+hovorených poznámok, cvičení, lokálnych implementácií a príloh. Používa pôvodný
+ClassicThesis a natívne tabuľky, kód a TikZ diagramy bez obrázkov slajdov.
+Potrebujete Python, XeLaTeX a Biber (TeX Live/MiKTeX) spolu s nástrojmi na existujúci rendering webových prezentácií.
+Výsledok je v `dist/book/author/programovanie-v-pythone.pdf`. Po zmene materiálov
+spustite rovnaký príkaz znovu. `npm run book:generate` vytvorí iba LaTeX zdroje.
+
+Kniha sa automaticky nezverejňuje na webe. Konfiguráciu, šablónu, študentský variant
+a postup prípravy publikácie opisuje [book/README.md](book/README.md).
+
 ## Hlavné príkazy
 
 ```bash

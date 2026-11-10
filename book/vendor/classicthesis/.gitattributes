@@ -1,0 +1,5 @@
+# Preserve upstream bytes so pinned SHA-256 values survive Windows/Linux checkouts.
+# Keep upstream whitespace intact rather than editing the original distribution.
+classicthesis.sty -text -whitespace
+COPYING -text -whitespace
+upstream-config.tex -text -whitespace

@@ -1,0 +1,9 @@
+% Compatibility bridge for unmodified ClassicThesis 4.1 on current KOMA-Script.
+% scrpage2 was retired; scrlayer-scrpage provides its page-style interface.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{scrpage2}[2026/11/10 ClassicThesis compatibility bridge]
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{scrlayer-scrpage}}
+\ProcessOptions\relax
+\RequirePackage{scrlayer-scrpage}
+\providecommand{\clearscrheadings}{\clearpairofpagestyles}
+\endinput

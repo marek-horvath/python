@@ -573,6 +573,18 @@ p {
   color: var(--accent);
 }
 
+.next-lecture__mode,
+.lecture-mode {
+  color: var(--accent);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.lecture-mode {
+  display: block;
+  margin-top: 6px;
+}
+
 .semester-item.is-current .semester-item__body a,
 .semester-item.is-current .semester-item__body strong {
   font-weight: 800;

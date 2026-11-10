@@ -10,16 +10,19 @@ import {
 import { formatLectureDate, isWeekReleased } from "@shared/publication";
 import { lectures } from "@shared/lectures";
 import { weeks } from "@shared/weeks";
+import { getNextScheduledWeek, selfStudyNotice } from "@shared/schedule";
+import LocalizedText from "../components/LocalizedText.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const activeWeek = weeks.find((week) => week.number === courseConfig.currentWeek) ?? weeks[0];
+const activeWeek = getNextScheduledWeek(weeks);
 const activeWeekTitles = activeWeek
   ? weekTitleTranslations[activeWeek.number] ?? { sk: activeWeek.title, en: activeWeek.title }
   : { sk: "", en: "" };
-const firstScheduledWeek = weeks.find((week) => week.lectureAt);
 const announcementEndpoint = import.meta.env.PUBLIC_ANALYTICS_API_URL ?? (process.env.GITHUB_PAGES === "true" ? "" : "/api/analytics");
 const lectureSchedule = weeks.map((week) => ({
   number: week.number,
+  lectureAt: week.lectureAt,
+  lectureMode: week.lectureMode,
   titles: weekTitleTranslations[week.number] ?? { sk: week.title, en: week.title }
 }));
 
@@ -30,6 +33,7 @@ const homeTranslations = {
   },
   "home.nextAria": { sk: "Najbližšia prednáška", en: "Next lecture" },
   "home.nextLabel": { sk: "Najbližšie", en: "Next" },
+  "home.selfStudy": selfStudyNotice,
   "home.noNext": { sk: "Ďalší termín bude doplnený.", en: "The next date will be added later." },
   "home.countdownLoading": { sk: "Odpočet sa načítava.", en: "Loading countdown." },
   "home.semesterKicker": { sk: "Semester", en: "Semester" },
@@ -66,8 +70,6 @@ const homeTranslations = {
       <aside
         class="next-lecture"
         data-next-lecture
-        data-first-lecture-at={firstScheduledWeek?.lectureAt ?? ""}
-        data-first-week-number={firstScheduledWeek?.number ?? ""}
         data-week-schedule={JSON.stringify(lectureSchedule)}
         data-timezone={courseConfig.timezone}
         aria-label={translate(homeTranslations, "home.nextAria", "sk")}
@@ -87,6 +89,7 @@ const homeTranslations = {
           </p>
         </div>
         <p class="countdown-value" data-countdown data-i18n-key="home.countdownLoading">Odpočet sa načítava.</p>
+        <p class="next-lecture__mode" data-next-mode hidden={activeWeek?.lectureMode !== "self-study"} data-i18n-key="home.selfStudy">{selfStudyNotice.sk}</p>
         <p class="next-lecture__empty" data-no-next data-i18n-key="home.noNext" hidden>Ďalší termín bude doplnený.</p>
       </aside>
     </section>
@@ -102,10 +105,10 @@ const homeTranslations = {
         <span data-lang="en" hidden>Notice</span>
       </strong>
       <p data-lang="sk" data-announcement-sk>
-        Prednáška 26. 10. 2026 sa neuskutoční. Samostatne si pozrite slajdy k 6. prednáške a vypracujte 6. cvičenie. Prvú časť zadania odovzdajte najneskôr 31. 10. 2026 do 23:59.
+        Prednáška 9 dňa 16. 11. 2026 prebehne formou samostatného štúdia, bez online hovoru. Pozrite si slajdy k bezpečnému programovaniu a vypracujte 9. cvičenie. Materiály zostávajú dostupné.
       </p>
       <p data-lang="en" data-announcement-en hidden>
-        The lecture on 26 October 2026 will not take place. Review the Week 6 slides and complete Exercise 6 independently. Submit the first project milestone by 31 October 2026 at 23:59.
+        Lecture 9 on 16 November 2026 will be independent study, with no online call. Review the secure programming slides and complete Exercise 9. All materials remain available.
       </p>
     </aside>
 
@@ -122,11 +125,11 @@ const homeTranslations = {
               const lecture = lectures.find((item) => item.weekNumber === week.number);
               const released = isWeekReleased(week.number);
               const dateLabel = formatLectureDate(week.lectureAt, "sk");
-              const isCurrent = week.number === courseConfig.currentWeek;
+              const isCurrent = week.number === activeWeek?.number;
               const titleKey = `week.${week.number}.title`;
 
               return (
-                <li class:list={["semester-item", { "is-current": isCurrent, "is-unreleased": !released }]}>
+                <li data-semester-week={week.number} aria-current={isCurrent ? "true" : undefined} class:list={["semester-item", { "is-current": isCurrent, "is-unreleased": !released }]}>
                   <span class="semester-item__number">{String(week.number).padStart(2, "0")}</span>
                   <span class="semester-item__body">
                     {lecture && released ? (
@@ -135,6 +138,7 @@ const homeTranslations = {
                       <strong data-i18n-key={titleKey}>{week.title}</strong>
                     )}
                     {dateLabel && <small data-localized-date={week.lectureAt}>{dateLabel}</small>}
+                    {week.lectureMode === "self-study" && <small class="lecture-mode"><LocalizedText {...selfStudyNotice} /></small>}
                     {!released && <small class="availability" data-i18n-key="ui.unavailable">zatiaľ nedostupné</small>}
                   </span>
                 </li>
@@ -192,6 +196,7 @@ const homeTranslations = {
   </main>
 
   <script>
+    import { getNextScheduledWeek } from "@shared/schedule";
     type Language = "sk" | "en";
     type I18nApi = {
       language: Language;
@@ -205,11 +210,12 @@ const homeTranslations = {
     const time = root?.querySelector<HTMLElement>("[data-next-time]");
     const countdown = root?.querySelector<HTMLElement>("[data-countdown]");
     const empty = root?.querySelector<HTMLElement>("[data-no-next]");
+    const mode = root?.querySelector<HTMLElement>("[data-next-mode]");
     const timezone = root?.getAttribute("data-timezone") ?? "Europe/Bratislava";
-    const firstLectureAt = root?.getAttribute("data-first-lecture-at") ?? "";
-    const firstWeekNumber = Number(root?.getAttribute("data-first-week-number") ?? "0");
     const schedule = JSON.parse(root?.getAttribute("data-week-schedule") ?? "[]") as Array<{
       number: number;
+      lectureAt: string | null;
+      lectureMode: "online" | "self-study";
       titles: Partial<Record<Language, string>>;
     }>;
 
@@ -253,72 +259,6 @@ const homeTranslations = {
       });
     }
 
-    function zonedParts(value: Date) {
-      const parts = new Intl.DateTimeFormat("en-CA", {
-        timeZone: timezone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hourCycle: "h23"
-      }).formatToParts(value);
-      const part = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((item) => item.type === type)?.value);
-      return {
-        year: part("year"),
-        month: part("month"),
-        day: part("day"),
-        hour: part("hour"),
-        minute: part("minute"),
-        second: part("second")
-      };
-    }
-
-    function dateAtTimezone(year: number, month: number, dayOfMonth: number, hour: number, minute: number) {
-      const desired = Date.UTC(year, month - 1, dayOfMonth, hour, minute);
-      let result = new Date(desired);
-
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        const actual = zonedParts(result);
-        const represented = Date.UTC(actual.year, actual.month - 1, actual.day, actual.hour, actual.minute, actual.second);
-        result = new Date(result.getTime() + desired - represented);
-      }
-
-      return result;
-    }
-
-    function findNextLecture() {
-      const now = new Date();
-      const firstDate = new Date(firstLectureAt);
-      if (!firstWeekNumber || !Number.isFinite(firstDate.getTime())) return null;
-
-      const firstLocal = zonedParts(firstDate);
-      for (const item of schedule) {
-        const offset = item.number - firstWeekNumber;
-        if (offset < 0) continue;
-
-        const localTarget = new Date(Date.UTC(
-          firstLocal.year,
-          firstLocal.month - 1,
-          firstLocal.day + offset * 7
-        ));
-        const date = dateAtTimezone(
-          localTarget.getUTCFullYear(),
-          localTarget.getUTCMonth() + 1,
-          localTarget.getUTCDate(),
-          firstLocal.hour,
-          firstLocal.minute
-        );
-
-        if (date.getTime() > now.getTime()) {
-          return { number: item.number, titles: item.titles, date };
-        }
-      }
-
-      return null;
-    }
-
     function plural(value: number, one: string, many: string) {
       return value === 1 ? one : many;
     }
@@ -348,9 +288,17 @@ const homeTranslations = {
     function renderCountdown() {
       updateStaticDates();
       const language = currentLanguage();
-      const next = findNextLecture();
+      const next = getNextScheduledWeek(schedule);
+      const nextDate = next?.lectureAt ? new Date(next.lectureAt) : undefined;
+      document.querySelectorAll<HTMLElement>("[data-semester-week]").forEach((item) => {
+        const current = Number(item.dataset.semesterWeek) === next?.number;
+        item.classList.toggle("is-current", current);
+        if (current) item.setAttribute("aria-current", "true");
+        else item.removeAttribute("aria-current");
+      });
+      if (mode) mode.hidden = next?.lectureMode !== "self-study";
 
-      if (!next) {
+      if (!next || !nextDate) {
         if (number) number.hidden = true;
         if (title) title.hidden = true;
         if (day) day.hidden = true;
@@ -370,15 +318,15 @@ const homeTranslations = {
       }
       if (day) {
         day.hidden = false;
-        day.textContent = formatDay(next.date);
+        day.textContent = formatDay(nextDate);
       }
       if (time) {
         time.hidden = false;
-        time.textContent = formatTime(next.date);
+        time.textContent = formatTime(nextDate);
       }
       if (countdown) {
         countdown.hidden = false;
-        countdown.textContent = formatCountdown(next.date.getTime() - Date.now());
+        countdown.textContent = formatCountdown(nextDate.getTime() - Date.now());
       }
       if (empty) empty.hidden = true;
     }
@@ -387,6 +335,9 @@ const homeTranslations = {
     window.setInterval(renderCountdown, 60000);
     window.addEventListener("python-course-language-change", renderCountdown);
     window.addEventListener("python-course-language-applied", renderCountdown);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) renderCountdown();
+    });
   </script>
 
   <script>

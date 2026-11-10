@@ -13,6 +13,7 @@ import week10 from "../weeks/week-10-web-backend/week.config";
 
 export type CourseWeek = WeekConfig & {
   lectureAt: string | null;
+  lectureMode: "online" | "self-study";
 };
 
 const baseWeeks: WeekConfig[] = [
@@ -35,7 +36,8 @@ export const weeks: CourseWeek[] = baseWeeks.map((week) => {
     ...week,
     title: centralWeek?.title ?? week.title,
     slug: centralWeek?.slug ?? week.slug,
-    lectureAt: centralWeek?.lectureAt ?? null
+    lectureAt: centralWeek?.lectureAt ?? null,
+    lectureMode: centralWeek && "lectureMode" in centralWeek ? centralWeek.lectureMode : "online"
   };
 });
 

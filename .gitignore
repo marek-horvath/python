@@ -28,3 +28,6 @@ presentations/*-commented.pptx
 
 # Local research paper and generated publication files
 /paper/
+
+# Private book manuscript, local editorial decisions and generated author content
+/book/local/
