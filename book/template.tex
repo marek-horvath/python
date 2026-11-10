@@ -1,33 +1,14 @@
 % ClassicThesis 4.1, pinned from the repository requested by the author.
 \RequirePackage{fix-cm}
-\documentclass[twoside,openright,titlepage,numbers=noenddot,headinclude,
-  footinclude=true,cleardoublepage=empty,BCOR=5mm,paper=a4,fontsize=11pt]{scrbook}
+\documentclass[oneside,openany,titlepage,numbers=noenddot,headinclude,
+  footinclude=true,cleardoublepage=empty,BCOR=0mm,paper=a4,fontsize=11pt]{scrbook}
 \input{classicthesis-config}
 \begin{document}
 \frenchspacing
 \raggedbottom
 \frontmatter
 \pagestyle{plain}
-\begin{titlepage}
-  \begin{addmargin}[-1cm]{-3cm}
-  \begin{center}
-    \large
-    \hfill
-    \vfill
-    \begingroup
-      \spacedallcaps{@@TITLE@@}\\\bigskip
-    \endgroup
-    \spacedlowsmallcaps{@@AUTHOR@@}
-    \vfill
-    @@SUBTITLE@@\\\bigskip
-    @@UNIVERSITY@@\\\medskip
-    @@FACULTY@@\\\bigskip
-    @@PLACE@@, @@YEAR@@\\\medskip
-    @@EDITION@@
-    \vfill
-  \end{center}
-  \end{addmargin}
-\end{titlepage}
+\input{titlepage}
 \thispagestyle{empty}
 \noindent\spacedlowsmallcaps{@@TITLE@@}\par
 @@AUTHOR@@\par

@@ -1,5 +1,6 @@
 % Project configuration, based on the upstream classicthesis-config.tex.
-% Typography, headings, text block and running heads belong to ClassicThesis.
+% Typography and headings belong to ClassicThesis; the digital page geometry,
+% running heads and code listings are configured here, after upstream setup.
 % The vendored upstream package is deliberately not modified.
 \PassOptionsToPackage{dvipsnames}{xcolor}
 \usepackage{fontspec}
@@ -10,7 +11,7 @@
 \usepackage{graphicx}
 \usepackage{caption}
 \captionsetup{format=hang,font=small,labelfont=normalfont}
-\usepackage{fvextra}
+\usepackage{listings}
 \usepackage{enumitem}
 \usepackage{needspace}
 \usepackage{tikz}
@@ -20,12 +21,29 @@
 \usepackage{hyperref}
 \usepackage{xurl}
 \usepackage[eulerchapternumbers,floatperchapter,manychapters]{classicthesis}
+% ClassicThesis first establishes its typearea. Geometry is the final authority:
+% do not call \areaset, \recalctypearea or \newgeometry later in the document.
+\usepackage[a4paper,left=30mm,right=30mm,top=23mm,bottom=25mm,
+  includeheadfoot,headheight=15pt,headsep=14pt,footskip=26pt,
+  bindingoffset=0pt]{geometry}
+% The upstream running heads put folios outside the text block and alternate
+% sides. Keep their typography, but center both running heads and folios.
+\clearpairofpagestyles
+\KOMAoptions{headwidth=text,footwidth=text}
+\chead{\headmark}
+\cfoot[\pagemark]{\pagemark}
 % Unicode equivalents of ClassicThesis' original Palatino family.
 \setmainfont{TeX Gyre Pagella}[Numbers=OldStyle]
 \setsansfont{TeX Gyre Heros}
 \setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
 \input{unicode-spacing}
-% Monochrome publication; the upstream spacing and hierarchy stay intact.
+% Retain the upstream chapter font, title, rule and spacing. Only place the
+% Euler numeral inside the text block: "10" would overrun a 30mm side margin.
+\titleformat{\chapter}[display]{\relax}
+  {\makebox[\linewidth][r]{\smash{\color{halfgray}\chapterNumber\thechapter}}}{0pt}
+  {\raggedright\spacedallcaps}[\normalsize\vspace*{.8\baselineskip}\titlerule]
+% The upstream spacing and hierarchy stay intact. Color is confined to the
+% cover and restrained syntax highlighting; normal textbook text is black.
 \colorlet{Maroon}{black}
 \definecolor{muted}{gray}{0.4}
 \hypersetup{unicode=true,hidelinks,bookmarksnumbered=true,
@@ -36,8 +54,7 @@
 \setlength{\emergencystretch}{3em}
 \clubpenalty=10000
 \widowpenalty=10000
-\DefineVerbatimEnvironment{Code}{Verbatim}{fontsize=\small,breaklines=true,breakanywhere=true,
-  tabsize=4,numbersep=5pt,frame=none,xleftmargin=1.2em}
+\input{code-listings}
 \DeclareCaptionType{listing}[Ukážka][Zoznam ukážok]
 \captionsetup[listing]{hypcap=false}
 \counterwithin{listing}{chapter}

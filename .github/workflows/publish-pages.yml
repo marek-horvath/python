@@ -1,12 +1,14 @@
 name: Publish GitHub Pages
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: github-pages-publish
@@ -15,6 +17,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v4
@@ -45,3 +48,25 @@ jobs:
           publish_branch: gh-pages
           publish_dir: ./dist/web
           force_orphan: true
+
+      - name: Verify GitHub Pages deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          published_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/gh-pages" --jq '.object.sha')
+          deployment_run=""
+          for attempt in {1..20}; do
+            deployment_run=$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/runs" \
+              -f branch=gh-pages -f head_sha="$published_sha" -f per_page=20 \
+              --jq '[.workflow_runs[] | select(.path == "dynamic/pages/pages-build-deployment")][0].id // empty')
+            if [ -n "$deployment_run" ]; then
+              break
+            fi
+            sleep 15
+          done
+          if [ -z "$deployment_run" ]; then
+            echo "::error::GitHub Pages did not start a deployment for $published_sha."
+            exit 1
+          fi
+          echo "Pages deployment: https://github.com/$GITHUB_REPOSITORY/actions/runs/$deployment_run" >> "$GITHUB_STEP_SUMMARY"
+          timeout 15m gh run watch "$deployment_run" --repo "$GITHUB_REPOSITORY" --interval 30 --exit-status

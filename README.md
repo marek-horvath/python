@@ -104,6 +104,8 @@ npm run deploy:pages
 
 Push do `main` automaticky spustí workflow, ktorý vyrenderuje PPTX a aktualizuje vetvu `gh-pages`. GitHub Pages teda naďalej používa režim **Deploy from a branch**; workflow iba aktualizuje jej statický obsah.
 
+Workflow následne čaká aj na výsledok nasadenia GitHub Pages pre konkrétny commit v `gh-pages`. Úspešný build preto nezakryje zlyhanie publikovania. Ak GitHub Pages skončí napríklad na časovom limite, možno nasadenie zopakovať cez `Actions → Publish GitHub Pages → Run workflow` bez nového commitu. Odkaz na nadväzujúce nasadenie je v súhrne behu.
+
 Pre projektovú GitHub Pages URL sa build spúšťa s `PUBLIC_BASE_PATH=/python`, takže výsledný web je pripravený pre adresu `https://marek-horvath.github.io/python/`.
 
 V GitHub nastaveniach použite:

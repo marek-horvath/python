@@ -1,0 +1,32 @@
+% Cover-only composition. No page geometry or body heading changes here.
+\begin{titlepage}
+  \centering
+  \definecolor{coverink}{RGB}{35,61,83}
+  \newcommand{\coverseparator}{%
+    \begin{tikzpicture}[baseline=0pt,color=coverink,line width=0.4pt]
+      \draw (-52mm,0) -- (-3mm,0);
+      \draw (3mm,0) -- (52mm,0);
+      \draw (0,1.5mm) -- (1.5mm,0) -- (0,-1.5mm) -- (-1.5mm,0) -- cycle;
+    \end{tikzpicture}%
+  }
+  \vspace*{8mm}
+  {\large\spacedlowsmallcaps{@@UNIVERSITY@@}\par}
+  \vspace{3mm}
+  {\normalsize @@FACULTY@@\par}
+  \vspace{\stretch{2}}
+  \coverseparator\par
+  \vspace{12mm}
+  {\color{coverink}\fontsize{32}{40}\selectfont
+    \parbox{0.94\textwidth}{\centering @@TITLE@@}\par}
+  \vspace{8mm}
+  {\large\parbox{0.85\textwidth}{\centering @@SUBTITLE@@}\par}
+  \vspace{12mm}
+  \coverseparator\par
+  \vspace{16mm}
+  {\large @@AUTHOR@@\par}
+  \vspace{\stretch{3}}
+  {\normalsize @@PLACE@@, @@YEAR@@\par}
+  \vspace{3mm}
+  {\small\spacedlowsmallcaps{@@EDITION@@}\par}
+  \vspace*{8mm}
+\end{titlepage}

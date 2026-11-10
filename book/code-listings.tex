@@ -1,0 +1,66 @@
+% One style for presentation fragments, worksheets, Markdown and external files.
+% Native listings remain page-breakable: no float, minipage or enclosing box.
+\definecolor{codebackground}{gray}{0.965}
+\definecolor{codekeyword}{RGB}{35,61,83}
+\definecolor{codestring}{RGB}{103,75,55}
+\definecolor{codecomment}{gray}{0.40}
+\definecolor{codenumber}{gray}{0.48}
+\lstdefinelanguage{bookjson}{
+  morestring=[b]",
+  morekeywords={true,false,null},
+  sensitive=true
+}
+% listings' default character table ends at U+00FF. Under XeTeX, characters
+% above that range otherwise bypass its token buffer and can move within words
+% (e.g. "Poslať" becomes "ťPosla"). Extend the table using its own processors,
+% locally for each listing; retain the literal glyphs, including in strings.
+\makeatletter
+\begingroup
+\catcode0=12\relax
+\g@addto@macro\lst@DefEC{%
+  \lst@CCECUse\lst@ProcessLetter čďěĺľňŕřšťůžČĎĚĹĽŇŔŘŠŤŮŽ^^00%
+  \lst@CCECUse\lst@ProcessOther —€→←─│┌┐└┘├┤┬┴┼^^00%
+}
+\endgroup
+\makeatother
+\lstdefinestyle{bookcode}{
+  language={},
+  basicstyle=\small\ttfamily\color{black},
+  keywordstyle=\bfseries\color{codekeyword},
+  commentstyle=\itshape\color{codecomment},
+  stringstyle=\color{codestring},
+  columns=fullflexible,
+  keepspaces=true,
+  tabsize=4,
+  showspaces=false,
+  showtabs=false,
+  showstringspaces=false,
+  upquote=true,
+  extendedchars=true,
+  numbers=left,
+  numberstyle=\scriptsize\ttfamily\color{codenumber},
+  numbersep=9pt,
+  firstnumber=1,
+  stepnumber=1,
+  numberblanklines=true,
+  breaklines=true,
+  breakatwhitespace=false,
+  breakautoindent=true,
+  breakindent=1em,
+  backgroundcolor=\color{codebackground},
+  frame=single,
+  framerule=0pt,
+  frameround=ffff,
+  framesep=6pt,
+  % The frame starts at the surrounding left margin. Its background includes
+  % the number gutter, with 6pt padding outside it and beside the last column.
+  xleftmargin=30pt,
+  xrightmargin=6pt,
+  framexleftmargin=24pt,
+  framexrightmargin=0pt,
+  aboveskip=0.8\baselineskip,
+  belowskip=0.8\baselineskip,
+  captionpos=t
+}
+\lstset{style=bookcode}
+\lstnewenvironment{Code}[1][]{\lstset{style=bookcode,#1}}{}

@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 from zipfile import ZipFile
 
-from generate import Book, PageParser, html_tex, code, inline, matching_notes, matching_note_slides, page_content, speaker_notes, tex
+from generate import Book, PageParser, html_tex, code, inline, listing_language, markdown, matching_notes, matching_note_slides, page_content, speaker_notes, tex
 from presentation import read_slide
 
 
@@ -85,9 +85,37 @@ class EscapingTests(unittest.TestCase):
         self.assertEqual(tex(r"\input{secret}"), r"\textbackslash{}input\{secret\}")
         self.assertIn(r"\texttt{a\_\allowbreak{}b}", inline("Use `a_b`."))
 
+    def test_long_inline_identifiers_wrap_without_added_hyphens(self):
+        self.assertIn(r"Declarative\allowbreak{}Base", inline("Use `DeclarativeBase`."))
+        self.assertIn(r"model\_\allowbreak{}copy", inline("model_copy(update=...)"))
+        self.assertIn(r"copy(\allowbreak{}update=\allowbreak{}...)", inline("model_copy(update=...)"))
+
     def test_verbatim_cannot_be_closed_by_source(self):
         with self.assertRaises(ValueError):
             code("print('example')\n\\end{Code}\n\\input{secret}")
+
+    def test_listing_style_does_not_change_source_caption_or_label(self):
+        source = '# Ľudia → výsledok\nname = "Košice"\n\nprint(name)'
+        result = code(source, "Čítanie mien", "names", "python")
+        self.assertIn("\n" + source + "\n\\end{Code}", result)
+        self.assertIn(r"\captionof{listing}{Čítanie mien}\label{names}", result)
+        self.assertIn(r"\begin{Code}[language={Python}]", result)
+
+    def test_language_metadata_takes_precedence_and_cannot_inject_tex(self):
+        self.assertEqual(listing_language("return 1", "text"), "")
+        self.assertEqual(listing_language("return 1", r"python}]\input{secret}"), "")
+        self.assertEqual(listing_language("SELECT name FROM students"), "SQL")
+        self.assertEqual(listing_language("python -m pytest"), "bash")
+
+    def test_markdown_and_html_keep_language_metadata_and_output(self):
+        self.assertIn(r"\begin{Code}[language={SQL}]", markdown("```sql\nSELECT name FROM students;\n```"))
+        for source, expected in [
+            ('<pre aria-label="python"><code>value = "č"</code></pre>', "Python"),
+            ('<pre><code class="language-sql">SELECT 1;</code></pre>', "SQL"),
+            ('<pre class="expected-output"><code>return 1</code></pre>', ""),
+        ]:
+            result = html_tex(PageParser(source).root, "https://example.org/")
+            self.assertIn(r"\begin{Code}[language={" + expected + "}]", result)
 
 
 class ReviewTests(unittest.TestCase):

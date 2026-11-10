@@ -58,12 +58,20 @@ def inline(value: str) -> str:
         elif part.startswith(("https://", "http://")):
             result.append(r"\url{" + part.replace("%", r"\%") + "}")
         else:
-            result.append(tex(part).replace("/", r"/\allowbreak{}"))
+            escaped = tex(part).replace("/", r"/\allowbreak{}").replace(r"\_", r"\_\allowbreak{}")
+            # Some slide prose contains API calls without Markdown backticks.
+            # Offer breaks inside their argument lists as well as at underscores.
+            escaped = re.sub(r"(?<=[A-Za-z])\(", lambda _: r"(\allowbreak{}", escaped)
+            result.append(escaped.replace("=", r"=\allowbreak{}"))
     return "".join(result)
 
 
 def inline_code(value: str) -> str:
-    escaped = "".join(tex(char) + (r"\allowbreak{}" if char in ";/._,=:-?&[]{}()" else "") for char in value)
+    # Inline API names can wrap at camel-case boundaries without inserting a
+    # hyphen into the identifier. Block listings retain their literal source.
+    escaped = "".join((r"\allowbreak{}" if index and char.isupper() and value[index - 1].islower() else "")
+                      + tex(char) + (r"\allowbreak{}" if char in ";/._,=:-?&[]{}()" else "")
+                      for index, char in enumerate(value))
     return r"\texttt{" + escaped + "}"
 
 
@@ -74,7 +82,30 @@ def table_inline(value: str) -> str:
                    for token in re.split(r"(\s+)", value))
 
 
-def code(value: str, caption: str = "", label: str = "") -> str:
+def listing_language(value: str, hint: str = "") -> str:
+    """Use source language metadata when available; leave output unhighlighted.
+
+    PPTX fragments have no formal language metadata. Recognize only clear
+    Python, SQL and shell constructs there, without parsing or executing code.
+    Only fixed names from this function can become LaTeX listing options.
+    """
+    languages = {"python": "Python", "py": "Python", "sql": "SQL",
+                 "bash": "bash", "sh": "bash", "shell": "bash", "console": "bash",
+                 "html": "HTML", "xml": "XML", "json": "bookjson"}
+    if hint:
+        return languages.get(hint.strip().lower(), "")
+    if re.search(r"^\s*(?:SELECT\b.*\bFROM\b|INSERT INTO\b|UPDATE\b.*\bSET\b|DELETE FROM\b|CREATE TABLE\b)", value, re.M):
+        return "SQL"
+    if re.search(r"^\s*(?:python3?|pip3?|uv|git|curl|pytest)\s+", value, re.M):
+        return "bash"
+    if re.search(r"^\s*(?:(?:async\s+)?def\s|class\s|from\s+\S+\s+import\b|import\s|"
+                 r"(?:if|elif|for|while|with|except)\b[^\n]*:|(?:print\(|assert\s|raise\s|return\s)|"
+                 r"[A-Za-z_]\w*(?:\[[^\n]*?\]|\.\w+)*\s*=(?!=))", value, re.M):
+        return "Python"
+    return ""
+
+
+def code(value: str, caption: str = "", label: str = "", language: str = "") -> str:
     # Raw data belongs to a verbatim environment, never to the LaTeX parser.
     if r"\end{Code}" in value:
         raise ValueError("Zdroj obsahuje vyhradený terminátor \\end{Code}.")
@@ -86,9 +117,9 @@ def code(value: str, caption: str = "", label: str = "") -> str:
         if label:
             heading += "\\label{" + label + "}"
         heading += "\n\\nopagebreak\n"
-    numbers = "[numbers=left,firstnumber=1]" if len(value.splitlines()) >= 5 else ""
+    options = "[language={" + listing_language(value, language) + "}]"
     ending = "\\endgroup\n" if caption else ""
-    return heading + "\n\\begin{Code}" + numbers + "\n" + value.rstrip().replace("␠", "[SPACE]") + "\n\\end{Code}\n" + ending
+    return heading + "\n\\begin{Code}" + options + "\n" + value.rstrip().replace("␠", "[SPACE]") + "\n\\end{Code}\n" + ending
 
 
 def markdown(value: str, level: int = 2) -> str:
@@ -112,7 +143,7 @@ def markdown(value: str, level: int = 2) -> str:
             flush()
             end_list()
             if in_code:
-                output.append(code("\n".join(listing)))
+                output.append(code("\n".join(listing), language=language))
                 listing.clear()
             else:
                 language = line.strip()[3:]
@@ -224,7 +255,14 @@ def html_tex(node: Node | str, base_url: str) -> str:
         command = "subsection" if node.tag == "h2" else "subsubsection"
         return f"\n\\{command}*{{{tex(visible_text(node).strip())}}}\n"
     if node.tag == "pre":
-        return code(visible_text(node), node.attrs.get("data-book-caption", ""), node.attrs.get("data-book-label", ""))
+        hint = node.attrs.get("aria-label", "")
+        for element in [node, *node.find("code")]:
+            for name in element.attrs.get("class", "").split():
+                if name.startswith("language-"):
+                    hint = name.removeprefix("language-")
+        if "expected-output" in node.attrs.get("class", "").split():
+            hint = "text"
+        return code(visible_text(node), node.attrs.get("data-book-caption", ""), node.attrs.get("data-book-label", ""), hint)
     if node.tag == "code":
         return inline_code(visible_text(node))
     if node.tag in {"strong", "b", "em", "i"}:
@@ -439,7 +477,7 @@ class Book:
             result.append(r"\subsection*{" + tex(path.name) + "}\n\\sourcefile{" + relative + "}\n")
             text = path.read_text(encoding="utf-8-sig")
             label = "listing-" + sha256(relative.encode()).hexdigest()[:12]
-            result.append(markdown(text, 3) if path.suffix == ".md" else code(text, path.name, label))
+            result.append(markdown(text, 3) if path.suffix == ".md" else code(text, path.name, label, path.suffix.lstrip(".")))
         return "".join(result)
 
     def add_references(self, text: str) -> None:
@@ -619,12 +657,13 @@ class Book:
                             ROOT / "book/vendor/classicthesis/COPYING", ROOT / "book/compat/scrpage2.sty", ROOT / "book/compat/unicode-spacing.tex"]:
             self.source(source_path, "typesetting-dependency")
             shutil.copyfile(source_path, self.output / source_path.name)
-        config_path = ROOT / "book/classicthesis-config.tex"
-        self.source(config_path, "template")
-        style_config = config_path.read_text(encoding="utf-8")
-        for key, value in values.items():
-            style_config = style_config.replace(f"@@{key}@@", tex(value))
-        (self.output / "classicthesis-config.tex").write_text(style_config, encoding="utf-8")
+        for filename in ["classicthesis-config.tex", "code-listings.tex", "titlepage.tex"]:
+            config_path = ROOT / "book" / filename
+            self.source(config_path, "template")
+            style_config = config_path.read_text(encoding="utf-8")
+            for key, value in values.items():
+                style_config = style_config.replace(f"@@{key}@@", tex(value))
+            (self.output / filename).write_text(style_config, encoding="utf-8")
         bibliography = []
         for key, reference in self.references.items():
             title = tex(reference["title"])
