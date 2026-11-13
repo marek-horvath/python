@@ -24,6 +24,7 @@ export const courseConfig = {
     { label: "Projekt", href: "/projekt/" },
     { label: "Návody", href: "/navody/" },
     { label: "OOP", href: "/oop/" },
+    { label: "Podľa úlohy", href: "/by-task/" },
     { label: "Cookbook", href: "/cookbook/" },
     { label: "Cheatsheet", href: "/cheatsheet/" }
   ],

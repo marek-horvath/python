@@ -3885,8 +3885,8 @@ html {
 }
 
 
-/* Highlight a Cheatsheet section opened from a Cookbook recipe. */
-.cookbook-origin .cheat-section:target {
+/* Highlight a Cheatsheet section opened from a related page. */
+.related-topic-origin .cheat-section:target {
   position: relative;
   border-radius: 12px;
   outline: 3px solid var(--accent);
@@ -3895,8 +3895,8 @@ html {
   scroll-margin-top: 28px;
 }
 
-.cookbook-origin .cheat-section:target::before {
-  content: "Cookbook · súvisiaca téma / related topic";
+.related-topic-origin .cheat-section:target::before {
+  content: "Súvisiaca téma / Related topic";
   display: inline-flex;
   margin: 0 0 12px;
   padding: 5px 10px;
@@ -3919,6 +3919,996 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cookbook-origin .cheat-section:target,
-  .cookbook-origin .cheat-section:target::before { animation: none; }
+  .related-topic-origin .cheat-section:target,
+  .related-topic-origin .cheat-section:target::before { animation: none; }
+}
+
+
+/* Find by Task page */
+.task-finder-page {
+  max-width: var(--max-wide);
+  padding-top: 38px;
+}
+
+.task-finder-header {
+  max-width: 860px;
+  margin-bottom: 30px;
+}
+
+.task-finder-kicker {
+  margin-bottom: 12px;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.075em;
+  line-height: 1.4;
+}
+
+.task-finder-header h1 {
+  margin: 0 0 12px;
+}
+
+.task-finder-lead {
+  max-width: 760px;
+  margin-bottom: 0;
+  font-size: 1.08rem;
+}
+
+.task-finder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.task-finder-actions a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--accent-strong);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.task-finder-actions a:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  transform: translateY(-1px);
+}
+
+.task-finder-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+  align-items: end;
+  gap: 16px;
+  margin: 0 0 22px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.task-finder-search,
+.task-finder-category {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.task-finder-search > span,
+.task-finder-category > span {
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.task-finder-search input,
+.task-finder-category select {
+  width: 100%;
+  min-width: 0;
+  min-height: 43px;
+  padding: 9px 12px;
+  border: 1px solid #bdcbdc;
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.task-finder-search input::placeholder {
+  color: var(--faint);
+}
+
+.task-finder-search input:focus-visible,
+.task-finder-category select:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+.task-finder-no-results {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+}
+
+.task-finder-no-results[hidden],
+.task-card[hidden] {
+  display: none !important;
+}
+
+.task-finder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 20px;
+}
+
+.task-card {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--paper);
+  box-shadow: 0 3px 12px rgba(17, 24, 39, 0.045);
+  scroll-margin-top: 24px;
+}
+
+.task-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.task-card__number {
+  display: inline-flex;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.task-card__category {
+  margin: 0 0 5px;
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 0.055em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.task-card__header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.task-card__section {
+  margin: 18px 0;
+}
+
+.task-card__section h3,
+.task-card__output h3 {
+  margin: 0 0 7px;
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
+.task-card__section p {
+  margin: 0 0 9px;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.task-card__section p:last-child {
+  margin-bottom: 0;
+}
+
+.task-card__section .task-card__why {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 7px 7px 0;
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+.task-card .copy-code {
+  margin-top: 10px;
+}
+
+.task-card__file-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  align-items: baseline;
+  margin: 10px 0 0;
+  font-size: 0.88rem;
+}
+
+.task-card__file-note a,
+.task-card__links a {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.task-card__output {
+  margin: 18px 0;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+}
+
+.task-card__output pre {
+  margin: 0;
+  overflow-x: auto;
+  color: var(--ink);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.task-card__links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 17px;
+  border-top: 1px solid var(--line);
+}
+
+.task-card__link-group {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 7px;
+  min-width: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.task-card__link-group strong {
+  color: var(--ink);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.task-card__link-group a {
+  overflow-wrap: anywhere;
+}
+
+.task-card__link-group p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.task-card__cookbook-link {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+@media (max-width: 820px) {
+  .task-finder-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .task-finder-tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .task-finder-page {
+    padding-top: 28px;
+  }
+
+  .task-finder-header h1 {
+    font-size: 2.35rem;
+  }
+
+  .task-card {
+    padding: 17px;
+  }
+
+  .task-card__links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* =====================================================================
+   Unified card styling for OOP, Python Cookbook and Python Cheatsheet.
+   Content, examples, links and page interactions remain unchanged.
+   ===================================================================== */
+
+@media screen {
+  /* Shared surface language: the same soft frame used by Podľa úlohy. */
+  .oop-page,
+  .cookbook-page {
+    width: min(var(--max-wide), calc(100% - 40px));
+    max-width: none;
+  }
+
+  .oop-callout,
+  .cookbook-intro,
+  .cookbook-toc,
+  .cheat-toolbar,
+  .cheat-toc {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(17, 24, 39, 0.04);
+  }
+
+  .oop-callout,
+  .cookbook-intro,
+  .cheat-toolbar,
+  .cheat-toc {
+    background: var(--surface);
+  }
+
+  /* OOP: each learning chapter becomes a distinct, readable card. */
+  .oop-page {
+    padding-top: 42px;
+  }
+
+  .oop-header {
+    margin-bottom: 26px;
+  }
+
+  .oop-actions a,
+  .cookbook-actions a {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--accent-strong);
+    font-size: 0.92rem;
+    font-weight: 650;
+    text-decoration: none;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+  }
+
+  .oop-actions a:hover,
+  .cookbook-actions a:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    transform: translateY(-1px);
+  }
+
+  .oop-actions button,
+  .cookbook-actions button {
+    min-height: 38px;
+    border-radius: 8px;
+  }
+
+  .oop-callout {
+    padding: 18px 22px;
+    border-left: 4px solid var(--accent);
+  }
+
+  .oop-toc {
+    gap: 9px 10px;
+    margin: 0 0 22px;
+    padding: 13px 15px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: var(--surface);
+  }
+
+  .oop-toc a {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    padding: 5px 8px;
+    border-radius: 6px;
+    color: var(--accent-strong);
+    text-decoration: none;
+  }
+
+  .oop-toc a:hover {
+    background: var(--accent-soft);
+    text-decoration: underline;
+  }
+
+  .oop-section {
+    margin: 20px 0;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(17, 24, 39, 0.045);
+  }
+
+  .oop-section > h2 {
+    margin: 0 0 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    font-size: 1.42rem;
+    line-height: 1.25;
+  }
+
+  .oop-section > p {
+    max-width: 900px;
+  }
+
+  .oop-concept-card {
+    border-radius: 9px;
+    background: var(--surface);
+  }
+
+  .oop-section .copy-code {
+    margin-top: 12px;
+    border-radius: 9px;
+  }
+
+  .oop-output {
+    border-radius: 9px;
+    background: var(--surface);
+  }
+
+  .oop-note {
+    padding: 10px 12px;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    background: var(--surface);
+  }
+
+  .oop-comparison-table-wrap {
+    border: 1px solid var(--line);
+    border-radius: 9px;
+  }
+
+  .oop-comparison-table th:first-child {
+    border-top-left-radius: 8px;
+  }
+
+  .oop-mistake {
+    margin: 14px 0 0;
+    padding: 15px 16px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--surface);
+  }
+
+  .oop-mistake + .oop-mistake {
+    margin-top: 12px;
+  }
+
+  .oop-task-card {
+    border-radius: 10px;
+    background: var(--surface);
+  }
+
+  .oop-solution,
+  .oop-self-check details {
+    border-radius: 8px;
+  }
+
+  .oop-self-check {
+    background: var(--surface);
+  }
+
+  .oop-footer-note {
+    margin-top: 26px;
+  }
+
+  /* Cookbook: preserve the single-column recipe flow, strengthen each card. */
+  .cookbook-page {
+    padding-top: 42px;
+  }
+
+  .cookbook-header {
+    margin-bottom: 26px;
+  }
+
+  .cookbook-intro {
+    border-left: 4px solid var(--accent);
+    padding: 18px 21px;
+  }
+
+  .cookbook-toc {
+    gap: 10px 22px;
+    padding: 17px 19px;
+    background: var(--paper);
+  }
+
+  .cookbook-toc a {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    padding: 4px 7px;
+    border-radius: 6px;
+  }
+
+  .cookbook-toc a:hover {
+    background: var(--accent-soft);
+    text-decoration: none;
+  }
+
+  .cookbook-recipes {
+    display: grid;
+    gap: 20px;
+  }
+
+  .cookbook-recipe {
+    margin: 0;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(17, 24, 39, 0.045);
+  }
+
+  .cookbook-recipe__heading {
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cookbook-recipe__number {
+    border-radius: 9px;
+  }
+
+  .cookbook-recipe section {
+    margin-top: 16px;
+  }
+
+  .cookbook-recipe section h3 {
+    margin-bottom: 6px;
+    font-size: 0.94rem;
+  }
+
+  .cookbook-recipe .copy-code {
+    margin-top: 10px;
+    border-radius: 9px;
+  }
+
+  .cookbook-downloads a {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    padding: 5px 8px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+    text-decoration: none;
+  }
+
+  .cookbook-downloads a:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .cookbook-mistake {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+  }
+
+  .cookbook-related {
+    margin-top: 16px;
+    padding: 11px 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .cookbook-footer {
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: var(--surface);
+  }
+
+  /* Cheatsheet: turn each topic into a compact card, without changing its grid. */
+  .cheat-header {
+    margin-bottom: 30px;
+  }
+
+  .cheat-header__related a {
+    display: inline-flex;
+    min-height: 36px;
+    align-items: center;
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--accent-strong);
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .cheat-header__related a:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .cheat-toolbar {
+    margin: 0 0 22px;
+    padding: 17px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cheat-toolbar__field input,
+  .cheat-toolbar__field select {
+    border-radius: 7px;
+    background: #ffffff;
+  }
+
+  .cheat-toolbar__print {
+    border-radius: 7px;
+  }
+
+  .cheat-layout {
+    gap: 24px;
+  }
+
+  .cheat-toc {
+    top: 18px;
+    gap: 6px;
+    padding: 13px;
+    border-radius: 11px;
+    box-shadow: 0 3px 12px rgba(17, 24, 39, 0.04);
+  }
+
+  .cheat-toc a {
+    display: block;
+    padding: 7px 9px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    line-height: 1.35;
+  }
+
+  .cheat-toc a:hover {
+    border-color: var(--line);
+    background: #ffffff;
+    text-decoration: none;
+  }
+
+  .cheat-grid {
+    gap: 20px;
+    align-items: start;
+  }
+
+  .cheat-section {
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(17, 24, 39, 0.045);
+  }
+
+  .cheat-section h2 {
+    margin: 0 0 10px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--line);
+    font-size: 1.08rem;
+    line-height: 1.3;
+  }
+
+  .cheat-section p {
+    line-height: 1.5;
+  }
+
+  .cheat-section .copy-code {
+    margin-top: 11px;
+    border-radius: 9px;
+  }
+
+  .cheat-section--terms .inline-term-list li {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+  }
+
+  .cheat-tip {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 0;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    background: var(--surface);
+  }
+
+  .cheat-no-results {
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--surface);
+  }
+
+  /* Keep the temporary related-topic focus visible on top of the new card. */
+  .cookbook-origin .cheat-section:target {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .oop-page,
+  .cookbook-page {
+    width: min(var(--max-wide), calc(100% - 32px));
+  }
+
+  .cheat-layout {
+    gap: 18px;
+  }
+
+  .cheat-toc {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .oop-page,
+  .cookbook-page {
+    width: min(var(--max-wide), calc(100% - 24px));
+    padding-top: 30px;
+  }
+
+  .oop-section,
+  .cookbook-recipe,
+  .cheat-section {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .oop-section > h2 {
+    font-size: 1.25rem;
+  }
+
+  .oop-actions,
+  .cookbook-actions {
+    gap: 8px;
+  }
+
+  .cookbook-recipe__heading {
+    gap: 10px;
+  }
+
+  .cheat-grid {
+    gap: 14px;
+  }
+
+  .cheat-toolbar {
+    padding: 13px;
+  }
+}
+
+/* Best Practices / Clean Code: align its visual language with the reference pages.
+   Screen-only overrides keep the existing print/PDF layout unchanged. */
+@media screen {
+  .clean-code-page {
+    width: min(var(--max-wide), calc(100% - 40px));
+    max-width: none;
+    padding-top: 38px;
+  }
+
+  .clean-code-header {
+    max-width: 900px;
+    margin-bottom: 28px;
+  }
+
+  .clean-code-header h1 {
+    margin: 0 0 12px;
+    font-size: clamp(2.25rem, 4.6vw, 3.35rem);
+    line-height: 1.08;
+  }
+
+  .clean-code-header > p:not(.clean-code-kicker) {
+    max-width: 820px;
+    margin-bottom: 0;
+    font-size: 1.02rem;
+    line-height: 1.55;
+  }
+
+  .clean-code-kicker {
+    margin-bottom: 12px;
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 750;
+    letter-spacing: 0.075em;
+    line-height: 1.4;
+  }
+
+  .clean-code-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .clean-code-actions a,
+  .clean-code-actions button {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--accent-strong);
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 650;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+  }
+
+  .clean-code-actions a:hover,
+  .clean-code-actions button:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    transform: translateY(-1px);
+  }
+
+  .clean-code-section {
+    margin: 18px 0;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--paper);
+    box-shadow: 0 3px 12px rgba(17, 24, 39, 0.045);
+    scroll-margin-top: 24px;
+  }
+
+  .clean-code-section h2 {
+    margin: 0 0 12px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid var(--line);
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+
+  .clean-code-section > p {
+    max-width: 920px;
+    margin-bottom: 14px;
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
+  .clean-code-comparison {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+    margin-top: 15px;
+  }
+
+  .clean-code-comparison > div {
+    min-width: 0;
+    padding: 13px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+
+  .clean-code-comparison h3 {
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .clean-code-section .copy-code,
+  .clean-code-usage .copy-code {
+    min-width: 0;
+    margin-top: 10px;
+    border-radius: 9px;
+  }
+
+  .clean-code-usage {
+    margin-top: 16px;
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 9px;
+    background: var(--surface);
+  }
+
+  .clean-code-usage h3 {
+    margin: 0 0 7px;
+    color: var(--ink);
+    font-size: 0.98rem;
+    line-height: 1.35;
+  }
+
+  .clean-code-usage > p {
+    margin: 0 0 10px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .clean-code-note {
+    margin: 11px 0 0;
+    padding: 10px 12px;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    background: var(--surface);
+    font-size: 0.88rem !important;
+    line-height: 1.5;
+  }
+
+  .clean-code-footnote {
+    margin: 20px 0 0;
+    padding: 15px 17px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.92rem !important;
+    line-height: 1.5;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .clean-code-comparison {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .clean-code-page {
+    width: min(var(--max-wide), calc(100% - 24px));
+    padding-top: 30px;
+  }
+
+  .clean-code-header h1 {
+    font-size: clamp(2rem, 9vw, 2.55rem);
+  }
+
+  .clean-code-section {
+    margin: 14px 0;
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .clean-code-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .clean-code-comparison > div,
+  .clean-code-usage {
+    padding: 12px;
+  }
 }

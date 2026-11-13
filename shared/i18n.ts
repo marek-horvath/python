@@ -43,7 +43,18 @@ export const uiTranslations = {
   "nav.guides": { sk: "Návody", en: "Guides" },
   "nav.oop": { sk: "OOP", en: "OOP" },
   "nav.cookbook": { sk: "Cookbook", en: "Cookbook" },
+  "nav.tasks": { sk: "Podľa úlohy", en: "By task" },
   "nav.cheatsheet": { sk: "Cheatsheet", en: "Cheatsheet" },
+
+  "taskFinder.searchPlaceholder": { sk: "Napr. nájsť prvok, JSON, súbor...", en: "e.g. find an item, JSON, file..." },
+  "taskFinder.searchAria": { sk: "Hľadať programátorskú úlohu", en: "Search programming tasks" },
+  "taskFinder.categoryAria": { sk: "Filtrovať úlohy podľa kategórie", en: "Filter tasks by category" },
+  "taskFinder.noResults": { sk: "Nenašli sa žiadne úlohy. Skús iný výraz alebo kategóriu.", en: "No tasks found. Try another search term or category." },
+  "taskFinder.category.all": { sk: "Všetky úlohy", en: "All tasks" },
+  "taskFinder.category.collections": { sk: "Kolekcie a záznamy", en: "Collections and records" },
+  "taskFinder.category.files": { sk: "Súbory", en: "Files" },
+  "taskFinder.category.libraries": { sk: "Knižnice a údaje", en: "Libraries and data" },
+  "taskFinder.category.text": { sk: "Text a validácia", en: "Text and validation" },
   "nav.aria": { sk: "Hlavná navigácia", en: "Main navigation" },
 
   "cheatsheet.toolsAria": { sk: "Nástroje cheatsheetu", en: "Cheatsheet tools" },

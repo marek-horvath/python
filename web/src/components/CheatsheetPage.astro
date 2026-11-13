@@ -383,6 +383,27 @@ print(counts.most_common(2))`,
     tip: { sk: "Typická chyba: očakávať, že Counter obsahuje iba hodnoty zo vstupu. Prístup k neexistujúcemu kľúču vráti 0, nie KeyError. Ak potrebuješ len unikátne hodnoty bez počítania, použi set.", en: "Common mistake: expecting Counter to contain only keys from the input. Accessing a missing key returns 0, not KeyError. If you only need unique values without counts, use set." }
   },
   {
+    id: "defaultdict",
+    title: { sk: "collections.defaultdict", en: "collections.defaultdict" },
+    note: { sk: "Úloha: zoskupiť záznamy podľa kategórie bez ručnej kontroly, či už skupina existuje.", en: "Task: group records by category without manually checking whether a group already exists." },
+    code: `from collections import defaultdict
+
+students = [
+    {"name": "Anna", "course": "Python"},
+    {"name": "Peter", "course": "Databases"},
+    {"name": "Lucia", "course": "Python"},
+]
+
+groups = defaultdict(list)
+
+for student in students:
+    groups[student["course"]].append(student["name"])
+
+for course, names in sorted(groups.items()):
+    print(course, names)`,
+    tip: { sk: "defaultdict(list) vytvorí prázdny zoznam pri prvom použití nového kľúča. Potom môžeš priamo zavolať append(). Na rozdiel od Counter nepočíta výskyty, ale ukladá viac hodnôt do každej skupiny.", en: "defaultdict(list) creates an empty list the first time a new key is used, so you can call append() directly. Unlike Counter, it does not count occurrences; it stores multiple values in each group." }
+  },
+  {
     id: "re",
     title: { sk: "re", en: "re" },
     note: { sk: "Úloha: vyhľadávať alebo kontrolovať jednoduché textové vzory, napríklad číslo objednávky.", en: "Task: find or validate simple text patterns, such as an order number." },
@@ -416,7 +437,7 @@ const categoryById: Record<string, string> = {
   enumerate: "collections", zip: "collections", unpacking: "collections", comprehensions: "collections",
   funkcie: "functions", arguments: "functions", "type-hints": "functions", dataclass: "functions",
   exceptions: "errors", imports: "modules",
-  oop: "oop", "file-open": "files", "file-with": "files", pathlib: "files", "file-encoding": "files", "file-errors": "files", "file-practice": "files", json: "libraries", datetime: "libraries", csv: "libraries", collections: "libraries", re: "libraries"
+  oop: "oop", "file-open": "files", "file-with": "files", pathlib: "files", "file-encoding": "files", "file-errors": "files", "file-practice": "files", json: "libraries", datetime: "libraries", csv: "libraries", collections: "libraries", defaultdict: "libraries", re: "libraries"
 };
 const categoryLabels: Record<string, Pair> = {
   all: { sk: "Všetky témy", en: "All topics" },
@@ -531,10 +552,11 @@ const sections = [
   const cheatTocLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-cheat-toc-link]"));
   const noResults = document.querySelector<HTMLElement>("#cheat-no-results");
 
-  // Mark links arriving from a Cookbook recipe so the related section can be highlighted.
-  const cameFromCookbook = new URLSearchParams(window.location.search).get("from") === "cookbook";
-  if (cameFromCookbook) {
-    document.body.classList.add("cookbook-origin");
+  // Highlight the destination when a related page links to this topic.
+  const referringPage = new URLSearchParams(window.location.search).get("from");
+  const cameFromRelatedPage = referringPage === "cookbook" || referringPage === "task-finder";
+  if (cameFromRelatedPage) {
+    document.body.classList.add("related-topic-origin");
     const targetId = window.location.hash.slice(1);
     const targetSection = targetId ? document.getElementById(targetId) : null;
     if (targetSection?.matches("[data-cheat-section]")) {

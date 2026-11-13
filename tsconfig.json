@@ -10,10 +10,10 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "types": ["node"],
-    "baseUrl": ".",
+    //"baseUrl": ".",
     "paths": {
-      "@shared/*": ["shared/*"],
-      "@weeks/*": ["weeks/*"]
+      "@shared/*": ["./shared/*"],
+      "@weeks/*": ["./weeks/*"]
     }
   },
   "include": [

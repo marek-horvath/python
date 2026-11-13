@@ -1,0 +1,394 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CopyCodeBlock from "../components/CopyCodeBlock.astro";
+import LocalizedText from "../components/LocalizedText.astro";
+
+const tasks = [
+  {
+    id: "find-item",
+    category: "collections",
+    number: "01",
+    titleSk: "Nájsť prvok v kolekcii",
+    titleEn: "Find an item in a collection",
+    goalSk: "Potrebuješ zistiť, či sa hodnota nachádza v zozname, alebo získať záznam podľa jeho identifikátora.",
+    goalEn: "You need to check whether a value exists in a list or retrieve a record by its identifier.",
+    toolsSk: "Operátor in overí prítomnosť hodnoty. dict.get() bezpečne vráti hodnotu pre daný kľúč alebo None, ak kľúč neexistuje.",
+    toolsEn: "The in operator checks membership. dict.get() safely returns the value for a key, or None when the key is missing.",
+    whySk: "Použi in pre zoznam alebo množinu. Pri slovníku použi get(), ak je kľúč voliteľný a nechceš vyvolať KeyError.",
+    whyEn: "Use in with a list or set. Use get() with a dictionary when a key may be missing and you want to avoid KeyError.",
+    code: `students = {
+    "S101": "Anna",
+    "S102": "Peter",
+    "S103": "Lucia",
+}
+
+student_id = "S102"
+student_name = students.get(student_id)
+
+if student_name is not None:
+    print(f"Found: {student_name}")
+else:
+    print("Student not found")`,
+    output: "Found: Peter",
+    cheatLinks: [
+      { href: "/cheatsheet/?from=task-finder#membership", sk: "Operátor in", en: "Membership: in" },
+      { href: "/cheatsheet/?from=task-finder#dict", sk: "Slovník dict", en: "Dictionary: dict" }
+    ],
+    cookbookHref: "/cookbook/#find-record-by-id",
+    cookbookSk: "Vyhľadanie záznamu podľa ID",
+    cookbookEn: "Find a record by ID",
+    cookbookNoteSk: "Recept s vyhľadaním študenta podľa ID a ošetrením chýbajúceho záznamu.",
+    cookbookNoteEn: "A recipe for finding a student by ID and handling a missing record.",
+    searchSk: "nájsť hľadať prvok hodnota zoznam slovník kľúč id záznam",
+    searchEn: "find search item value list dictionary key id record"
+  },
+  {
+    id: "filter-records",
+    category: "collections",
+    number: "02",
+    titleSk: "Filtrovať a zoradiť záznamy",
+    titleEn: "Filter and sort records",
+    goalSk: "Zo zoznamu študentov chceš vybrať iba tých, ktorí splnili podmienku, a zoradiť ich podľa výsledku.",
+    goalEn: "You want to keep only students who meet a condition and sort them by their result.",
+    toolsSk: "List comprehension vyberie záznamy podľa podmienky a sorted() vytvorí nový zoradený zoznam.",
+    toolsEn: "A list comprehension selects records that meet a condition, and sorted() returns a new sorted list.",
+    whySk: "Tento prístup je vhodný na jednoduché filtrovanie a zoradenie bez zmeny pôvodných údajov.",
+    whyEn: "This approach is useful for simple filtering and sorting without changing the original data.",
+    code: `students = [
+    {"name": "Anna", "points": 92},
+    {"name": "Peter", "points": 67},
+    {"name": "Lucia", "points": 84},
+]
+
+qualified = [student for student in students if student["points"] >= 80]
+ranking = sorted(qualified, key=lambda student: student["points"], reverse=True)
+
+for student in ranking:
+    print(student["name"], student["points"])`,
+    output: "Anna 92\nLucia 84",
+    cheatLinks: [
+      { href: "/cheatsheet/?from=task-finder#comprehensions", sk: "Comprehensions", en: "Comprehensions" },
+      { href: "/cheatsheet/?from=task-finder#list", sk: "Zoznam list", en: "List: list" }
+    ],
+    cookbookHref: "/cookbook/#filter-sort-students",
+    cookbookSk: "Filtrovanie a zoradenie študentov",
+    cookbookEn: "Filter and sort student records",
+    cookbookNoteSk: "Úplný recept s poradovým číslom a zostupným zoradením.",
+    cookbookNoteEn: "Complete recipe with ranking positions and descending sorting.",
+    searchSk: "filtrovať filter vybrať zoradiť triediť záznam študent body výsledok podmienka",
+    searchEn: "filter select sort order records student score result condition"
+  },
+  {
+    id: "group-data",
+    category: "collections",
+    number: "03",
+    titleSk: "Zoskupiť údaje podľa kategórie",
+    titleEn: "Group data by category",
+    goalSk: "Máš zoznam záznamov a chceš ich rozdeliť do skupín podľa predmetu alebo inej spoločnej vlastnosti.",
+    goalEn: "You have a list of records and want to split them into groups by course or another shared property.",
+    toolsSk: "defaultdict(list) z collections vytvorí prázdny zoznam pri prvom výskyte kategórie. append() pridá záznam do správnej skupiny.",
+    toolsEn: "defaultdict(list) from collections creates an empty list for a new category. append() adds a record to its group.",
+    whySk: "Nemusíš ručne kontrolovať, či skupina už existuje. Slovník sa postará o vytvorenie zoznamu pri prvom použití kľúča.",
+    whyEn: "You do not need to check whether a group already exists. The dictionary creates a list the first time a key is used.",
+    code: `from collections import defaultdict
+
+students = [
+    {"name": "Anna", "course": "Python"},
+    {"name": "Peter", "course": "Databases"},
+    {"name": "Lucia", "course": "Python"},
+]
+
+groups = defaultdict(list)
+for student in students:
+    groups[student["course"]].append(student["name"])
+
+for course, names in sorted(groups.items()):
+    print(f"{course}: {', '.join(names)}")`,
+    output: "Databases: Peter\nPython: Anna, Lucia",
+    cheatLinks: [
+      { href: "/cheatsheet/?from=task-finder#defaultdict", sk: "collections.defaultdict", en: "collections.defaultdict" },
+      { href: "/cheatsheet/?from=task-finder#dict", sk: "Slovníky dict", en: "Dictionaries: dict" }
+    ],
+    cookbookHref: "/cookbook/#group-records",
+    cookbookSk: "Zoskupovanie záznamov podľa kategórie",
+    cookbookEn: "Group records by category",
+    cookbookNoteSk: "Úplný príklad použitia defaultdict(list).",
+    cookbookNoteEn: "Complete example using defaultdict(list).",
+    searchSk: "zoskupiť skupiny kategória predmet defaultdict zoznam slovník údaje záznamy",
+    searchEn: "group grouping category course defaultdict list dictionary data records"
+  },
+  {
+    id: "read-file",
+    category: "files",
+    number: "04",
+    titleSk: "Prečítať textový súbor",
+    titleEn: "Read a text file",
+    goalSk: "Chceš načítať text zo súboru a ďalej ho spracovať v programe.",
+    goalEn: "You want to load text from a file and process it in your program.",
+    toolsSk: "pathlib.Path reprezentuje cestu k súboru. read_text() načíta celý text a encoding='utf-8' určuje kódovanie.",
+    toolsEn: "pathlib.Path represents a file path. read_text() loads the text, and encoding='utf-8' specifies the encoding.",
+    whySk: "Path poskytuje čitateľnú prácu s cestami. Pri väčších súboroch alebo postupnom spracovaní môže byť vhodnejší with a open().",
+    whyEn: "Path makes path handling readable. For larger files or step-by-step processing, with and open() may be more suitable.",
+    code: `from pathlib import Path
+
+notes_file = Path(__file__).with_name("notes-sample.txt")
+
+try:
+    content = notes_file.read_text(encoding="utf-8")
+except FileNotFoundError:
+    print("File not found")
+else:
+    print(content.strip())`,
+    output: "Project deadline: 15 December 2026",
+    cheatLinks: [
+      { href: "/cheatsheet/?from=task-finder#pathlib", sk: "Cesty pomocou pathlib", en: "Paths with pathlib" },
+      { href: "/cheatsheet/?from=task-finder#file-with", sk: "with a práca so súborom", en: "with and file handling" }
+    ],
+    cookbookHref: "/cookbook/#read-text-file",
+    cookbookSk: "Načítanie textového súboru",
+    cookbookEn: "Read a text file",
+    cookbookNoteSk: "Recept na načítanie UTF-8 textu a ošetrenie chýbajúceho súboru.",
+    cookbookNoteEn: "A recipe for reading UTF-8 text and handling a missing file.",
+    searchSk: "čítať načítať súbor text pathlib read_text utf8 otvorenie file reading",
+    searchEn: "read load file text pathlib read_text utf8 open file"
+  },
+  {
+    id: "save-json",
+    category: "libraries",
+    number: "05",
+    titleSk: "Uložiť štruktúru do JSON",
+    titleEn: "Save a data structure to JSON",
+    goalSk: "Chceš uložiť slovník alebo zoznam do súboru, aby sa údaje dali použiť aj po skončení programu.",
+    goalEn: "You want to save a dictionary or list to a file so the data can be used after the program ends.",
+    toolsSk: "json.dump() zapíše Python objekt do otvoreného súboru. with bezpečne uzavrie súbor a encoding='utf-8' zachová textové znaky.",
+    toolsEn: "json.dump() writes a Python object to an open file. with closes the file safely, and encoding='utf-8' preserves text characters.",
+    whySk: "JSON je vhodný na ukladanie jednoduchých štruktúrovaných údajov. indent zlepší čitateľnosť a ensure_ascii=False zachová znaky ako š či ž.",
+    whyEn: "JSON is suitable for simple structured data. indent improves readability, and ensure_ascii=False keeps characters such as accented letters readable.",
+    code: `import json
+from pathlib import Path
+
+settings = {
+    "language": "sk",
+    "notifications": True,
+}
+settings_file = Path("settings.json")
+
+with settings_file.open("w", encoding="utf-8") as file:
+    json.dump(settings, file, ensure_ascii=False, indent=2)
+
+print(f"Saved: {settings_file}")`,
+    output: "Saved: settings.json",
+    cheatLinks: [
+      { href: "/cheatsheet/?from=task-finder#json", sk: "Knižnica json", en: "json library" },
+      { href: "/cheatsheet/?from=task-finder#pathlib", sk: "Cesty pomocou pathlib", en: "Paths with pathlib" }
+    ],
+    cookbookHref: "/cookbook/#save-json",
+    cookbookSk: "Uloženie údajov do JSON",
+    cookbookEn: "Save data to JSON",
+    cookbookNoteSk: "Recept na zápis Python slovníka do súboru JSON.",
+    cookbookNoteEn: "A recipe for writing a Python dictionary to a JSON file.",
+    searchSk: "uložiť zapisovať json dump štruktúra slovník zoznam súbor nastavenia save write",
+    searchEn: "save write json dump structure dictionary list file settings serialize"
+  },
+  {
+    id: "count-repetitions",
+    category: "libraries",
+    number: "06",
+    titleSk: "Spočítať opakujúce sa hodnoty",
+    titleEn: "Count repeated values",
+    goalSk: "Chceš zistiť, ktoré hodnoty, slová alebo kategórie sa v zozname vyskytujú najčastejšie.",
+    goalEn: "You want to find which values, words, or categories occur most often in a list.",
+    toolsSk: "Counter z collections spočíta výskyty jednotlivých hodnôt. most_common() vráti najčastejšie položky.",
+    toolsEn: "Counter from collections counts each value. most_common() returns the most frequent items.",
+    whySk: "Counter je vhodnejší než ručné vytváranie slovníka počítadiel, keď potrebuješ iba frekvencie hodnôt.",
+    whyEn: "Counter is simpler than manually maintaining a dictionary of counts when you only need value frequencies.",
+    code: `from collections import Counter
+
+topics = ["Python", "OOP", "Python", "Files", "Python", "OOP"]
+counts = Counter(topics)
+
+for topic, amount in counts.most_common(2):
+    print(f"{topic}: {amount}")`,
+    output: "Python: 3\nOOP: 2",
+    cheatLinks: [
+      { href: "/cheatsheet/?from=task-finder#collections", sk: "collections.Counter", en: "collections.Counter" }
+    ],
+    cookbookHref: "/cookbook/#count-repetitions",
+    cookbookSk: "Počítanie opakovaných hodnôt",
+    cookbookEn: "Count repeated values",
+    cookbookNoteSk: "Úplný recept vrátane výpisu všetkých početností.",
+    cookbookNoteEn: "Complete recipe, including a full frequency listing.",
+    searchSk: "počítať spočítať opakovania frekvencia počet výskytov counter collections",
+    searchEn: "count repetitions frequency occurrences counter collections most common"
+  },
+  {
+    id: "validate-text",
+    category: "text",
+    number: "07",
+    titleSk: "Overiť formát textu",
+    titleEn: "Validate a text format",
+    goalSk: "Potrebuješ skontrolovať, či text zodpovedá presnému formátu, napríklad ID zloženému z dvoch veľkých písmen a štyroch číslic.",
+    goalEn: "You need to check whether text follows an exact format, such as an ID made of two uppercase letters and four digits.",
+    toolsSk: "re.fullmatch() porovná celý reťazec s regulárnym výrazom. Vráti zhodu iba vtedy, keď celý text zodpovedá vzoru.",
+    toolsEn: "re.fullmatch() compares the entire string with a regular expression and succeeds only when the whole text matches.",
+    whySk: "Na kontrolu celého identifikátora je fullmatch() presnejší než search(), ktorý môže nájsť iba časť textu.",
+    whyEn: "For validating a complete identifier, fullmatch() is more precise than search(), which may match only part of the text.",
+    code: `import re
+
+pattern = r"[A-Z]{2}\\d{4}"
+student_ids = ["AB1234", "xy1234", "ABC1234"]
+
+for student_id in student_ids:
+    status = "valid" if re.fullmatch(pattern, student_id) else "invalid"
+    print(f"{student_id}: {status}")`,
+    output: "AB1234: valid\nxy1234: invalid\nABC1234: invalid",
+    cheatLinks: [
+      { href: "/cheatsheet/?from=task-finder#re", sk: "Regulárne výrazy: re", en: "Regular expressions: re" },
+      { href: "/cheatsheet/?from=task-finder#patterns", sk: "Textové vzory", en: "Text patterns" }
+    ],
+    cookbookHref: "/cookbook/#validate-text",
+    cookbookSk: "Kontrola textového formátu",
+    cookbookEn: "Validate a text format",
+    cookbookNoteSk: "Úplný recept s viacerými platnými a neplatnými identifikátormi.",
+    cookbookNoteEn: "Complete recipe with several valid and invalid identifiers.",
+    searchSk: "overiť kontrolovať validácia regex regulárny výraz text id identifikátor formát fullmatch",
+    searchEn: "validate validation regex regular expression text id identifier format fullmatch"
+  }
+] as const;
+
+const taskCategoryLabels = {
+  collections: { sk: "Kolekcie a záznamy", en: "Collections and records" },
+  files: { sk: "Súbory", en: "Files" },
+  libraries: { sk: "Knižnice a údaje", en: "Libraries and data" },
+  text: { sk: "Text a validácia", en: "Text and validation" }
+} as const;
+---
+
+<BaseLayout
+  title="Čo chceš urobiť?"
+  titleEn="What do you want to do?"
+  description="Nájdi vhodné nástroje Pythonu podľa programátorskej úlohy a prejdi na vysvetlenie alebo praktický recept."
+  descriptionEn="Find suitable Python tools by programming task and open the explanation or a practical recipe."
+>
+  <main class="page task-finder-page">
+    <header class="task-finder-header">
+      <p class="task-finder-kicker"><LocalizedText sk="PYTHON QUICK REFERENCE · VÝBER PODĽA ÚLOHY" en="PYTHON QUICK REFERENCE · FIND BY TASK" /></p>
+      <h1><LocalizedText sk="Čo chceš urobiť?" en="What do you want to do?" /></h1>
+      <p class="task-finder-lead"><LocalizedText
+        sk="Nemusíš poznať názov funkcie ani knižnice. Vyber si cieľ a nájdi nástroje Pythonu, krátky príklad a súvisiaci recept."
+        en="You do not need to know a function or library name. Choose your goal to find Python tools, a short example, and a related recipe."
+      /></p>
+      <div class="task-finder-actions">
+        <a href="/cheatsheet/"><LocalizedText sk="Python Cheatsheet" en="Python Cheatsheet" /></a>
+        <a href="/cookbook/"><LocalizedText sk="Python Cookbook" en="Python Cookbook" /></a>
+      </div>
+    </header>
+
+    <section class="task-finder-tools" aria-label="Vyhľadávanie úloh" data-i18n-aria-label="taskFinder.searchAria">
+      <label class="task-finder-search">
+        <span><LocalizedText sk="Hľadať podľa toho, čo potrebuješ urobiť" en="Search by what you want to do" /></span>
+        <input id="task-finder-search" type="search" data-i18n-placeholder="taskFinder.searchPlaceholder" data-i18n-aria-label="taskFinder.searchAria" placeholder="Napr. nájsť prvok, JSON, súbor..." />
+      </label>
+      <label class="task-finder-category">
+        <span><LocalizedText sk="Oblasť" en="Area" /></span>
+        <select id="task-finder-category" data-i18n-aria-label="taskFinder.categoryAria">
+          <option value="all" data-i18n-key="taskFinder.category.all">Všetky úlohy</option>
+          <option value="collections" data-i18n-key="taskFinder.category.collections">Kolekcie a záznamy</option>
+          <option value="files" data-i18n-key="taskFinder.category.files">Súbory</option>
+          <option value="libraries" data-i18n-key="taskFinder.category.libraries">Knižnice a údaje</option>
+          <option value="text" data-i18n-key="taskFinder.category.text">Text a validácia</option>
+        </select>
+      </label>
+    </section>
+
+    <p id="task-finder-no-results" class="task-finder-no-results" role="status" aria-live="polite" hidden data-i18n-key="taskFinder.noResults">Nenašli sa žiadne úlohy. Skús iný výraz alebo kategóriu.</p>
+
+    <section class="task-finder-grid" aria-label="Katalóg programátorských úloh">
+      {tasks.map((task) => (
+        <article
+          class="task-card"
+          id={task.id}
+          data-task-card
+          data-task-category={task.category}
+          data-task-search={`${task.titleSk} ${task.titleEn} ${task.goalSk} ${task.goalEn} ${task.toolsSk} ${task.toolsEn} ${task.searchSk} ${task.searchEn} ${task.code}`}
+        >
+          <header class="task-card__header">
+            <span class="task-card__number">{task.number}</span>
+            <div>
+              <p class="task-card__category"><LocalizedText sk={taskCategoryLabels[task.category].sk} en={taskCategoryLabels[task.category].en} /></p>
+              <h2><LocalizedText sk={task.titleSk} en={task.titleEn} /></h2>
+            </div>
+          </header>
+
+          <section class="task-card__section">
+            <h3><LocalizedText sk="Čo chceš dosiahnuť" en="What you want to achieve" /></h3>
+            <p><LocalizedText sk={task.goalSk} en={task.goalEn} /></p>
+          </section>
+
+          <section class="task-card__section">
+            <h3><LocalizedText sk="Odporúčané nástroje" en="Recommended tools" /></h3>
+            <p><LocalizedText sk={task.toolsSk} en={task.toolsEn} /></p>
+            <p class="task-card__why"><LocalizedText sk={task.whySk} en={task.whyEn} /></p>
+          </section>
+
+          <section class="task-card__section">
+            <h3><LocalizedText sk="Krátky príklad" en="Short example" /></h3>
+            <CopyCodeBlock code={task.code} />
+            {task.id === "read-file" && (
+              <p class="task-card__file-note">
+                <LocalizedText sk="Ukážkový súbor pre tento príklad:" en="Sample file for this example:" />
+                <a href="/downloads/task-finder/notes-sample.txt" download>notes-sample.txt</a>
+              </p>
+            )}
+          </section>
+
+          <section class="task-card__output">
+            <h3><LocalizedText sk="Príklad výsledku" en="Example output" /></h3>
+            <pre><code>{task.output}</code></pre>
+          </section>
+
+          <nav class="task-card__links" aria-label="Súvisiace materiály">
+            <div class="task-card__link-group">
+              <strong><LocalizedText sk="Téma v Cheatsheete" en="Cheatsheet topic" /></strong>
+              {task.cheatLinks.map((topic) => <a href={topic.href}><LocalizedText sk={topic.sk} en={topic.en} /></a>)}
+            </div>
+            <div class="task-card__link-group task-card__cookbook-link">
+              <strong><LocalizedText sk="Súvisiaci recept v Cookbook" en="Related Cookbook recipe" /></strong>
+              <a href={task.cookbookHref}><LocalizedText sk={task.cookbookSk} en={task.cookbookEn} /></a>
+              <p><LocalizedText sk={task.cookbookNoteSk} en={task.cookbookNoteEn} /></p>
+            </div>
+          </nav>
+        </article>
+      ))}
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  const searchInput = document.querySelector<HTMLInputElement>("#task-finder-search");
+  const categoryInput = document.querySelector<HTMLSelectElement>("#task-finder-category");
+  const taskCards = Array.from(document.querySelectorAll<HTMLElement>("[data-task-card]"));
+  const noResults = document.querySelector<HTMLElement>("#task-finder-no-results");
+
+  function filterTasks() {
+    const query = searchInput?.value.trim().toLocaleLowerCase() ?? "";
+    const category = categoryInput?.value ?? "all";
+    let visibleCount = 0;
+
+    for (const card of taskCards) {
+      const categoryMatches = category === "all" || card.dataset.taskCategory === category;
+      const searchableText = `${card.dataset.taskSearch ?? ""} ${card.textContent ?? ""}`.toLocaleLowerCase();
+      const queryMatches = query.length === 0 || searchableText.includes(query);
+      const visible = categoryMatches && queryMatches;
+      card.hidden = !visible;
+      if (visible) visibleCount += 1;
+    }
+
+    if (noResults) noResults.hidden = visibleCount > 0;
+  }
+
+  searchInput?.addEventListener("input", filterTasks);
+  categoryInput?.addEventListener("change", filterTasks);
+  window.addEventListener("python-course-language-applied", filterTasks);
+  filterTasks();
+</script>
