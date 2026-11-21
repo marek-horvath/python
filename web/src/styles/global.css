@@ -421,6 +421,39 @@ p {
   margin: 0;
 }
 
+.next-lecture[data-countdown-stage="submission"] .next-lecture__topic,
+.next-lecture[data-countdown-stage="defence"] .next-lecture__topic {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.next-lecture__empty:not([hidden]) {
+  margin-top: 18px;
+}
+
+.next-lecture__project-link {
+  margin: 16px 0 0;
+}
+
+.home-project-notice {
+  width: min(var(--max-page), calc(100% - 40px));
+  margin: 48px auto;
+  line-height: 1.7;
+}
+
+.home-project-notice h2 {
+  margin: 0 0 20px;
+  font-size: 1.65rem;
+  line-height: 1.25;
+}
+
+.final-assessment-steps {
+  padding-left: 1.4em;
+}
+
+.final-assessment-steps li + li {
+  margin-top: 12px;
+}
+
 .next-lecture__day {
   color: var(--ink);
   font-size: 2.65rem;

@@ -1,0 +1,12 @@
+---
+import { finalAssessment } from "@shared/project-assessment";
+import LocalizedText from "./LocalizedText.astro";
+---
+
+<p class="project-meta"><strong><LocalizedText {...finalAssessment.deadline} /></strong></p>
+<ol class="final-assessment-steps">
+  <li><LocalizedText {...finalAssessment.submission} /></li>
+  <li><LocalizedText {...finalAssessment.review} /></li>
+  <li><LocalizedText {...finalAssessment.defence} /></li>
+</ol>
+<p><strong><LocalizedText {...finalAssessment.integrity} /></strong></p>

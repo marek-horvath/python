@@ -1,6 +1,8 @@
 ---
 import { localizedCourse } from "@shared/i18n";
+import { finalAssessment } from "@shared/project-assessment";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import FinalAssessmentNotice from "./FinalAssessmentNotice.astro";
 import LocalizedText from "./LocalizedText.astro";
 
 type Pair = { sk: string; en: string };
@@ -478,9 +480,10 @@ const finalScore: Array<{ part: Pair; points: string }> = [
 
         <section id="final" class="project-section">
           <div class="project-section__heading">
-            <h2><LocalizedText sk="Finálne odovzdávanie" en="Final Submission" /></h2>
+            <h2><LocalizedText {...finalAssessment.title} /></h2>
           </div>
-          <p class="project-meta"><LocalizedText sk="11.–13. týždeň semestra · 70 bodov" en="Weeks 11–13 · 70 points" /></p>
+          <FinalAssessmentNotice />
+          <p class="project-meta"><LocalizedText sk="Finálna časť: 70 bodov" en="Final stage: 70 points" /></p>
           <p>
             <LocalizedText
               sk="Vo finálnej etape študent odovzdáva finálnu aplikáciu, dokumentáciu vo formáte PDF a približne 5-minútovú videoprezentáciu."
@@ -601,6 +604,7 @@ Video / Video                           10
           <div class="project-section__heading">
             <h2><LocalizedText sk="Odovzdávanie" en="Submission" /></h2>
           </div>
+          <p class="project-meta"><strong><LocalizedText {...finalAssessment.deadline} /></strong></p>
           <p>
             <LocalizedText
               sk="Zdrojový kód sa bude odovzdávať prostredníctvom Git repozitára podľa pravidiel predmetu. Finálny repozitár musí obsahovať zdrojový kód, README, dependency/configuration files, dokumentáciu PDF, potrebné assets/datasets a testy, ak sú súčasťou projektu."
@@ -614,6 +618,7 @@ Video / Video                           10
             />
           </p>
           <h3>README</h3>
+          <p><LocalizedText sk="Pôvodné zadanie, pravidlá a hodnotiace kritériá v pridelenom README nemažte ani nemeňte. Doplňte údaje o svojom projekte a udržiavajte aktuálny návod na spustenie." en="Do not remove or change the original assignment, rules or grading criteria in the provided README. Fill in your project details and keep the running instructions up to date." /></p>
           <pre class="expected-output"><code>{`Názov projektu / Project title
 Krátky popis / Short description
 Autor / Author
@@ -684,6 +689,8 @@ Základné použitie / Basic usage`}</code></pre>
           <div class="project-section__heading">
             <h2><LocalizedText sk="Celkové hodnotenie" en="Overall Grading" /></h2>
           </div>
+          <p><LocalizedText {...finalAssessment.review} /></p>
+          <p><LocalizedText {...finalAssessment.defence} /></p>
           <table class="content-table project-table score-table">
             <thead>
               <tr>

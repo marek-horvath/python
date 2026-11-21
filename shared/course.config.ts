@@ -11,6 +11,10 @@ export const courseConfig = {
   currentWeek: 6,
   unlockAll: true,
   timezone: "Europe/Bratislava",
+  project: {
+    finalSubmissionAt: "2026-12-13T23:59:59+01:00",
+    defencePeriod: { sk: "január 2027", en: "January 2027" }
+  },
   lecturer: {
     name: "Ing. Marek Horváth, PhD.",
     email: "marek.horvath@tuke.sk"

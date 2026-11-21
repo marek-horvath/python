@@ -27,13 +27,19 @@ Samotný import knižnice sa nepočíta. Každá zvolená technológia musí rie
 
 | Časť | Termín | Body |
 | --- | --- | ---: |
-| MVP - prvá funkčná verzia | 6. týždeň semestra | 30 |
-| Finálna aplikácia | 11.-13. týždeň semestra | 40 |
+| MVP - prvá funkčná verzia | 31. 10. 2026 do 23:59 | 30 |
+| Finálna aplikácia | 13. 12. 2026 do 23:59 (koniec 12. týždňa) | 40 |
 | Technická dokumentácia PDF | finálne odovzdanie | 20 |
 | Približne 5-minútové video | finálne odovzdanie | 10 |
 | **Spolu** | | **100** |
 
 MVP musí obsahovať reálny spustiteľný kód a základ hlavnej funkcionality. Nestačí prázdna štruktúra, mockup ani dokument s návrhom.
+
+Finálny projekt odovzdajte do svojho prideleného Git repozitára. Pred termínom skontrolujte miesto odovzdania, štruktúru a úplnosť súborov. Pôvodné zadanie, pravidlá a hodnotiace kritériá v tomto README zachovajte; doplňte informácie o svojom projekte a aktuálny návod na spustenie. Termín platí v časovom pásme Europe/Bratislava.
+
+Po kontrole dostanete predbežný návrh bodov podobne ako pri MVP. Body si musíte obhájiť **osobne v škole v januári 2027**, v skúškovom období. Termíny budú vypísané v **MAIS-e**, kde sa na jeden prihlásite. Pri obhajobe vysvetlíte svoj kód a technické rozhodnutia; navrhnuté body vám zostanú alebo sa pri zistení nedostatkov znížia.
+
+Pri preukázanom plagiátorstve, projekte vytvorenom niekým iným alebo kompletne AI vygenerovanom projekte bez vlastnej práce a porozumenia môžete prísť o všetky body, nesplniť podmienky predmetu a musieť ho opakovať. Používanie AI ako pomocného nástroja je povolené; za riešenie a jeho pochopenie zodpovedáte vy.
 
 ## Požadovaný obsah repozitára
 
